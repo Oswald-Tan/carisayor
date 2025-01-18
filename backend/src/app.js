@@ -1,0 +1,146 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import session from "express-session";
+import SequelizeStore from "connect-session-sequelize";
+import db from "./config/database.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import cron from "node-cron";
+import moment from "moment";
+import { Op } from "sequelize";
+import AfiliasiBonus from "./models/afiliasiBonus.js";
+
+// Mendapatkan direktori saat ini
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
+
+//app
+import Auth from "./routes/app/authRoute.js";
+import PoinApp from "./routes/app/poinRoute.js";
+import HargaApp from "./routes/app/hargaPoinRoute.js";
+import DiscountApp from "./routes/app/discountRoute.js";
+import TopUpPoinApp from "./routes/app/topUpPoinRoute.js";
+import PesananApp from "./routes/app/pesananRoute.js";
+import ProductsApp from "./routes/app/productRoute.js";
+import CartApp from "./routes/app/cartRoute.js";
+import AfiliasiBonusApp from "./routes/app/afiliasiBonusRoute.js";
+import SettingApp from "./routes/app/settingRoute.js";
+
+//web
+import AuthWeb from "./routes/web/authWebRoute.js";
+import User from "./routes/web/usersRoute.js";
+import Products from "./routes/web/productRoute.js";
+import Harga from "./routes/web/hargaPoinRoute.js";
+import Poin from "./routes/web/poinRoute.js";
+import Discount from "./routes/web/discountRoute.js";
+import TopUpPoin from "./routes/web/topUpPoinRoute.js";
+import Pesanan from "./routes/web/pesananRoute.js";
+import Setting from "./routes/web/settingRoute.js";
+
+const app = express();
+
+const sessionStore = SequelizeStore(session.Store);
+
+const store = new sessionStore({
+  db: db,
+});
+
+// app.use(
+//   session({
+//     secret: process.env.SESS_SECRET,
+//     resave: false,
+//     saveUninitialized: true,
+//     store: store, //simpan session ke database
+//     cookie: {
+//       secure: "auto",
+//     },
+//   })
+// );
+
+const sessionMiddleware = session({
+  secret: process.env.SESS_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: store, // Simpan session ke database
+  cookie: {
+    secure: "auto",
+  },
+});
+
+app.use(express.json());
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  })
+);
+
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+//app
+app.use("/api/v1/auth", Auth);
+app.use("/api/v1/poin-app", PoinApp);
+app.use("/api/v1/harga-poin-app", HargaApp);
+app.use("/api/v1/discount-app", DiscountApp);
+app.use("/api/v1/topup-app", TopUpPoinApp);
+app.use("/api/v1/pesanan-app", PesananApp);
+app.use("/api/v1/products-app", ProductsApp);
+app.use("/api/v1/cart-app", CartApp);
+app.use("/api/v1/afiliasi-bonus-app", AfiliasiBonusApp);
+app.use("/api/v1/settings-app", SettingApp);
+
+//web
+// Terapkan session hanya untuk rute web
+app.use("/api/v1/auth-web", sessionMiddleware, AuthWeb);
+app.use("/api/v1/users", sessionMiddleware, User);
+app.use("/api/v1/products", sessionMiddleware, Products);
+app.use("/api/v1/harga", sessionMiddleware, Harga);
+app.use("/api/v1/poin", sessionMiddleware, Poin);
+app.use("/api/v1/discount", sessionMiddleware, Discount);
+app.use("/api/v1/topup", sessionMiddleware, TopUpPoin);
+app.use("/api/v1/pesanan", sessionMiddleware, Pesanan);
+app.use("/api/v1/settings", sessionMiddleware, Setting);
+
+//jadwal cron job untuk memeriksa bonus yang sudah expired
+cron.schedule("0 0 * * *", async () => {
+  console.log("Running cron job to update expired bonuses...");
+
+  try {
+    const currentDate = moment().toDate(); //tanggal saat ini
+
+    //update status menjadi expired jika melewati expiryDate
+    const result = await AfiliasiBonus.update(
+      { status: "expired" }, //set status ke expired
+      {
+        where: {
+          status: "pending",
+          expiryDate: {
+            [Op.lt]: currentDate,
+          },
+        },
+      }
+    );
+
+    console.log(`result ${result[0]} bonuses to status "expired".`);
+  } catch (error) {
+    console.error("Error updating expired bonuses:", error);
+  }
+});
+
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

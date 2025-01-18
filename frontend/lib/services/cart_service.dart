@@ -1,0 +1,169 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:frontend/providers/user_provider.dart';
+import 'package:frontend/api/config.dart';
+import 'package:provider/provider.dart';
+import 'package:frontend/model/cart_item.dart';
+
+class CartService {
+  final Dio _dio = Dio();
+
+  Future<void> addToCart(
+      BuildContext context, String userId, String productId, int berat) async {
+    try {
+      // Ambil ID pengguna dan token dari UserProvider
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final token = userProvider.token;
+
+      if (token == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final response = await _dio.post(
+        '$baseUrl/cart-app',
+        data: {'userId': userId, 'productId': productId, 'berat': berat},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token', // Menambahkan token ke header
+          },
+        ),
+      );
+
+      // Periksa apakah status code berhasil (200 OK atau 201 Created)
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Pesanan berhasil: ${response.data}');
+        // Menangani keberhasilan
+      } else {
+        print('Failed with status: ${response.statusCode}');
+        throw Exception('Failed to add to cart');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Failed to add to cart');
+    }
+  }
+
+  Future<List<CartItem>> getCartItems(BuildContext context) async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final token = userProvider.token;
+      final userId = userProvider.userId;
+
+      if (token == null || userId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final response = await _dio.get(
+        '$baseUrl/cart-app/$userId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        // Tangani kondisi keranjang kosong
+        if (response.data['cart'] == null ||
+            (response.data['cart'] as List).isEmpty) {
+          print('Keranjang kosong untuk user $userId');
+          return []; // Mengembalikan array kosong
+        }
+
+        // Konversi data menjadi List<CartItem>
+        List<CartItem> cartItems = (response.data['cart'] as List)
+            .map((item) => CartItem.fromJson(item))
+            .toList();
+        return cartItems;
+      } else {
+        throw Exception(
+            'Gagal memuat keranjang (status: ${response.statusCode})');
+      }
+    } catch (e, stackTrace) {
+      // Log error untuk debug
+      print('Error in getCartItems: $e');
+      print('StackTrace: $stackTrace');
+
+      // Tangani error selain autentikasi dengan array kosong
+      if (e.toString().contains('User not authenticated')) {
+        rethrow; // Lempar ulang error autentikasi
+      }
+
+      return []; // Mengembalikan array kosong jika error lain
+    }
+  }
+
+  // Memperbarui jumlah berat di keranjang
+  Future<void> updateCartItem(
+      BuildContext context, String userId, String productId, int berat) async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final token = userProvider.token;
+
+      if (token == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final response = await _dio.post(
+        '$baseUrl/cart-app/update-berat',
+        data: {
+          'userId': userId,
+          'productId': productId,
+          'berat': berat,
+        },
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        print('Keranjang berhasil diperbarui');
+      } else {
+        throw Exception('Failed to update cart item on the server');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Failed to update cart item');
+    }
+  }
+
+  Future<int> getCartItemCount(BuildContext, context) async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final token = userProvider.token;
+      final userId = userProvider.userId;
+
+      if (token == null || userId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final response = await _dio.get(
+        '$baseUrl/cart-app/item-count/$userId', // URL endpoint untuk mendapatkan jumlah item
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        int itemCount = response.data['itemCount'];
+        print(
+            'Cart item count: $itemCount'); // Menambahkan print untuk memverifikasi nilai itemCount
+        return itemCount;
+      } else {
+        throw Exception(
+            'Gagal memuat jumlah item keranjang (status: ${response.statusCode})');
+      }
+    } catch (e, stackTrace) {
+      print('Error in getCartItemCount: $e');
+      print('StackTrace: $stackTrace');
+      throw Exception('Failed to get cart item count');
+    }
+  }
+}
