@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { API_URL } from "../config";
 import { useParams } from "react-router-dom";
-import formatDate from "../utils/formateDate";
+import { formatDate } from "../utils/formateDate";
 
 const UserStats = () => {
   const { id } = useParams();

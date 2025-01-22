@@ -55,7 +55,6 @@ const UserDetails = () => {
                 <th className="px-4 py-2 border-b">Fullname</th>
                 <th className="px-4 py-2 border-b">Phone Number</th>
                 <th className="px-4 py-2 border-b">Image</th>
-                <th className="px-4 py-2 border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -65,9 +64,6 @@ const UserDetails = () => {
                 <td className="px-4 py-2 border-b">{userDetails.fullname || "-"}</td>
                 <td className="px-4 py-2 border-b">{userDetails.phone_number || "-"}</td>
                 <td className="px-4 py-2 border-b">{userDetails.photo_profile || "-"}</td>
-                <td className="px-4 py-2 border-b">
-                  {/* Actions */}
-                </td>
               </tr>
             </tbody>
           </table>

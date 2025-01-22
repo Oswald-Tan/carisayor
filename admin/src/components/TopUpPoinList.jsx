@@ -3,7 +3,7 @@ import axios from "axios";
 import { API_URL } from "../config";
 import ButtonAction from "./ui/ButtonAction";
 import { MdEditSquare, MdDelete } from "react-icons/md";
-import formatDate from "../utils/formateDate";
+import { formatDate } from "../utils/formateDate";
 import ReactPaginate from "react-paginate";
 import { MdSearch } from "react-icons/md";
 

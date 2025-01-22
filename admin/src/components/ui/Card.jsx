@@ -7,7 +7,7 @@ const Card = ({ title, count, icon, iconColor }) => {
         <h5 className="text-sm text-gray-700">{title}</h5>
         <p className="text-2xl font-bold text-gray-900">{count}</p>
       </div>
-      <div className={`text-2xl ${iconColor}`}>{icon}</div>
+      <div className={`text-2xl bg-gray-100 p-2 rounded-full ${iconColor}`}>{icon}</div>
     </div>
   );
 };

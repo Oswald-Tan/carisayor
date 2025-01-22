@@ -6,7 +6,7 @@ import Button from "./ui/Button";
 import ButtonAction from "./ui/ButtonAction";
 import { RiApps2AddFill } from "react-icons/ri";
 import { MdEditSquare, MdDelete, MdSearch } from "react-icons/md";
-import { BiSolidUserDetail, BiStats  } from "react-icons/bi";
+import { BiSolidUserDetail, BiStats } from "react-icons/bi";
 import ReactPaginate from "react-paginate";
 
 const UserList = () => {
@@ -82,50 +82,54 @@ const UserList = () => {
     <>
       <div>
         <h2 className="text-2xl font-semibold mb-4">Users</h2>
+
+        <div className="flex justify-between items-center">
         <Button
-          text="Add New"
-          to="/users/add"
-          iconPosition="left"
-          icon={<RiApps2AddFill />}
-          width={"w-[120px]"}
-        />
+            text="Add New"
+            to="/users/add"
+            iconPosition="left"
+            icon={<RiApps2AddFill />}
+            width={"w-[120px] "}
+          />
+          <div className="flex gap-2">
+            {/* Search filter */}
+            <form onSubmit={searchData}>
+              <div className="flex items-center relative w-[220px]">
+                <input
+                  type="text"
+                  className="pr-10 pl-4 py-2 border border-gray-300 rounded-md w-full text-xs"
+                  placeholder="Search..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                <MdSearch
+                  size={20}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
+              </div>
+            </form>
 
-        <div className="flex justify-between mt-5">
-          {/* Search filter */}
-          <form onSubmit={searchData}>
-            <div className="flex items-center relative w-[250px]">
-              <input
-                type="text"
-                className="pr-10 pl-4 py-2 border border-gray-300 rounded-md w-full text-sm"
-                placeholder="Search..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <MdSearch
-                size={20}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
-            </div>
-          </form>
+            {/* Limit filter */}
+            <form>
+              <div className="flex items-center">
+                <select
+                  id="limit"
+                  name="limit"
+                  className="px-4 py-2 border border-gray-300 rounded-md text-xs appearance-none"
+                  onChange={(e) => {
+                    setLimit(e.target.value);
+                  }}
+                >
+                  <option value="">Select Limit</option>
+                  <option value="10">10</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </form>
+          </div>
 
-          {/* Limit filter */}
-          <form>
-            <div className="flex items-center">
-              <select
-                id="limit"
-                name="limit"
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm"
-                onChange={(e) => {
-                  setLimit(e.target.value);
-                }}
-              >
-                <option value="">Select Limit</option>
-                <option value="10">10</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-            </div>
-          </form>
+         
         </div>
 
         <div className="mt-5 overflow-x-auto bg-white rounded-xl p-4">
@@ -162,7 +166,7 @@ const UserList = () => {
                         />
                         <ButtonAction
                           to={`/users/${user.id}/stats`}
-                          icon={<BiStats  />}
+                          icon={<BiStats />}
                           className={"bg-purple-600 hover:bg-purple-700"}
                         />
                         <ButtonAction
