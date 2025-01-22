@@ -89,139 +89,151 @@ class PaymentSelectionCart extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Konfirmasi Pembayaran',
+                'Pembayaran COD',
                 style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                   color: const Color(0xFF1F2131),
-                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text('COD',
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 10),
-              Text('Nama Produk:', style: GoogleFonts.poppins()),
-              Column(
-                children: selectedProducts.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  var item = entry.value;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Nama Produk
-                      Expanded(
-                        flex: 2,
-                        child: Row(
-                          children: [
-                            Text('${index + 1}. '),
-                            Expanded(
-                              child: Text(
-                                item.product.nameProduk,
-                                style: GoogleFonts.poppins(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Berat Produk
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          '${selectedProducts[index].berat} ${item.product.satuan}',
-                          style: GoogleFonts.poppins(),
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 10),
-              Text('Total Harga Produk: ${formatRupiah(totalHarga)}',
-                  style: GoogleFonts.poppins()),
-              Text('Ongkir: ${formatRupiah(ongkir)}',
-                  style: GoogleFonts.poppins()),
-              const SizedBox(height: 20),
-              Text(
-                'Total Bayar: ${formatRupiah(totalBayar)}',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'Batal',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1F2131),
-                      ),
+                  Text(
+                    "Harga Produk",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  TextButton(
-                    onPressed: () async {
-                      try {
-                        List<CartItem> cartItems = selectedProducts;
-                        String namesWithWeights =
-                            cartItems.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          CartItem item = entry.value;
-                          return '${item.product.nameProduk} (${cartItems[index].berat} ${item.product.satuan})';
-                        }).join(', ');
-
-                        bool berhasil =
-                            await PesananService().bayarDenganCODCart(
-                          context,
-                          namesWithWeights,
-                          totalHarga,
-                          ongkir,
-                          totalBayar,
-                        );
-
-                        if (berhasil) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OrderConfirmationCartPage(
-                                namaProduk: selectedProducts.map((item) {
-                                  return '${item.product.nameProduk} (${item.product.jumlah} ${item.product.satuan})';
-                                }).toList(),
-                                jumlah: selectedProducts
-                                    .map((item) => item.berat.toString())
-                                    .toList(),
-                                satuan: selectedProducts.first.product.satuan,
-                                hargaProduk: selectedProducts.map((item) {
-                                  return formatRupiah(item.product.hargaRp);
-                                }).toList(),
-                                totalHarga: formatRupiah(totalHarga),
-                                ongkir: formatRupiah(ongkir),
-                                totalBayar: formatRupiah(totalBayar),
-                              ),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        debugPrint('Error: $e');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Gagal memproses pesanan: $e')),
-                        );
-                      }
-                    },
-                    child: Text(
-                      'Ya',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1F2131),
-                      ),
+                  Text(
+                    formatRupiah(totalHarga),
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF1F2131),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Ongkir",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    formatRupiah(ongkir),
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF1F2131),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Divider(color: Color(0xFFE2E3E6), thickness: 1),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Total Bayar",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    formatRupiah(totalBayar),
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF1F2131),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    int id = selectedProducts.first.product.id;
+                    List<CartItem> cartItems = selectedProducts;
+                    String invoiceNumber =
+                        'INV-${DateTime.now().millisecondsSinceEpoch}';
+                    String namesWithWeights =
+                        cartItems.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      CartItem item = entry.value;
+                      return '${item.product.nameProduk} (${cartItems[index].berat} ${item.product.satuan})';
+                    }).join(', ');
+
+                    bool berhasil = await PesananService().bayarDenganCODCart(
+                      context,
+                      id.toString(),
+                      namesWithWeights,
+                      totalHarga,
+                      ongkir,
+                      totalBayar,
+                      invoiceNumber,
+                    );
+
+                    if (berhasil) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OrderConfirmationCartPage(
+                            namaProduk: selectedProducts.map((item) {
+                              return '${item.product.nameProduk} (${item.product.jumlah} ${item.product.satuan})';
+                            }).toList(),
+                            jumlah: selectedProducts
+                                .map((item) => item.berat.toString())
+                                .toList(),
+                            satuan: selectedProducts.first.product.satuan,
+                            hargaProduk: selectedProducts.map((item) {
+                              return formatRupiah(item.product.hargaRp);
+                            }).toList(),
+                            totalHarga: formatRupiah(totalHarga),
+                            ongkir: formatRupiah(ongkir),
+                            totalBayar: formatRupiah(totalBayar),
+                            invoiceNumber: invoiceNumber,
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    debugPrint('Error: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gagal memproses pesanan: $e')),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF74B11A),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  'Confirm',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ],
           ),
@@ -255,139 +267,176 @@ class PaymentSelectionCart extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Konfirmasi Pembayaran',
+                'Pembayaran POIN',
                 style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                   color: const Color(0xFF1F2131),
-                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text('Poin',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                  )),
-              const SizedBox(height: 10),
-              Text('Nama Produk: ', style: GoogleFonts.poppins()),
-              Column(
-                children: selectedProducts.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  var item = entry.value;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Nama Produk
-                      Expanded(
-                        flex: 2,
-                        child: Row(
-                          children: [
-                            Text('${index + 1}. '),
-                            Expanded(
-                              child: Text(
-                                item.product.nameProduk,
-                                style: GoogleFonts.poppins(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Berat Produk
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          '${selectedProducts[index].berat} ${item.product.satuan}', // Ambil berat dari selectedProducts
-                          style: GoogleFonts.poppins(),
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-              Text('Total Harga Produk: ${totalPoin} Poin',
-                  style: GoogleFonts.poppins()),
-              Text(
-                'Ongkir: $ongkirDalamPoin',
-                style: GoogleFonts.poppins(),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Total Bayar: ${totalBayar} Poin',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'Batal',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1F2131),
-                      ),
+                  Text(
+                    "Harga Produk",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
                     ),
                   ),
-                  TextButton(
-                    onPressed: () async {
-                      try {
-                        List<CartItem> cartItems = selectedProducts;
-                        String namesWithWeights =
-                            cartItems.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          CartItem item = entry.value;
-                          return '${item.product.nameProduk} (${cartItems[index].berat} ${item.product.satuan})';
-                        }).join(', ');
-
-                        // Cek apakah poin cukup terlebih dahulu
-                        bool berhasil =
-                            await PesananService().bayarDenganPoinCart(
-                          context,
-                          namesWithWeights,
-                          totalPoin,
-                          ongkirDalamPoin,
-                          totalBayar,
-                        );
-
-                        // Navigasi hanya jika pembayaran berhasil
-                        if (berhasil) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => OrderConfirmationCartPage(
-                                      namaProduk: selectedProducts.map((item) {
-                                        return '${item.product.nameProduk} (${item.product.jumlah} ${item.product.satuan})';
-                                      }).toList(),
-                                      jumlah: selectedProducts
-                                          .map((item) => item.berat.toString())
-                                          .toList(),
-                                      satuan:
-                                          selectedProducts.first.product.satuan,
-                                      hargaProduk: selectedProducts.map((item) {
-                                        return '${item.product.hargaPoin}';
-                                      }).toList(),
-                                      totalHarga: '$totalPoin',
-                                      ongkir: '$ongkirDalamPoin',
-                                      totalBayar: '$totalBayar',
-                                    )),
-                          );
-                        }
-                      } catch (e) {
-                        debugPrint('Error: $e');
-                      }
-                    },
-                    child: Text(
-                      'Ya',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1F2131),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/poin_cs.png',
+                        width: 16,
                       ),
-                    ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '$totalPoin',
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Ongkir",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/poin_cs.png',
+                        width: 16,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '$ongkirDalamPoin',
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Divider(color: Color(0xFFE2E3E6), thickness: 1),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Total Bayar",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/poin_cs.png',
+                        width: 16,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '$totalBayar',
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    int id = selectedProducts.first.product.id;
+                    List<CartItem> cartItems = selectedProducts;
+                    String invoiceNumber =
+                        'INV-${DateTime.now().millisecondsSinceEpoch}';
+                    String namesWithWeights =
+                        cartItems.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      CartItem item = entry.value;
+                      return '${item.product.nameProduk} (${cartItems[index].berat} ${item.product.satuan})';
+                    }).join(', ');
+
+                    // Cek apakah poin cukup terlebih dahulu
+                    bool berhasil = await PesananService().bayarDenganPoinCart(
+                      context,
+                      id.toString(),
+                      namesWithWeights,
+                      totalPoin,
+                      ongkirDalamPoin,
+                      totalBayar,
+                      invoiceNumber,
+                    );
+
+                    // Navigasi hanya jika pembayaran berhasil
+                    if (berhasil) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => OrderConfirmationCartPage(
+                                  namaProduk: selectedProducts.map((item) {
+                                    return '${item.product.nameProduk} (${item.product.jumlah} ${item.product.satuan})';
+                                  }).toList(),
+                                  jumlah: selectedProducts
+                                      .map((item) => item.berat.toString())
+                                      .toList(),
+                                  satuan: selectedProducts.first.product.satuan,
+                                  hargaProduk: selectedProducts.map((item) {
+                                    return '${item.product.hargaPoin}';
+                                  }).toList(),
+                                  totalHarga: '$totalPoin',
+                                  ongkir: '$ongkirDalamPoin',
+                                  totalBayar: '$totalBayar',
+                                  invoiceNumber: invoiceNumber,
+                                )),
+                      );
+                    }
+                  } catch (e) {
+                    debugPrint('Error: $e');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF74B11A),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  'Confirm',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ],
           ),

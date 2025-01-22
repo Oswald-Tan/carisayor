@@ -20,6 +20,7 @@ String formatRupiah(int value) {
 final Dio _dio = Dio();
 
 class PaymentSelection extends StatelessWidget {
+  final String? id;
   final String nama;
   final int hargaRp;
   final int hargaPoin;
@@ -30,6 +31,7 @@ class PaymentSelection extends StatelessWidget {
 
   const PaymentSelection({
     super.key,
+    this.id,
     required this.nama,
     required this.hargaRp,
     required this.hargaPoin,
@@ -193,7 +195,7 @@ class PaymentSelection extends StatelessWidget {
                   try {
                     String nameWithWeight = '$nama ($berat $satuan)';
                     String invoiceNumber =
-                        'INV-${DateTime.now().millisecondsSinceEpoch}'; // Generate nomor invoice berdasarkan waktu
+                        'INV-${DateTime.now().millisecondsSinceEpoch}';
                     bool berhasil = await PesananService().bayarDenganCOD(
                       context,
                       nameWithWeight,
@@ -216,8 +218,7 @@ class PaymentSelection extends StatelessWidget {
                             ongkir: formatRupiah(ongkir),
                             totalBayar: formatRupiah(totalBayar),
                             totalBayarSemua: formatRupiah(totalBayarSemua),
-                            invoiceNumber:
-                                invoiceNumber, // Terima nomor invoice di halaman konfirmasi
+                            invoiceNumber: invoiceNumber,
                           ),
                         ),
                       );

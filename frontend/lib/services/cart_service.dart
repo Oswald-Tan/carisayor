@@ -31,14 +31,14 @@ class CartService {
 
       // Periksa apakah status code berhasil (200 OK atau 201 Created)
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Pesanan berhasil: ${response.data}');
+        debugPrint('Pesanan berhasil: ${response.data}');
         // Menangani keberhasilan
       } else {
-        print('Failed with status: ${response.statusCode}');
+        debugPrint('Failed with status: ${response.statusCode}');
         throw Exception('Failed to add to cart');
       }
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
       throw Exception('Failed to add to cart');
     }
   }
@@ -66,7 +66,7 @@ class CartService {
         // Tangani kondisi keranjang kosong
         if (response.data['cart'] == null ||
             (response.data['cart'] as List).isEmpty) {
-          print('Keranjang kosong untuk user $userId');
+          debugPrint('Keranjang kosong untuk user $userId');
           return []; // Mengembalikan array kosong
         }
 
@@ -81,8 +81,8 @@ class CartService {
       }
     } catch (e, stackTrace) {
       // Log error untuk debug
-      print('Error in getCartItems: $e');
-      print('StackTrace: $stackTrace');
+      debugPrint('Error in getCartItems: $e');
+      debugPrint('StackTrace: $stackTrace');
 
       // Tangani error selain autentikasi dengan array kosong
       if (e.toString().contains('User not authenticated')) {
@@ -118,16 +118,16 @@ class CartService {
         ),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.data}');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.data}');
 
       if (response.statusCode == 200) {
-        print('Keranjang berhasil diperbarui');
+        debugPrint('Keranjang berhasil diperbarui');
       } else {
         throw Exception('Failed to update cart item on the server');
       }
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
       throw Exception('Failed to update cart item');
     }
   }
@@ -143,7 +143,7 @@ class CartService {
       }
 
       final response = await _dio.get(
-        '$baseUrl/cart-app/item-count/$userId', // URL endpoint untuk mendapatkan jumlah item
+        '$baseUrl/cart-app/item-count/$userId',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -153,17 +153,52 @@ class CartService {
 
       if (response.statusCode == 200) {
         int itemCount = response.data['itemCount'];
-        print(
-            'Cart item count: $itemCount'); // Menambahkan print untuk memverifikasi nilai itemCount
+        debugPrint('Cart item count: $itemCount');
         return itemCount;
       } else {
         throw Exception(
             'Gagal memuat jumlah item keranjang (status: ${response.statusCode})');
       }
     } catch (e, stackTrace) {
-      print('Error in getCartItemCount: $e');
-      print('StackTrace: $stackTrace');
+      debugPrint('Error in getCartItemCount: $e');
+      debugPrint('StackTrace: $stackTrace');
       throw Exception('Failed to get cart item count');
+    }
+  }
+
+  // Hapus item di keranjang berdasarkan cartId
+  Future<void> deleteCartItem(
+      BuildContext context, String userId, String cartId) async {
+    try {
+      // Ambil token pengguna dari UserProvider
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final token = userProvider.token;
+
+      if (token == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Kirim request DELETE ke backend
+      final response = await _dio.delete(
+        '$baseUrl/cart-app/$cartId',
+        data: {'userId': userId},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('Cart item deleted successfully: ${response.data}');
+      } else {
+        throw Exception(
+            'Failed to delete cart item (status: ${response.statusCode})');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error in deleteCartItem: $e');
+      debugPrint('StackTrace: $stackTrace');
+      throw Exception('Failed to delete cart item');
     }
   }
 }

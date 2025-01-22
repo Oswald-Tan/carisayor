@@ -112,7 +112,7 @@ class _AddressPageState extends State<AddressPage> {
                                         TextSpan(
                                           text: ' | ${address.phoneNumber}',
                                           style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                             color: Colors.grey,
                                           ),

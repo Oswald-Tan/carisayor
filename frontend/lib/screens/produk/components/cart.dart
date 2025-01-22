@@ -27,6 +27,7 @@ class _CartScreenState extends State<CartScreen> {
   late Future<List<CartItem>> _cartItemsFuture;
   List<int> selectedProducts = [];
   bool selectAll = false;
+  bool isEditMode = false;
 
   @override
   void initState() {
@@ -50,6 +51,7 @@ class _CartScreenState extends State<CartScreen> {
 
   // Fungsi untuk menambah/menghapus produk ke daftar pilihan
   void _toggleProductSelection(int productId) {
+    debugPrint('Product ID: $productId');
     setState(() {
       if (selectedProducts.contains(productId)) {
         selectedProducts.remove(productId); // Hapus jika sudah dipilih
@@ -138,7 +140,33 @@ class _CartScreenState extends State<CartScreen> {
         const SnackBar(content: Text('Gagal memperbarui berat produk.')),
       );
 
-      print('Error updating cart item: $e');
+      debugPrint('Error updating cart item: $e');
+    }
+  }
+
+  void _deleteCartItem(String cartId) async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final userId = userProvider.userId;
+
+      if (userId == null) {
+        throw Exception('User ID not available');
+      }
+
+      // Konversi userId (int) ke String
+      await CartService().deleteCartItem(context, userId.toString(), cartId);
+
+      // Refresh data keranjang setelah item dihapus
+      await _refreshCartItems();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Item berhasil dihapus dari keranjang.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal menghapus item dari keranjang.')),
+      );
+      debugPrint('Error deleting cart item: $e');
     }
   }
 
@@ -160,6 +188,26 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                isEditMode = !isEditMode; // Toggle between Edit and Done mode
+                if (!isEditMode) {
+                  selectedProducts
+                      .clear(); // Clear selection when exiting edit mode
+                }
+              });
+            },
+            child: Text(
+              isEditMode ? 'Done' : 'Edit',
+              style: GoogleFonts.poppins(
+                color: const Color(0xFF589400),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFFF0F1F5),
       body: RefreshIndicator(
@@ -585,31 +633,43 @@ class _CartScreenState extends State<CartScreen> {
                     onPressed: selectedProducts.isEmpty
                         ? null
                         : () {
-                            final List<CartItem> selectedCartItems = cartItems
-                                .where((item) =>
-                                    selectedProducts.contains(item.product.id))
-                                .toList();
+                            if (isEditMode) {
+                              // Delete selected products from cart
+                              for (var productId in selectedProducts) {
+                                final cartItem = cartItems.firstWhere(
+                                    (item) => item.product.id == productId);
+                                _deleteCartItem(cartItem.id.toString());
+                              }
+                            } else {
+                              // Navigasi ke halaman pembayaran
+                              final List<CartItem> selectedCartItems = cartItems
+                                  .where((item) => selectedProducts
+                                      .contains(item.product.id))
+                                  .toList();
 
-                            final int totalHarga = getTotalHarga(cartItems);
-                            final int totalPoin = getTotalPoin(cartItems);
+                              final int totalHarga = getTotalHarga(cartItems);
+                              final int totalPoin = getTotalPoin(cartItems);
 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PaymentSelectionCart(
-                                  selectedProducts: selectedCartItems,
-                                  totalHarga: totalHarga,
-                                  totalPoin: totalPoin,
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PaymentSelectionCart(
+                                    selectedProducts: selectedCartItems,
+                                    totalHarga: totalHarga,
+                                    totalPoin: totalPoin,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
                           },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: const Color(0xFF74B11A),
                     ),
                     child: Text(
-                      'Checkout (${selectedProducts.length})',
+                      isEditMode
+                          ? 'Hapus (${selectedProducts.length})'
+                          : 'Checkout (${selectedProducts.length})',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
                         color: Colors.white,

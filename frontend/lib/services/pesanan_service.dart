@@ -120,8 +120,8 @@ class PesananService {
     }
   }
 
-  Future<bool> bayarDenganCODCart(BuildContext context, String nama,
-      int hargaRp, int ongkir, int totalBayar) async {
+  Future<bool> bayarDenganCODCart(BuildContext context, String id, String nama,
+      int hargaRp, int ongkir, int totalBayar, String invoiceNumber) async {
     try {
       // Ambil ID pengguna dan token dari UserProvider
       final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -136,13 +136,15 @@ class PesananService {
       final response = await _dio.post(
         '$baseUrl/pesanan-app/cod-cart',
         data: {
-          'userId': userId, // Mengirim ID pengguna
+          'userId': userId,
+          'id': id,
           'nama': nama,
           'metodePembayaran': 'COD',
           'hargaRp': hargaRp,
           'ongkir': ongkir,
           'totalBayar': totalBayar,
           'status': 'pending',
+          'invoiceNumber': invoiceNumber,
         },
         options: Options(
           headers: {
@@ -434,8 +436,8 @@ class PesananService {
     }
   }
 
-  Future<bool> bayarDenganPoinCart(BuildContext context, String nama,
-      int hargaPoin, int ongkir, int totalBayar) async {
+  Future<bool> bayarDenganPoinCart(BuildContext context, String id, String nama,
+      int hargaPoin, int ongkir, int totalBayar, String invoiceNumber) async {
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final token = userProvider.token;
@@ -449,12 +451,14 @@ class PesananService {
         '$baseUrl/pesanan-app/poin-cart',
         data: {
           'userId': userId,
+          'id': id,
           'nama': nama,
           'metodePembayaran': 'Poin',
           'hargaPoin': hargaPoin,
           'ongkir': ongkir,
           'totalBayar': totalBayar,
           'status': 'pending',
+          'invoiceNumber': invoiceNumber,
         },
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );

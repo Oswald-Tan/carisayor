@@ -93,9 +93,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String userName = "Not Available"; // Ganti dengan sumber data lain
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
+      // appBar: AppBar(
+      //   elevation: 0,
+      //   scrolledUnderElevation: 0,
+      //   backgroundColor: Colors.white,
+      // ),
       // backgroundColor: const Color(0xFFF0F1F5),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -103,7 +105,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+              padding: const EdgeInsets.only(
+                  left: 20, right: 20, top: 70, bottom: 20),
               child: FutureBuilder<String>(
                 future:
                     Future.delayed(const Duration(seconds: 1), () => userName),
@@ -130,7 +133,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
             //menu
             Menu(
               appVersion: appVersion ?? 'Loading...',

@@ -279,6 +279,7 @@ class _DetailProdukState extends State<DetailProduk> {
                           ),
                         ),
                         builder: (context) => BuyNowModal(
+                          id: widget.id,
                           nama: widget.nama,
                           hargaPoin: widget.hargaPoin,
                           hargaRp: widget.hargaRp,

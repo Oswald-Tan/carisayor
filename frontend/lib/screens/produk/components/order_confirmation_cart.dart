@@ -14,6 +14,7 @@ class OrderConfirmationCartPage extends StatelessWidget {
   final String ongkir;
   final String totalHarga;
   final String totalBayar;
+  final String invoiceNumber;
 
   const OrderConfirmationCartPage({
     required this.namaProduk,
@@ -23,6 +24,7 @@ class OrderConfirmationCartPage extends StatelessWidget {
     required this.ongkir,
     required this.totalHarga,
     required this.totalBayar,
+    required this.invoiceNumber,
     super.key,
   });
 
@@ -33,20 +35,6 @@ class OrderConfirmationCartPage extends StatelessWidget {
     }
 
     return Scaffold(
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: Colors.white,
-      //   title: Text(
-      //     'Order Completed',
-      //     style: GoogleFonts.poppins(
-      //       fontSize: 16,
-      //       fontWeight: FontWeight.w600,
-      //       color: const Color(0xFF1F2131),
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      // ),
-      // backgroundColor: const Color(0xFFF0F1F5),
       backgroundColor: Colors.white,
       body: Center(
         child: Padding(
@@ -95,9 +83,27 @@ class OrderConfirmationCartPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Detail Pesanan",
+                        "Invoice",
                         style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "No Invoice",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            invoiceNumber,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Row(

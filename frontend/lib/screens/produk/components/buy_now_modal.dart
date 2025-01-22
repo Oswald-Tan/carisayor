@@ -7,6 +7,7 @@ final currencyFormat =
     NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
 class BuyNowModal extends StatefulWidget {
+  final String? id;
   final String nama;
   final int hargaRp;
   final int hargaPoin;
@@ -16,6 +17,7 @@ class BuyNowModal extends StatefulWidget {
 
   const BuyNowModal({
     super.key,
+    this.id,
     required this.nama,
     required this.hargaRp,
     required this.hargaPoin,
@@ -215,6 +217,7 @@ class _BuyNowModalState extends State<BuyNowModal> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => PaymentSelection(
+                    id: widget.id,
                     nama: widget.nama,
                     hargaRp: widget.hargaRp,
                     hargaPoin: widget.hargaPoin,

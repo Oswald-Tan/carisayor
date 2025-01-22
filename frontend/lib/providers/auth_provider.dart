@@ -55,6 +55,7 @@ class AuthProvider with ChangeNotifier {
     required String password,
     required String email,
     required String roleName,
+    required String phoneNumber,
     String? referralCode, // Tambahkan field opsional untuk referral code
   }) async {
     final url = Uri.parse('$baseUrl/auth/register');
@@ -65,6 +66,7 @@ class AuthProvider with ChangeNotifier {
         'username': username,
         'password': password,
         'email': email,
+        'phone_number': phoneNumber,
         'role_name': roleName,
       };
 
@@ -90,7 +92,7 @@ class AuthProvider with ChangeNotifier {
         return responseBody['message'];
       }
     } catch (error) {
-      print('Error: $error');
+      debugPrint('Error: $error');
       return 'Internal server error. Please try again later.';
     }
   }
@@ -118,7 +120,7 @@ class AuthProvider with ChangeNotifier {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         final token = data['token'];
-        print('Login successful, token: $token');
+        debugPrint('Login successful, token: $token');
 
         // Simpan token ke SharedPreferences
         await _saveToken(token);

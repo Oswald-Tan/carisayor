@@ -64,6 +64,8 @@ class _TopUpPageState extends State<TopUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
         backgroundColor: Colors.white,
         title: Text(
           'Top Up',

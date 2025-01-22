@@ -91,14 +91,35 @@ class _LoginScreen1State extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 40),
-                    child: Text(
-                      'Login',
-                      style: GoogleFonts.poppins(
-                        fontSize: 40,
-                        color: const Color(0xFF1F2131),
-                        fontWeight: FontWeight.bold,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 30),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.asset(
+                            width: 80,
+                            color: const Color(0XFF74B11A),
+                            "assets/images/login_logo.png",
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            'Welcome Back,',
+                            style: GoogleFonts.poppins(
+                              fontSize: 25,
+                              color: const Color(0xFF1F2131),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Silakan login untuk melanjutkan.', // Teks tambahan
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -145,55 +166,52 @@ class _LoginScreen1State extends State<LoginScreen> {
                             ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Text.rich(
-                    TextSpan(
-                      text: "Don't have an account? ",
-                      style: GoogleFonts.poppins(
-                        color: const Color(0xFF1F2131),
-                        fontSize: 14,
-                      ),
-                      children: [
-                        WidgetSpan(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation,
-                                          secondaryAnimation) =>
-                                      const RegisterScreen(),
-                                  transitionsBuilder: (context, animation,
-                                      secondaryAnimation, child) {
-                                    const begin = Offset(0.0, 1.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.easeInOut;
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const RegisterScreen(),
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              const begin = Offset(0.0, 1.0);
+                              const end = Offset.zero;
+                              const curve = Curves.easeInOut;
 
-                                    var tween = Tween(begin: begin, end: end)
-                                        .chain(CurveTween(curve: curve));
-                                    var offsetAnimation =
-                                        animation.drive(tween);
+                              var tween = Tween(begin: begin, end: end)
+                                  .chain(CurveTween(curve: curve));
+                              var offsetAnimation = animation.drive(tween);
 
-                                    return SlideTransition(
-                                      position: offsetAnimation,
-                                      child: child,
-                                    );
-                                  },
-                                ),
+                              return SlideTransition(
+                                position: offsetAnimation,
+                                child: child,
                               );
                             },
-                            child: Text(
-                              'Register',
-                              style: GoogleFonts.poppins(
-                                  color: const Color(0xFF1F2131),
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
                           ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: const Color(0XFF74B11A),
+                        elevation: 0,
+                        side: const BorderSide(
+                          color: Color(0XFF74B11A),
+                          width: 1,
                         ),
-                      ],
+                      ),
+                      child: Text(
+                        'Create Account',
+                        style:
+                            GoogleFonts.poppins(color: const Color(0XFF74B11A)),
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 20),
                   Container(
                     margin: const EdgeInsets.only(top: 10),
                     width: 47,

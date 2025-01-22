@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:frontend/screens/privacy_policy.dart';
 import 'package:frontend/screens/profile/components/alamat_saya.dart';
+import 'package:frontend/screens/terms_of_use.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Menu extends StatelessWidget {
@@ -15,7 +18,7 @@ class Menu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 110),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -31,10 +34,10 @@ class Menu extends StatelessWidget {
           ),
           const SizedBox(height: 10),
 
-          // Menu 2: Tambahan Baru
+          // Menu 1: Tambahan Baru
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF9F9F9), // Background abu-abu
+              color: Colors.white,
               border: Border.all(
                 color: const Color(0xFFD4D4D4), // Border abu-abu
                 width: 1,
@@ -125,7 +128,121 @@ class Menu extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          // Menu 2: Aplikasi
+          Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Text(
+              'Tentang',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Menu 2: Tambahan Baru
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: const Color(0xFFD4D4D4), // Border abu-abu
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(20), // Sudut membulat
+            ),
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PrivacyPolicyScreen()),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.list_alt_rounded,
+                              color: Color(0xFF1F2131),
+                              size: 22,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Privacy Policy',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: const Color(0xFF1F2131),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 12,
+                          color: Color(0xFFB9B9B9),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Divider(
+                    color: Color(0xFFCCCCCC),
+                    thickness: 1,
+                    height: 0,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const TermsOfUseScreen()),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.shield_outlined,
+                              color: Color(0xFF1F2131),
+                              size: 22,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Terms of use',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: const Color(0xFF1F2131),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 12,
+                          color: Color(0xFFB9B9B9),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Menu 3: Aplikasi
           Padding(
             padding: const EdgeInsets.only(left: 20),
             child: Text(
@@ -139,7 +256,7 @@ class Menu extends StatelessWidget {
           const SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF9F9F9), // Background abu-abu
+              color: Colors.white,
               border: Border.all(
                 color: const Color(0xFFD4D4D4), // Border abu-abu
                 width: 1,
@@ -148,43 +265,6 @@ class Menu extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // Versi Aplikasi
-                GestureDetector(
-                  onTap: () {
-                    // Tambahkan aksi untuk menu tambahan di sini
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.info_outline,
-                          size: 20,
-                          color: Color(0xFF1F2131),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Tentang Aplikasi',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: const Color(0xFF1F2131),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Divider
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Divider(
-                    color: Color(0xFFCCCCCC),
-                    thickness: 1,
-                    height: 0,
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Row(
