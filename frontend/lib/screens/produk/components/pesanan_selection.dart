@@ -76,7 +76,6 @@ class PaymentSelection extends StatelessWidget {
 
   void _bayarDenganCOD(BuildContext context) async {
     int ongkir = 10000;
-    // int totalBayar = (berat / 100).ceil() * hargaRp + ongkir;
 
     int totalBayar;
     if (satuan.toLowerCase() == 'ikat') {
@@ -93,128 +92,157 @@ class PaymentSelection extends StatelessWidget {
     int totalBayarSemua = totalBayar + ongkir;
     debugPrint('total bayar semua: $totalBayarSemua');
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
       builder: (BuildContext context) {
-        return Dialog(
-          insetPadding: EdgeInsets.zero,
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 20,
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            // height: MediaQuery.of(context).size.height * 0.6,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Konfirmasi Pembayaran',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Pembayaran COD',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: const Color(0xFF1F2131),
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Harga Produk",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    formatRupiah(hargaRp),
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF1F2131),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Ongkir",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    formatRupiah(ongkir),
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF1F2131),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Divider(color: Color(0xFFE2E3E6), thickness: 1),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Total Bayar",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    formatRupiah(totalBayarSemua),
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF1F2131),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    String nameWithWeight = '$nama ($berat $satuan)';
+                    String invoiceNumber =
+                        'INV-${DateTime.now().millisecondsSinceEpoch}'; // Generate nomor invoice berdasarkan waktu
+                    bool berhasil = await PesananService().bayarDenganCOD(
+                      context,
+                      nameWithWeight,
+                      hargaRp,
+                      ongkir,
+                      totalBayarSemua,
+                      invoiceNumber, // Kirimkan nomor invoice
+                    );
+
+                    if (berhasil) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OrderConfirmationPage(
+                            namaProduk: nama,
+                            jumlah: '$berat',
+                            satuan: satuan,
+                            beratNormal: beratNormal,
+                            hargaProduk: formatRupiah(hargaRp),
+                            ongkir: formatRupiah(ongkir),
+                            totalBayar: formatRupiah(totalBayar),
+                            totalBayarSemua: formatRupiah(totalBayarSemua),
+                            invoiceNumber:
+                                invoiceNumber, // Terima nomor invoice di halaman konfirmasi
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    debugPrint('Error: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gagal memproses pesanan: $e')),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF74B11A),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  'Confirm',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1F2131),
-                    fontSize: 20,
+                    color: Colors.white,
+                    fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 20),
-                Text('COD',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                    )),
-                const SizedBox(height: 10),
-                Consumer<UserProvider>(
-                  builder: (context, userProvider, child) {
-                    final username = userProvider.username ?? 'User';
-                    return Text(
-                      username,
-                      style: GoogleFonts.poppins(),
-                    );
-                  },
-                ),
-                Text('Nama Produk: $nama', style: GoogleFonts.poppins()),
-                Text('Berat Normal: $beratNormal',
-                    style: GoogleFonts.poppins()),
-                Text('Jumlah: $berat $satuan', style: GoogleFonts.poppins()),
-                Text('Harga Produk: ${formatRupiah(hargaRp)}',
-                    style: GoogleFonts.poppins()),
-                Text('Ongkir: ${formatRupiah(ongkir)}',
-                    style: GoogleFonts.poppins()),
-                const SizedBox(height: 20),
-                Text(
-                  'Total Bayar: ${formatRupiah(totalBayarSemua)}',
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        'Batal',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1F2131),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    TextButton(
-                      onPressed: () async {
-                        try {
-                          String nameWithWeight = '$nama ($berat $satuan)';
-                          await PesananService().bayarDenganCOD(
-                            context,
-                            nameWithWeight,
-                            hargaRp,
-                            ongkir,
-                            totalBayarSemua,
-                          );
-
-                          // Tutup dialog dan tampilkan notifikasi
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => OrderConfirmationPage(
-                                      namaProduk: nama,
-                                      jumlah: '$berat',
-                                      satuan: satuan,
-                                      beratNormal: beratNormal,
-                                      hargaProduk: formatRupiah(hargaRp),
-                                      ongkir: formatRupiah(ongkir),
-                                      totalBayar: formatRupiah(totalBayar),
-                                      totalBayarSemua:
-                                          formatRupiah(totalBayarSemua),
-                                    )),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Pesanan berhasil diproses')),
-                          );
-                        } catch (e) {
-                          debugPrint('Error: $e');
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Gagal memproses pesanan: $e')),
-                          );
-                        }
-                      },
-                      child: Text(
-                        'Ya',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1F2131),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -243,106 +271,182 @@ class PaymentSelection extends StatelessWidget {
     int totalBayarSemua = totalBayar + ongkir;
     debugPrint('total bayar semua: $totalBayarSemua');
 
-    // Tampilkan dialog konfirmasi pembayaran
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 20,
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           ),
-          title: Text(
-            'Konfirmasi Pembayaran',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF1F2131),
-              fontSize: 20,
-            ),
-          ),
-          content: Column(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Poin',
+              Text(
+                'Pembayaran POIN',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: const Color(0xFF1F2131),
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Harga Produk",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/poin_cs.png',
+                        width: 16,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '$totalBayar',
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Ongkir",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/poin_cs.png',
+                        width: 16,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '$ongkir',
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Divider(color: Color(0xFFE2E3E6), thickness: 1),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Total Bayar",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/poin_cs.png',
+                        width: 16,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '$totalBayarSemua',
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    String nameWithWeight = '$nama ($berat $satuan)';
+                    String invoiceNumber =
+                        'INV-${DateTime.now().millisecondsSinceEpoch}';
+                    bool berhasil = await PesananService().bayarDenganPoin(
+                      context,
+                      nameWithWeight,
+                      hargaPoin,
+                      ongkir,
+                      totalBayarSemua,
+                      invoiceNumber,
+                    );
+
+                    // Jika pesanan berhasil, arahkan ke halaman sukses
+                    if (berhasil) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OrderConfirmationPage(
+                            namaProduk: nama,
+                            jumlah: '$berat',
+                            satuan: satuan,
+                            beratNormal: beratNormal,
+                            hargaProduk: '$hargaPoin',
+                            ongkir: '$ongkir',
+                            totalBayar: '$totalBayar',
+                            totalBayarSemua: '$totalBayarSemua',
+                            invoiceNumber: invoiceNumber,
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    debugPrint('Error: $e');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF74B11A),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  'Confirm',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
-                  )),
-              const SizedBox(height: 10),
-              Text('Nama Produk: $nama', style: GoogleFonts.poppins()),
-              Text('Jumlah: ${berat} ${satuan}', style: GoogleFonts.poppins()),
-              Text('Harga Produk: $hargaPoin', style: GoogleFonts.poppins()),
-              Text('Total Harga Produk: $totalBayar',
-                  style: GoogleFonts.poppins()),
-              Text('Ongkir: $ongkir', style: GoogleFonts.poppins()),
-              const SizedBox(height: 20),
-              Text(
-                'Total Bayar + Ongkir: $totalBayarSemua Poin',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Batal',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1F2131),
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  String nameWithWeight = '$nama ($berat $satuan)';
-                  await PesananService().bayarDenganPoin(
-                    context,
-                    nameWithWeight,
-                    hargaPoin,
-                    ongkir,
-                    totalBayarSemua,
-                  );
-
-                  // Navigasi hanya jika pembayaran berhasil
-                  Navigator.pop(context); // Tutup dialog sebelum navigasi
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => OrderConfirmationPage(
-                              namaProduk: nama,
-                              jumlah: '$berat',
-                              satuan: satuan,
-                              beratNormal: beratNormal,
-                              hargaProduk: '$hargaPoin',
-                              ongkir: '$ongkir',
-                              totalBayar: '$totalBayar',
-                              totalBayarSemua: '$totalBayarSemua',
-                            )),
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pesanan berhasil diproses')),
-                  );
-                } catch (e) {
-                  debugPrint('Error: $e');
-                  Navigator.pop(context); // Tutup dialog meskipun terjadi error
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content:
-                            Text('Gagal memproses pesanan: ${e.toString()}')),
-                  );
-                }
-              },
-              child: Text(
-                'Ya',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1F2131),
-                ),
-              ),
-            ),
-          ],
         );
       },
     );

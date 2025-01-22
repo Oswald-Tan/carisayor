@@ -15,6 +15,7 @@ class OrderConfirmationPage extends StatelessWidget {
   final String ongkir;
   final String totalBayar;
   final String totalBayarSemua;
+  final String invoiceNumber;
 
   const OrderConfirmationPage(
       {required this.namaProduk,
@@ -25,6 +26,7 @@ class OrderConfirmationPage extends StatelessWidget {
       required this.ongkir,
       required this.totalBayar,
       required this.totalBayarSemua,
+      required this.invoiceNumber,
       super.key});
 
   @override
@@ -34,20 +36,6 @@ class OrderConfirmationPage extends StatelessWidget {
     }
 
     return Scaffold(
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: Colors.white,
-      //   title: Text(
-      //     'Order Completed',
-      //     style: GoogleFonts.poppins(
-      //       fontSize: 16,
-      //       fontWeight: FontWeight.w600,
-      //       color: const Color(0xFF1F2131),
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      // ),
-      // backgroundColor: const Color(0xFFF0F1F5),
       backgroundColor: Colors.white,
       body: Center(
         child: Padding(
@@ -96,9 +84,27 @@ class OrderConfirmationPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Detail Pesanan",
+                        "Invoice",
                         style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "No Invoice",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            invoiceNumber,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Row(
@@ -126,7 +132,7 @@ class OrderConfirmationPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Date",
+                            "Tanggal",
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                             ),

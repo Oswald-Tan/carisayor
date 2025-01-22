@@ -86,7 +86,8 @@ class Menu extends StatelessWidget {
                     // Navigasi ke halaman alamat
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddressPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const AddressPage()),
                     );
                   },
                   child: Padding(
