@@ -374,6 +374,9 @@ class PaymentSelection extends StatelessWidget {
       totalHargaRp = 0;
     }
 
+    final userProvider = Provider.of<UserProvider>(context);
+    final userId = userProvider.userId;
+
     return Scaffold(
       appBar: AppBar(
         // automaticallyImplyLeading: false,
@@ -394,7 +397,7 @@ class PaymentSelection extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              const Address(),
+              AddressWidget(userId: userId ?? 0),
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(10),

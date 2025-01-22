@@ -388,6 +388,9 @@ class PaymentSelectionCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final userId = userProvider.userId;
+
     return Scaffold(
       appBar: AppBar(
         // automaticallyImplyLeading: false,
@@ -405,7 +408,7 @@ class PaymentSelectionCart extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const Address(),
+            AddressWidget(userId: userId ?? 0),
             const SizedBox(height: 20),
             SizedBox(
               height: MediaQuery.of(context).size.height - 200 - 150,

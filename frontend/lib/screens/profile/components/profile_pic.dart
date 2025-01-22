@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/screens/profile/components/edit_profile.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:provider/provider.dart';
+import 'package:frontend/providers/user_provider.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String profileImageUrl;
@@ -19,11 +21,13 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(
       builder: (BuildContext context) {
-        return Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Profile Image
             Container(
-              width: 65,
-              height: 65,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 image: DecorationImage(
@@ -35,61 +39,68 @@ class ProfileHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Displaying name with shimmer effect if the name is empty
-                  name.isNotEmpty
-                      ? Text(
-                          name,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: const Color(0xFF1F2131),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        )
-                      : Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: Container(
-                            width: 100,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                  8), // Sesuaikan dengan kebutuhan Anda
-                              color: Colors.white,
-                            ),
-                          ),
+            const SizedBox(height: 10),
+
+            // Username
+            name.isNotEmpty
+                ? Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                      final username = userProvider.username ?? 'User';
+                      return Text(
+                        username,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                  const SizedBox(height: 4),
-                  // Displaying email with shimmer effect if the email is empty
-                  email.isNotEmpty
-                      ? Text(
-                          email,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: const Color(0xFF828282),
-                          ),
-                        )
-                      : Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: Container(
-                            width: 120,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                  6), // Sesuaikan dengan kebutuhan Anda
-                              color: Colors.white,
-                            ),
-                          ),
+                      );
+                    },
+                  )
+                : Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 120,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+            const SizedBox(height: 8),
+
+            // Email
+            email.isNotEmpty
+                ? Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                      final email = userProvider.email ?? 'User';
+                      return Text(
+                        email,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: const Color(0xFF828282),
                         ),
-                ],
-              ),
-            ),
-            IconButton(
+                      );
+                    },
+                  )
+                : Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 150,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+            const SizedBox(height: 16),
+
+            // Edit Button
+            TextButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -98,9 +109,23 @@ class ProfileHeader extends StatelessWidget {
                   ),
                 );
               },
-              icon: const Icon(
-                Icons.edit_outlined,
-                color: Color(0xFF1F2131),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.black, // Warna latar belakang hitam
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16), // Sudut membulat
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
+                ),
+              ),
+              child: Text(
+                'Edit Profile',
+                style: GoogleFonts.poppins(
+                  color: Colors.white, // Warna teks putih
+                  fontSize: 12, // Ukuran teks
+                  fontWeight: FontWeight.w600, // Ketebalan teks
+                ),
               ),
             ),
           ],

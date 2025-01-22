@@ -6,6 +6,8 @@ import 'package:frontend/screens/produk/components/pesanan_selection_cart.dart';
 import 'package:frontend/services/cart_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:frontend/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 final currencyFormat =
     NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
@@ -133,7 +135,7 @@ class _CartScreenState extends State<CartScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memperbarui berat produk.')),
+        const SnackBar(content: Text('Gagal memperbarui berat produk.')),
       );
 
       print('Error updating cart item: $e');
@@ -142,6 +144,9 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final userId = userProvider.userId;
+
     return Scaffold(
       appBar: AppBar(
         // automaticallyImplyLeading: false,
@@ -185,10 +190,10 @@ class _CartScreenState extends State<CartScreen> {
                         .shrink(); // Tidak menampilkan apapun jika kosong
                   } else {
                     // Menampilkan Address() jika data ada
-                    return const Column(
+                    return Column(
                       children: [
-                        Address(),
-                        SizedBox(height: 20),
+                        AddressWidget(userId: userId ?? 0),
+                        const SizedBox(height: 20),
                       ],
                     );
                   }
