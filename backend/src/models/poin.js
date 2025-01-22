@@ -22,15 +22,6 @@ const Poin = db.define(
         max: 100
       }
     },
-    // discountValue: {
-    //   type: DataTypes.FLOAT, 
-    //   allowNull: true,
-    //   defaultValue: 0, 
-    //   validate: {
-    //     min: 0,
-    //     max: 100
-    //   }
-    // },
   },
   {
     timestamps: false,

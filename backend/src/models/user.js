@@ -23,12 +23,6 @@ const User = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    full_name: {
-      type: DataTypes.STRING,
-    },
-    phone_number: {
-      type: DataTypes.STRING,
-    },
     role_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -48,7 +42,7 @@ const User = db.define(
     },
     referralUsedAt: {
       type: DataTypes.DATE,
-      allowNull: true, 
+      allowNull: true,
     },
   },
   {

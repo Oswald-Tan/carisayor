@@ -2,10 +2,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import Role from "../models/role.js";
+import DetailsUsers from "../models/details_users.js";
 import { addTokenToBlacklist } from "../middleware/checkTokenBlacklist.js";
 import UserPoints from "../models/userPoints.js";
 import moment from 'moment';
 import { v4 as uuidv4 } from "uuid";
+import { createOrUpdateUserStats } from "./userStatsController.js";
+import Address from "../models/address.js";
 
 
 //fungsi untuk mengasilkan kode referral unik
@@ -149,6 +152,9 @@ export const loginUser = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+     // Update atau buat UserStats setelah login berhasil
+     await createOrUpdateUserStats(user.id); // Memperbarui statistik pengguna
+
     return res.status(200).json({
       message: "Login successful.",
       token: token, // Kirimkan token sebagai bagian dari respons
@@ -189,6 +195,7 @@ export const getUserData = async (req, res) => {
   try {
     // Cek apakah req.user ada
     if (!req.user) {
+      console.log("Unauthorized: req.user not found");
       return res
         .status(401)
         .json({ message: "Unauthorized: User data not found" });
@@ -196,15 +203,16 @@ export const getUserData = async (req, res) => {
 
     // Ambil ID user dari decoded token yang sudah disimpan di req.user
     const userId = req.user.id;
+    console.log("User ID from token:", userId);
 
     // Ambil data user berdasarkan ID dan sertakan data role dalam query
     const user = await User.findOne({
       where: { id: userId },
       include: [
         {
-          model: Role, // Menyertakan relasi role
-          as: "userRole", // Alias yang digunakan dalam relasi
-          attributes: ["role_name"], // Hanya ambil role_name
+          model: Role, 
+          as: "userRole", 
+          attributes: ["role_name"], 
         },
         {
           model: UserPoints,
@@ -216,28 +224,43 @@ export const getUserData = async (req, res) => {
           as: "Referrals",
           attributes: ["id", "username", "referralUsedAt"],
         },
+        {
+          model: DetailsUsers,
+          as: "userDetails",
+          attributes: ["fullname", "phone_number", "photo_profile"],
+        },
       ],
     });
 
+
     if (!user) {
+      console.log("User not found in database");
       return res.status(404).json({ message: "User not found" });
     }
 
     // Gunakan fallback default jika points tidak ada
     const points = user.userPoints ? user.userPoints.points : 0;
+    console.log("User points:", points);
 
     // Kirimkan data user beserta role
-    return res.status(200).json({
+    const responseData = {
       id: user.id,
       username: user.username,
       phone_number: user.phone_number,
       full_name: user.full_name,
       email: user.email,
-      role: user.userRole.role_name, 
+      role: user.userRole?.role_name, // Gunakan optional chaining untuk menghindari error jika null
       points: points,
       referralCode: user.referralCode,
       referrals: user.Referrals,
-    });
+      userDetails: user.userDetails, // Perhatikan alias
+     
+    };
+
+   
+
+    return res.status(200).json(responseData);
+
   } catch (error) {
     console.error("Error in getUserData:", error); // Log error untuk debug
     return res.status(500).json({ message: "Internal server error" });

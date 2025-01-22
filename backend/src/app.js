@@ -28,6 +28,8 @@ import ProductsApp from "./routes/app/productRoute.js";
 import CartApp from "./routes/app/cartRoute.js";
 import AfiliasiBonusApp from "./routes/app/afiliasiBonusRoute.js";
 import SettingApp from "./routes/app/settingRoute.js";
+import Address from "./routes/app/addressRoute.js";
+import SupportedAreaApp from "./routes/app/supportedAreaRoute.js";
 
 //web
 import AuthWeb from "./routes/web/authWebRoute.js";
@@ -39,6 +41,8 @@ import Discount from "./routes/web/discountRoute.js";
 import TopUpPoin from "./routes/web/topUpPoinRoute.js";
 import Pesanan from "./routes/web/pesananRoute.js";
 import Setting from "./routes/web/settingRoute.js";
+import UserStats from "./routes/web/userStatsRoute.js";
+import SupportedArea from "./routes/web/supportedAreaRoute.js";
 
 const app = express();
 
@@ -101,6 +105,8 @@ app.use("/api/v1/products-app", ProductsApp);
 app.use("/api/v1/cart-app", CartApp);
 app.use("/api/v1/afiliasi-bonus-app", AfiliasiBonusApp);
 app.use("/api/v1/settings-app", SettingApp);
+app.use("/api/v1/addresses", Address);
+app.use("/api/v1/supported-area-app", SupportedAreaApp);
 
 //web
 // Terapkan session hanya untuk rute web
@@ -113,6 +119,8 @@ app.use("/api/v1/discount", sessionMiddleware, Discount);
 app.use("/api/v1/topup", sessionMiddleware, TopUpPoin);
 app.use("/api/v1/pesanan", sessionMiddleware, Pesanan);
 app.use("/api/v1/settings", sessionMiddleware, Setting);
+app.use("/api/v1/user-stats", sessionMiddleware, UserStats);
+app.use("/api/v1/supported-area", sessionMiddleware, SupportedArea);
 
 //jadwal cron job untuk memeriksa bonus yang sudah expired
 cron.schedule("0 0 * * *", async () => {

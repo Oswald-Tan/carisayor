@@ -4,20 +4,70 @@ import UserPoints from "../models/userPoints.js";
 import AfiliasiBonus from "../models/afiliasiBonus.js";
 import moment from "moment";
 import Setting from "../models/setting.js";
+import Address from "../models/address.js";
+import { Op } from "sequelize";
 
 export const getPesanan = async (req, res) => {
+  const page = parseInt(req.query.page) || 0;
+  const limit = parseInt(req.query.limit) || 10;
+  const search = req.query.search || "";
+  const offset = limit * page;
   try {
-    const data = await Pesanan.findAll({
-      include: {
-        model: User,
-        attributes: ["id", "username"],
-      },
+    const totalPesanan = await Pesanan.count({
+      where: { nama: { [Op.substring]: search } },
+      include: [
+        {
+          model: User,
+          where: { username: { [Op.substring]: search } },
+        },
+      ],
     });
-    res.status(200).json(data);
+
+    const totalRows = totalPesanan;
+    const totalPage = Math.ceil(totalRows / limit);
+
+    const data = await Pesanan.findAll({
+      where: search ? { nama: { [Op.substring]: search } } : {},
+      include: [
+        {
+          model: User,
+          attributes: ["id", "username"],
+          
+          include: {
+            model: Address,
+            as: "user",  // Menjaga alias yang sama dengan asosiasi
+            attributes: [
+              "recipient_name",
+              "phone_number",
+              "address_line_1",
+              "city",
+              "state",
+              "postal_code",
+              "is_default",
+              "supported_area",
+            ],
+            where: { is_default: true },
+          },
+        },
+      ],
+      order: [["nama", "ASC"]],
+      offset: offset,
+      limit: limit,
+    });
+
+    res.status(200).json({
+      data,
+      page,
+      limit,
+      totalPage,
+      totalRows,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 
 export const getPesananUpById = async (req, res) => {
   const { id } = req.params; // Mendapatkan id dari parameter URL
@@ -268,7 +318,6 @@ export const buatPesananPoin = async (req, res) => {
       status: "pending",
     });
 
-
     //ambil nilai poin dari table settings
     const setting = await Setting.findOne({ where: { key: "hargaPoin" } });
     if (!setting) {
@@ -337,7 +386,8 @@ export const buatPesananPoin = async (req, res) => {
 };
 
 export const buatPesananPoinCart = async (req, res) => {
-  const { userId, nama, metodePembayaran, hargaPoin, ongkir, totalBayar } = req.body;
+  const { userId, nama, metodePembayaran, hargaPoin, ongkir, totalBayar } =
+    req.body;
   console.log(req.body);
 
   try {

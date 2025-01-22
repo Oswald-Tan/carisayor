@@ -1,20 +1,92 @@
 import TopUpPoin from "../models/topUpPoin.js";
 import User from "../models/user.js";
 import UserPoints from "../models/userPoints.js";
+import { Op } from "sequelize";
 
 export const getTopUp = async (req, res) => {
+  const page = parseInt(req.query.page) || 0;
+  const limit = parseInt(req.query.limit) || 10;
+  const search = req.query.search || "";
+  const offset = limit * page;
+
   try {
-    const data = await TopUpPoin.findAll({
-      include: {
-        model: User,
-        attributes: ["id", "username", "email"],
-      },
+    const totalTopUp = await TopUpPoin.count({
+      include: [
+        {
+          model: User,
+          required: true, // Hanya hitung jika ada User terkait
+          where: search ? { username: { [Op.substring]: search } } : {}, // Pencarian username
+        },
+      ],
     });
-    res.status(200).json(data);
+    
+
+    const totalRows = totalTopUp;
+    const totalPage = Math.ceil(totalRows / limit);
+
+    const data = await TopUpPoin.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["id", "username", "email"],
+          required: true, // Pastikan data hanya ditemukan jika ada relasi
+          where: search ? { username: { [Op.substring]: search } } : {}, // Pencarian username
+        },
+      ],
+      order: [[{ model: User }, "username", "ASC"]], // Urutkan berdasarkan username dari tabel User
+      offset: offset,
+      limit: limit,
+    });
+    
+
+    res.status(200).json({
+      data,
+      page,
+      limit,
+      totalPage,
+      totalRows,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+//get total top up yang status pending
+export const getTotalPendingTopUp = async (req, res) => {
+  try {
+    const totalTopUp = await TopUpPoin.count({
+      where: { status: "pending" },
+    }) 
+
+    res.status(200).json({ totalTopUp });
+  } catch (error) {
+    res.status(500).json({ message: error.message }); 
+  }
+}
+
+export const getTotalCancelledTopUp = async (req, res) => {
+  try {
+    const totalTopUp = await TopUpPoin.count({
+      where: { status: "cancelled" },
+    }) 
+
+    res.status(200).json({ totalTopUp });
+  } catch (error) {
+    res.status(500).json({ message: error.message }); 
+  }
+}
+
+export const getTotalApprovedTopUp = async (req, res) => {
+  try {
+    const totalTopUp = await TopUpPoin.count({
+      where: { status: "approved" },
+    }) 
+
+    res.status(200).json({ totalTopUp });
+  } catch (error) {
+    res.status(500).json({ message: error.message }); 
+  }
+}
 
 export const getTopUpById = async (req, res) => {
   const { id } = req.params; // Mendapatkan id dari parameter URL
