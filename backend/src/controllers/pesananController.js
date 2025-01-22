@@ -5,6 +5,7 @@ import AfiliasiBonus from "../models/afiliasiBonus.js";
 import moment from "moment";
 import Setting from "../models/setting.js";
 import Address from "../models/address.js";
+import { v4 as uuidv4 } from "uuid";
 import { Op } from "sequelize";
 
 export const getPesanan = async (req, res) => {
@@ -14,7 +15,12 @@ export const getPesanan = async (req, res) => {
   const offset = limit * page;
   try {
     const totalPesanan = await Pesanan.count({
-      where: { nama: { [Op.substring]: search } },
+      where: {
+        [Op.or]: [
+          { nama: { [Op.substring]: search } },
+          { invoiceNumber: { [Op.substring]: search } },
+        ],
+      },
       include: [
         {
           model: User,
@@ -27,15 +33,21 @@ export const getPesanan = async (req, res) => {
     const totalPage = Math.ceil(totalRows / limit);
 
     const data = await Pesanan.findAll({
-      where: search ? { nama: { [Op.substring]: search } } : {},
+      where: search
+        ? {
+            [Op.or]: [
+              { nama: { [Op.substring]: search } },
+              { invoiceNumber: { [Op.substring]: search } },
+            ],
+          }
+        : {},
       include: [
         {
           model: User,
           attributes: ["id", "username"],
-          
           include: {
             model: Address,
-            as: "user",  // Menjaga alias yang sama dengan asosiasi
+            as: "user", 
             attributes: [
               "recipient_name",
               "phone_number",
@@ -50,7 +62,7 @@ export const getPesanan = async (req, res) => {
           },
         },
       ],
-      order: [["nama", "ASC"]],
+      order: [["created_at", "DESC"]],
       offset: offset,
       limit: limit,
     });
@@ -66,8 +78,6 @@ export const getPesanan = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
 
 export const getPesananUpById = async (req, res) => {
   const { id } = req.params; // Mendapatkan id dari parameter URL
@@ -108,8 +118,15 @@ export const updatePesananStatus = async (req, res) => {
 };
 
 export const buatPesananCOD = async (req, res) => {
-  const { userId, nama, metodePembayaran, hargaRp, ongkir, totalBayar } =
-    req.body;
+  const {
+    userId,
+    nama,
+    metodePembayaran,
+    hargaRp,
+    ongkir,
+    totalBayar,
+    invoiceNumber,
+  } = req.body;
 
   try {
     // Cek apakah user dengan id yang diberikan ada
@@ -118,15 +135,21 @@ export const buatPesananCOD = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const datePart = moment().format("DDMMYYYY");
+    const uniqueId = uuidv4().split("-")[0]; // Ambil bagian pertama UUID untuk membuatnya lebih pendek
+    const orderId = `ORD_${datePart}_${uniqueId}`;
+
     // membuat pesanan
     const pesanan = await Pesanan.create({
       userId,
+      orderId,
       nama,
       metodePembayaran,
       hargaRp,
       ongkir,
       totalBayar,
       status: "pending",
+      invoiceNumber,
     });
 
     //cek apakah totalBayar lebih besar atau sama dengan 200.000
@@ -195,11 +218,16 @@ export const buatPesananCODCart = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const datePart = moment().format("DDMMYYYY");
+    const uniqueId = uuidv4().split("-")[0]; // Ambil bagian pertama UUID untuk membuatnya lebih pendek
+    const orderId = `ORD_${datePart}_${uniqueId}`;
+
     //pisahkan nama produk
     const namaProdukArray = nama.split(", ");
 
     const pesanan = await Pesanan.create({
       userId,
+      orderId,
       nama,
       metodePembayaran,
       hargaRp,
@@ -264,8 +292,15 @@ export const buatPesananCODCart = async (req, res) => {
 };
 
 export const buatPesananPoin = async (req, res) => {
-  const { userId, nama, metodePembayaran, hargaPoin, ongkir, totalBayar } =
-    req.body;
+  const {
+    userId,
+    nama,
+    metodePembayaran,
+    hargaPoin,
+    ongkir,
+    totalBayar,
+    invoiceNumber,
+  } = req.body;
 
   try {
     if (totalBayar <= 0) {
@@ -305,17 +340,23 @@ export const buatPesananPoin = async (req, res) => {
       });
     }
 
+    const datePart = moment().format("DDMMYYYY");
+    const uniqueId = uuidv4().split("-")[0]; // Ambil bagian pertama UUID untuk membuatnya lebih pendek
+    const orderId = `ORD_${datePart}_${uniqueId}`;
+
     userPoints.points -= totalBayar;
     await userPoints.save();
 
     const pesanan = await Pesanan.create({
       userId,
+      orderId,
       nama,
       metodePembayaran,
       hargaPoin,
       ongkir,
       totalBayar,
       status: "pending",
+      invoiceNumber,
     });
 
     //ambil nilai poin dari table settings
@@ -422,9 +463,13 @@ export const buatPesananPoinCart = async (req, res) => {
     if (userPoints.points < totalBayar) {
       return res.status(400).json({
         success: false,
-        message: `Poin Anda hanya ${userPoints.points}, tidak cukup untuk membayar ${totalBayar}`,
+        message: `Poin Anda hanyaaaaaa ${userPoints.points}, tidak cukup untuk membayar ${totalBayar}`,
       });
     }
+
+    const datePart = moment().format("DDMMYYYY");
+    const uniqueId = uuidv4().split("-")[0]; // Ambil bagian pertama UUID untuk membuatnya lebih pendek
+    const orderId = `ORD_${datePart}_${uniqueId}`;
 
     userPoints.points -= totalBayar;
     await userPoints.save();
@@ -434,6 +479,7 @@ export const buatPesananPoinCart = async (req, res) => {
 
     const pesanan = await Pesanan.create({
       userId,
+      orderId,
       nama,
       metodePembayaran,
       hargaPoin,

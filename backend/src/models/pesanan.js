@@ -10,9 +10,18 @@ const Pesanan = db.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    orderId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true, 
+    },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    invoiceNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     nama: {
       type: DataTypes.STRING,
