@@ -4,6 +4,7 @@ import { TbLayoutDashboard } from "react-icons/tb";
 import { AiOutlineUser, AiOutlineProduct } from "react-icons/ai";
 import { MdOutlinePriceChange } from "react-icons/md";
 import { LuHandCoins } from "react-icons/lu";
+import { PiMapPinSimpleAreaBold } from "react-icons/pi";
 import { TbReportMoney } from "react-icons/tb";
 import { HiOutlineClipboardList } from "react-icons/hi";
 import { useSidebar } from "../context/useSidebar";
@@ -54,6 +55,12 @@ const Sidebar = () => {
       icon: TbReportMoney, 
     },
     { 
+      name: "Supported area", 
+      link: "/supported/area", 
+      icon: PiMapPinSimpleAreaBold,
+      margin: true,
+    },
+    { 
       name: "Setting", 
       link: "/setting", 
       icon: RiSettings4Line,
@@ -73,7 +80,7 @@ const Sidebar = () => {
 
       <section className="flex gap-6 relative">
         <div
-          className={`bg-[#200a26] min-h-screen ${
+          className={` bg-gradient-to-b from-[#200a26] to-[#371141] min-h-screen ${
             open
               ? "w-[280px]"
               : "md:w-[68px] md:translate-x-0 -translate-x-[280px]"

@@ -4,6 +4,8 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login/Login";
 import Transaction from "./pages/Transaction";
 import User from "./pages/Users";
+import UserDetail from "./pages/UserDetail";
+import UserStats from "./pages/UserStats";
 import Products from "./pages/Products";
 import AddUser from "./pages/AddUser";
 import EditUser from "./pages/EditUser";
@@ -25,6 +27,9 @@ import EditPesanan from "./pages/EditPesanan";
 import HargaPoinProduct from "./pages/HargaPoinProduct";
 import EditHargaPoinProduct from "./pages/EditHargaPoinProduct";
 import AddHargaPoinProduct from "./pages/AddHargaPoinProduct";
+import SupporedArea from "./pages/SupportedArea";
+import AddSupportedArea from "./pages/AddSupportedArea";
+import EditSupportedArea from "./pages/EditSupportedArea";
 
 function App() {
   return (
@@ -38,6 +43,8 @@ function App() {
           <Route path="/users" element={<User />} exact />
           <Route path="/users/add" element={<AddUser />} exact />
           <Route path="/users/edit/:id" element={<EditUser />} exact />
+          <Route path="/users/:id/details" element={<UserDetail />} exact />
+          <Route path="/users/:id/stats" element={<UserStats />} exact />
 
           <Route path="/products" element={<Products />} exact />
           <Route path="/products/add" element={<AddProduct />} exact />
@@ -67,6 +74,10 @@ function App() {
           <Route path="/harga/poin/product" element={<HargaPoinProduct />} exact />
           <Route path="/harga/poin/product/add" element={<AddHargaPoinProduct />} exact />
           <Route path="/harga/poin/product/edit/:id" element={<EditHargaPoinProduct />} exact />
+        
+          <Route path="/supported/area" element={<SupporedArea />} exact />
+          <Route path="/supported/area/add" element={<AddSupportedArea />} exact />
+          <Route path="/supported/area/edit/:id" element={<EditSupportedArea />} exact />
         </Route>
       </Routes>
     </Router>

@@ -15,7 +15,6 @@ const FormAddDiscountPoin = () => {
       try {
         const res = await axios.get(`${API_URL}/poin/${id}`);
         setPoin(res.data);
-        console.log(res.data);
       } catch (error) {
         console.error("Error fetching poin:", error);
       }

@@ -13,7 +13,6 @@ const DiscountPoinList = () => {
   const getDiscountPoin = async () => {
     const res = await axios.get(`${API_URL}/discount`);
     setDiscounts(res.data);
-    console.log(res.data);
   };
 
   const deleteDiscountPoin = async (id) => {
