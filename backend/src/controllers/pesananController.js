@@ -7,6 +7,7 @@ import Setting from "../models/setting.js";
 import Address from "../models/address.js";
 import { v4 as uuidv4 } from "uuid";
 import { Op } from "sequelize";
+import Cart from "../models/cart.js";
 
 export const getPesanan = async (req, res) => {
   const page = parseInt(req.query.page) || 0;
@@ -47,7 +48,7 @@ export const getPesanan = async (req, res) => {
           attributes: ["id", "username"],
           include: {
             model: Address,
-            as: "user", 
+            as: "user",
             attributes: [
               "recipient_name",
               "phone_number",
@@ -96,6 +97,8 @@ export const getPesananUpById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+//get total pesanan yang status pending
 
 export const updatePesananStatus = async (req, res) => {
   const { id } = req.params;
@@ -208,7 +211,7 @@ export const buatPesananCOD = async (req, res) => {
 };
 
 export const buatPesananCODCart = async (req, res) => {
-  const { userId, nama, metodePembayaran, hargaRp, ongkir, totalBayar } =
+  const { id, userId, nama, metodePembayaran, hargaRp, ongkir, totalBayar, invoiceNumber } =
     req.body;
 
   try {
@@ -234,7 +237,18 @@ export const buatPesananCODCart = async (req, res) => {
       ongkir,
       totalBayar,
       status: "pending",
+      invoiceNumber,
     });
+
+    await Cart.destroy({
+      where: {
+        userId,
+        productId: id, 
+        status: "active", 
+      },
+    });
+
+    console.log('Produk id', id);
 
     //cek apakah totalBayar lebih besar atau sama dengan 200.000
     if (totalBayar >= 200000) {
@@ -427,7 +441,7 @@ export const buatPesananPoin = async (req, res) => {
 };
 
 export const buatPesananPoinCart = async (req, res) => {
-  const { userId, nama, metodePembayaran, hargaPoin, ongkir, totalBayar } =
+  const { id, userId, nama, metodePembayaran, hargaPoin, ongkir, totalBayar, invoiceNumber } =
     req.body;
   console.log(req.body);
 
@@ -474,6 +488,16 @@ export const buatPesananPoinCart = async (req, res) => {
     userPoints.points -= totalBayar;
     await userPoints.save();
 
+    await Cart.destroy({
+      where: {
+        userId,
+        productId: id, 
+        status: "active", 
+      },
+    });
+
+    console.log('Produk id', id);
+
     //pisahkan nama produk
     const namaProdukArray = nama.split(", ");
 
@@ -486,6 +510,7 @@ export const buatPesananPoinCart = async (req, res) => {
       ongkir,
       totalBayar,
       status: "pending",
+      invoiceNumber,
     });
 
     //ambil nilai poin dari table settings

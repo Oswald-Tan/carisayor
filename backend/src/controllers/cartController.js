@@ -130,3 +130,37 @@ export const getItemCountInCart = async (req, res) => {
     return res.status(500).json({ message: "Failed to retrieve item count" });
   }
 };
+
+// Menghapus semua item dari keranjang berdasarkan userId
+export const deleteCartItem = async (req, res) => {
+  try {
+    const { cartId } = req.params;
+    const { userId } = req.body;
+
+    // Validasi input
+    if (!cartId || !userId) {
+      return res.status(400).json({ message: "Cart ID and User ID are required" });
+    }
+
+    // Cari item di keranjang berdasarkan cartId dan userId
+    const cartItem = await Cart.findOne({
+      where: { id: cartId, userId, status: "active" },
+    });
+
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found or does not belong to the user" });
+    }
+
+    // Hapus item dari keranjang
+    await cartItem.destroy();
+
+    return res.status(200).json({ message: "Cart item deleted successfully", cartId });
+  } catch (error) {
+    console.error("Error in deleteCartItem:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to delete cart item", error: error.stack });
+  }
+};
+
+

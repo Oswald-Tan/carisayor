@@ -18,12 +18,12 @@ const generateReferralCode = (minLength = 6, maxLength = 10) => {
 };
 
 export const registerUser = async (req, res) => {
-  const { username, password, email, role_name, referralCode } = req.body;
+  const { username, password, email, role_name, referralCode, phone_number } = req.body;
 
   // Validasi input
-  if (!username || !password || !email || !role_name) {
+  if (!username || !password || !email || !phone_number || !role_name) {
     return res.status(400).json({
-      message: "Username, password, email, and role are required.",
+      message: "Username, password, email, phone_number and role are required.",
     });
   }
 
@@ -96,6 +96,12 @@ export const registerUser = async (req, res) => {
       email,
       role_id: role.id,
       referralCode: newReferralCode,
+    });
+
+    // Simpan data ke tabel DetailsUsers
+    await DetailsUsers.create({
+      user_id: newUser.id,
+      phone_number,
     });
 
     // Buat JWT token

@@ -66,9 +66,7 @@ export const getTotalPendingTopUp = async (req, res) => {
 
 export const getTotalCancelledTopUp = async (req, res) => {
   try {
-    const totalTopUp = await TopUpPoin.count({
-      where: { status: "cancelled" },
-    }) 
+    const totalTopUp = await TopUpPoin.count() 
 
     res.status(200).json({ totalTopUp });
   } catch (error) {
