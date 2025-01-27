@@ -17,6 +17,7 @@ const Layout = () => {
   const [approvedTopUp, setApprovedTopUp] = useState(0);
   const [pendingTopUp, setPendingTopUp] = useState(0);
   const [cancelledTopUp, setCancelledTopUp] = useState(0);
+  const [pesananPending, setPesananPending] = useState(0);
 
   // Fetch total users from API
   useEffect(() => {
@@ -56,10 +57,20 @@ const Layout = () => {
       }
     };
 
+    const fetchTotalPendingPesanan = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/count/pesanan-pending`);
+        setPesananPending(res.data.totalPesananPending);
+      } catch (error) {
+        console.error("Failed to fetch total users:", error);
+      }
+    };
+
     fetchTotalUsers();
     fetchTotalPendingTopUp();
     fetchTotalApprovedTopUp();
     fetchTotalCancelledTopUp();
+    fetchTotalPendingPesanan();
   }, []);
 
   useEffect(() => {
@@ -78,7 +89,7 @@ const Layout = () => {
         <p>Hello, {user && user.username}!</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Card
           title="Users"
           count={totalUsers}
@@ -102,6 +113,12 @@ const Layout = () => {
           count={cancelledTopUp}
           icon={<MdCancel />}
           iconColor="text-red-500"
+        />
+        <Card
+          title="Pesanan Pending"
+          count={pesananPending}
+          icon={<MdPending />}
+          iconColor="text-orange-500"
         />
       </div>
     </div>

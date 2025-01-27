@@ -74,13 +74,13 @@ const TopUpPoinList = () => {
       <div>
         <h2 className="text-2xl font-semibold">Top Up</h2>
 
-        <div className="flex justify-between mt-5">
+        <div className="flex gap-2 mt-5">
           {/* Search filter */}
           <form onSubmit={searchData}>
-            <div className="flex items-center relative w-[250px]">
+            <div className="flex items-center relative w-[220px]">
               <input
                 type="text"
-                className="pr-10 pl-4 py-2 border border-gray-300 rounded-md w-full text-sm"
+                className="pr-10 pl-4 py-2 border border-gray-300 rounded-md w-full text-xs"
                 placeholder="Search..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -98,7 +98,7 @@ const TopUpPoinList = () => {
               <select
                 id="limit"
                 name="limit"
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm"
+                className="px-4 py-2 border border-gray-300 rounded-md text-xs"
                 onChange={(e) => {
                   setLimit(e.target.value);
                 }}
@@ -132,7 +132,10 @@ const TopUpPoinList = () => {
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(topUp) &&
+              {topUp.length > 0 ? (
+
+              
+              Array.isArray(topUp) &&
                 topUp.map((topup, index) => (
                   <tr key={index} className="text-sm">
                     <td className="px-4 py-2 border-b whitespace-nowrap">
@@ -192,7 +195,18 @@ const TopUpPoinList = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))
+              ) : (
+                <tr>
+                <td
+                  colSpan="9"
+                  className="px-4 pt-4 text-center text-sm text-gray-500"
+                >
+                  Belum ada data
+                </td>
+              </tr>
+              )
+              }
             </tbody>
           </table>
         </div>

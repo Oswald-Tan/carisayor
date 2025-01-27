@@ -1,70 +1,183 @@
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
+import { formatShortDate } from "../../utils/formateDate";
+import CSPoin from "../../assets/poin_cs.png";
 
 const ModalPesanan = ({ pesanan, onClose }) => {
   return (
     <AnimatePresence>
       {pesanan && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40"
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40 p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className="bg-white rounded-lg p-5 w-[500px]"
+            className="bg-white rounded-lg w-[600px]"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-xl font-semibold mb-4">Detail Pesanan</h2>
-            <p>
-              <strong>Order Id:</strong> {pesanan.orderId || "-"}
-            </p>
-            <p>
-              <strong>Username:</strong> {pesanan.User?.username || "-"}
-            </p>
-            <p>
-              <strong>Nama Produk:</strong> {pesanan.nama || "-"}
-            </p>
-            <p>
-              <strong>Harga Produk:</strong> {pesanan.hargaPoin ? (
-                      <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded-lg">{`${pesanan.hargaPoin} Poin`}</span>
+            <div className="py-4 px-5 bg-gray-100 rounded-t-lg">
+              <p>#{pesanan.invoiceNumber || "-"}</p>
+              <p className="text-xs mt-2 text-gray-500">Detail Pesanan</p>
+            </div>
+            <div className="p-5">
+              <div className="flex gap-x-8">
+                <div>
+                  <p className="text-xs text-gray-500">Create at</p>
+                  <p className="mt-2 text-sm">
+                    {formatShortDate(pesanan.created_at)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Payment</p>
+                  {pesanan.paymentStatus === "unpaid" ? (
+                    <span className="px-2 py-1 text-xs text-yellow-500 border border-yellow-500 rounded-lg">
+                      Unpaid
+                    </span>
+                  ) : pesanan.paymentStatus === "paid" ? (
+                    <span className="px-2 py-1 text-xs text-green-600 border border-green-600 rounded-lg">
+                      Paid
+                    </span>
+                  ) : null}
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Status</p>
+                  {pesanan.status === "pending" ? (
+                    <span className="px-2 py-1 text-xs text-white bg-orange-600 rounded-lg">
+                      Pending
+                    </span>
+                  ) : pesanan.status === "confirmed" ? (
+                    <span className="px-2 py-1 text-xs text-white bg-green-600 rounded-lg">
+                      Confirmed
+                    </span>
+                  ) : pesanan.status === "processed" ? (
+                    <span className="px-2 py-1 text-xs text-white bg-blue-600 rounded-lg">
+                      Processed
+                    </span>
+                  ) : pesanan.status === "out-for-delivery" ? (
+                    <span className="px-2 py-1 text-xs text-white bg-yellow-600 rounded-lg">
+                      Out for Delivery
+                    </span>
+                  ) : pesanan.status === "delivered" ? (
+                    <span className="px-2 py-1 text-xs text-white bg-gray-600 rounded-lg">
+                      Delivered
+                    </span>
+                  ) : (
+                    <span className="px-2 py-1 text-xs text-white bg-red-600 rounded-lg">
+                      Cancelled
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <hr className="border-t border-gray-200 my-4" />
+
+              <div className="flex flex-col md:flex-row justify-between gap-4 md:gap-20">
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Customer</p>
+                  <p className="text-sm">
+                    {pesanan.user?.userDetails?.fullname || "-"}
+                  </p>
+                  <p className="text-sm mt-2 text-blue-500">
+                    {pesanan.user?.email || "-"}
+                  </p>
+                  <p className="text-sm mt-2">
+                    {pesanan?.user?.user[0]?.phone_number || "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Address</p>
+                  <p className="text-sm mt-2">
+                    {pesanan?.user?.user[0]?.address_line_1 || "-"}
+                    {pesanan.user.user[0]?.city || "-"}
+                  </p>
+                </div>
+              </div>
+
+              <hr className="border-t border-gray-200 my-4" />
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Produk</p>
+                <ul className="text-sm">
+                  {pesanan.nama ? (
+                    pesanan.nama
+                      .split(",")
+                      .map((item, index) => <li key={index}>{item.trim()}</li>)
+                  ) : (
+                    <li>-</li>
+                  )}
+                </ul>
+              </div>
+
+              <hr className="border-t border-gray-200 my-4" />
+
+              <p>
+                <p className="text-xs text-gray-500 mb-2">Payment</p>
+                <div className="flex justify-between">
+                  <p className="text-sm">Subtotal</p>
+                  <div>
+                    {pesanan.hargaPoin ? (
+                      <div className="flex items-center justify-center gap-1">
+                        <img src={CSPoin} alt="poin" className="w-4" />
+                        <span className="text-sm">{`${pesanan.hargaPoin} Poin`}</span>
+                      </div>
                     ) : pesanan.hargaRp ? (
-                      <span className="px-2 py-1 text-xs text-white bg-green-500 rounded-lg">
+                      <span className="text-sm">
                         Rp. {pesanan.hargaRp.toLocaleString("id-ID")}
                       </span>
                     ) : (
                       "-"
                     )}
-            </p>
-            <p>
-              <strong>Alamat:</strong> {pesanan?.User?.user[0]?.address_line_1 || "-"} {pesanan.User.user[0]?.city || "-"}
-            </p>
-            <p>
-              <strong>Total Bayar:</strong>{" "}
-              {pesanan.hargaPoin ? (
-                <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded-lg">{`${pesanan.totalBayar} Poin`}</span>
-              ) : pesanan.hargaRp ? (
-                <span className="px-2 py-1 text-xs text-white bg-green-500 rounded-lg">
-                  Rp. {pesanan.totalBayar.toLocaleString("id-ID")}
-                </span>
-              ) : (
-                "-"
-              )}
-            </p>
+                  </div>
+                </div>
+              </p>
 
-            <p>
-              <strong>Status:</strong> {pesanan.status || "-"}
-            </p>
-            <button
-              onClick={onClose}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Tutup
-            </button>
+              <div className="flex justify-between">
+                <p className="text-sm">Ongkir</p>
+                <div>
+                  {pesanan.hargaPoin ? (
+                    <div className="flex items-center justify-center gap-1">
+                      <img src={CSPoin} alt="poin" className="w-4" />
+                      <span className="text-sm">{`${pesanan.ongkir} Poin`}</span>
+                    </div>
+                  ) : pesanan.hargaRp ? (
+                    <span className="text-sm">
+                      Rp. {pesanan.ongkir.toLocaleString("id-ID")}
+                    </span>
+                  ) : (
+                    "-"
+                  )}
+                </div>
+              </div>
+              <div className="flex justify-between mt-2">
+                <p className="text-sm">Total</p>
+                <div>
+                  {pesanan.hargaPoin ? (
+                    <div className="flex items-center justify-center gap-1">
+                      <img src={CSPoin} alt="poin" className="w-4" />
+                      <span className="text-sm">{`${pesanan.totalBayar} Poin`}</span>
+                    </div>
+                  ) : pesanan.hargaRp ? (
+                    <span className="text-sm">
+                      Rp. {pesanan.totalBayar.toLocaleString("id-ID")}
+                    </span>
+                  ) : (
+                    "-"
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={onClose}
+                className="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
+              >
+                Tutup
+              </button>
+            </div>
           </motion.div>
         </motion.div>
       )}

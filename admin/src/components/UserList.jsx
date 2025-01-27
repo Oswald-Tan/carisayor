@@ -182,7 +182,7 @@ const UserList = () => {
                 <tr>
                   <td
                     colSpan="5"
-                    className="px-4 py-2 text-center text-gray-500"
+                    className="px-4 pt-4 text-sm text-center text-gray-500"
                   >
                     Belum ada data
                   </td>

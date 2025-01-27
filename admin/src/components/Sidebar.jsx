@@ -61,6 +61,11 @@ const Sidebar = () => {
       margin: true,
     },
     { 
+      name: "City Province", 
+      link: "/city/province", 
+      icon: PiMapPinSimpleAreaBold,
+    },
+    { 
       name: "Setting", 
       link: "/setting", 
       icon: RiSettings4Line,

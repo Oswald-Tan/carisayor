@@ -30,6 +30,8 @@ import AddHargaPoinProduct from "./pages/AddHargaPoinProduct";
 import SupporedArea from "./pages/SupportedArea";
 import AddSupportedArea from "./pages/AddSupportedArea";
 import EditSupportedArea from "./pages/EditSupportedArea";
+import AddCityProvince from "./pages/AddCityProvince";
+import CityProvince from "./pages/CityProvince";
 
 function App() {
   return (
@@ -78,6 +80,9 @@ function App() {
           <Route path="/supported/area" element={<SupporedArea />} exact />
           <Route path="/supported/area/add" element={<AddSupportedArea />} exact />
           <Route path="/supported/area/edit/:id" element={<EditSupportedArea />} exact />
+
+          <Route path="/city/province" element={<CityProvince />} exact />
+          <Route path="/city/province/add" element={<AddCityProvince />} exact />
         </Route>
       </Routes>
     </Router>

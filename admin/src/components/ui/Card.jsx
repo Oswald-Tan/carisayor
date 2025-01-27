@@ -1,6 +1,11 @@
 import PropTypes from "prop-types";
 
-const Card = ({ title, count, icon, iconColor }) => {
+const Card = ({ 
+  title, 
+  count, 
+  icon, 
+  iconColor = "text-blue-500"
+}) => {
   return (
     <div className="flex items-center justify-between p-5 bg-white rounded-lg">
       <div>
@@ -18,9 +23,5 @@ Card.propTypes = {
   icon: PropTypes.element.isRequired,
   iconColor: PropTypes.string,
 };
-
-Card.defaultProps = {
-    iconColor: "text-blue-500",
-  };
 
 export default Card;

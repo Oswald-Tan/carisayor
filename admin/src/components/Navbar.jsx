@@ -3,9 +3,9 @@ import { useSidebar } from "../context/useSidebar";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { LogOut, reset } from "../features/authSlice";
-import { BiSolidUserCircle } from "react-icons/bi";
 import { useState } from "react";
 import { IoLogOut } from "react-icons/io5";
+import { AiOutlineUser } from "react-icons/ai";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -37,8 +37,10 @@ const Navbar = () => {
           className="flex items-center justify-center gap-1 cursor-pointer"
           onClick={() => setIsProfileOpen((prev) => !prev)} // Toggle state
         >
-          <BiSolidUserCircle size={28} className="text-gray-500" />
-          <p className="text-sm font-semibold">{user && user.username}</p>
+          <div className="border border-gray-500 rounded-full p-1">
+            <AiOutlineUser size={20} className="text-gray-500 " />
+          </div>
+          <p className="text-xs text-gray-500">{user && user.username}</p>
         </div>
 
         {isProfileOpen && (
