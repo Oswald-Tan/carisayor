@@ -1,5 +1,6 @@
 import Pesanan from "../models/pesanan.js";
 import User from "../models/user.js";
+import DetailsUsers from "../models/details_users.js";
 import UserPoints from "../models/userPoints.js";
 import AfiliasiBonus from "../models/afiliasiBonus.js";
 import moment from "moment";
@@ -25,6 +26,7 @@ export const getPesanan = async (req, res) => {
       include: [
         {
           model: User,
+          as: "user",
           where: { username: { [Op.substring]: search } },
         },
       ],
@@ -45,22 +47,29 @@ export const getPesanan = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ["id", "username"],
-          include: {
-            model: Address,
-            as: "user",
-            attributes: [
-              "recipient_name",
-              "phone_number",
-              "address_line_1",
-              "city",
-              "state",
-              "postal_code",
-              "is_default",
-              "supported_area",
-            ],
-            where: { is_default: true },
-          },
+          as: 'user',
+          attributes: ["id", "username", "email"],
+          include: [
+            {
+              model: Address,
+              as: "user",
+              attributes: [
+                "recipient_name",
+                "phone_number",
+                "address_line_1",
+                "city",
+                "state",
+                "postal_code",
+                "is_default",
+              ],
+              where: { is_default: true },
+            },
+            {
+              model: DetailsUsers,
+              as: "userDetails", 
+              attributes: ["fullname"], 
+            },
+          ],
         },
       ],
       order: [["created_at", "DESC"]],
@@ -111,7 +120,14 @@ export const updatePesananStatus = async (req, res) => {
       return res.status(404).json({ message: "Pesanan not found" });
     }
 
+    // Update status
     pesanan.status = status;
+
+    // Jika status menjadi "delivered", ubah paymentStatus menjadi "paid"
+    if (status === "delivered") {
+      pesanan.paymentStatus = "paid";
+    }
+
     await pesanan.save();
 
     res.status(200).json({ message: "Pesanan updated successfully" });
@@ -119,6 +135,7 @@ export const updatePesananStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const buatPesananCOD = async (req, res) => {
   const {
@@ -151,6 +168,7 @@ export const buatPesananCOD = async (req, res) => {
       hargaRp,
       ongkir,
       totalBayar,
+      paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
       status: "pending",
       invoiceNumber,
     });
@@ -211,8 +229,16 @@ export const buatPesananCOD = async (req, res) => {
 };
 
 export const buatPesananCODCart = async (req, res) => {
-  const { id, userId, nama, metodePembayaran, hargaRp, ongkir, totalBayar, invoiceNumber } =
-    req.body;
+  const {
+    id,
+    userId,
+    nama,
+    metodePembayaran,
+    hargaRp,
+    ongkir,
+    totalBayar,
+    invoiceNumber,
+  } = req.body;
 
   try {
     // Cek apakah user dengan id yang diberikan ada
@@ -236,6 +262,7 @@ export const buatPesananCODCart = async (req, res) => {
       hargaRp,
       ongkir,
       totalBayar,
+      paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
       status: "pending",
       invoiceNumber,
     });
@@ -243,12 +270,12 @@ export const buatPesananCODCart = async (req, res) => {
     await Cart.destroy({
       where: {
         userId,
-        productId: id, 
-        status: "active", 
+        productId: id,
+        status: "active",
       },
     });
 
-    console.log('Produk id', id);
+    console.log("Produk id", id);
 
     //cek apakah totalBayar lebih besar atau sama dengan 200.000
     if (totalBayar >= 200000) {
@@ -369,6 +396,7 @@ export const buatPesananPoin = async (req, res) => {
       hargaPoin,
       ongkir,
       totalBayar,
+      paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
       status: "pending",
       invoiceNumber,
     });
@@ -441,8 +469,16 @@ export const buatPesananPoin = async (req, res) => {
 };
 
 export const buatPesananPoinCart = async (req, res) => {
-  const { id, userId, nama, metodePembayaran, hargaPoin, ongkir, totalBayar, invoiceNumber } =
-    req.body;
+  const {
+    id,
+    userId,
+    nama,
+    metodePembayaran,
+    hargaPoin,
+    ongkir,
+    totalBayar,
+    invoiceNumber,
+  } = req.body;
   console.log(req.body);
 
   try {
@@ -491,12 +527,12 @@ export const buatPesananPoinCart = async (req, res) => {
     await Cart.destroy({
       where: {
         userId,
-        productId: id, 
-        status: "active", 
+        productId: id,
+        status: "active",
       },
     });
 
-    console.log('Produk id', id);
+    console.log("Produk id", id);
 
     //pisahkan nama produk
     const namaProdukArray = nama.split(", ");
@@ -509,6 +545,7 @@ export const buatPesananPoinCart = async (req, res) => {
       hargaPoin,
       ongkir,
       totalBayar,
+      paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
       status: "pending",
       invoiceNumber,
     });

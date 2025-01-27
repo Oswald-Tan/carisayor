@@ -1,6 +1,4 @@
 import Address from "../models/address.js";
-import User from "../models/user.js";
-import SupportedArea from "../models/supportedArea.js";
 
 //tambah alamat baru
 export const createAddress = async (req, res) => {
@@ -15,30 +13,6 @@ export const createAddress = async (req, res) => {
       postal_code,
       isDefault,
     } = req.body;
-
-    console.log(req.body);
-    console.log("Postal Code Received:", postal_code);
-    console.log("Is Default:", isDefault); 
-
-    // Cek apakah area didukung berdasarkan postal code
-    const areaSupported = await SupportedArea.findOne({
-      where: { postal_code },
-    });
-
-    if (!areaSupported) {
-      return res.status(400).json({ message: "Postal area not supported" });
-    }
-
-    // Validasi city dan state berdasarkan data dari tabel SupportedArea
-    if (areaSupported.city !== city || areaSupported.state !== state) {
-      return res.status(400).json({
-        message:
-          "City or state does not match the postal code. Please check your input.",
-      });
-    }
-
-    console.log("Area Supported:", areaSupported.city, areaSupported.state);
-    console.log("Received city and state:", city, state);
 
     // Jika isDefault true, periksa apakah sudah ada alamat dengan is_default: true
     if (isDefault) {
@@ -64,14 +38,90 @@ export const createAddress = async (req, res) => {
       state,
       postal_code,
       is_default: isDefault,
-      supported_area: true, // true karena area ditemukan
     });
 
-    res.status(201).json({ message: "Address created successfully", data: newAddress });
+    res
+      .status(201)
+      .json({ message: "Address created successfully", data: newAddress });
   } catch (error) {
-    res.status(500).json({ message: "Error creating address", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error creating address", error: error.message });
   }
 };
+
+// Edit alamat berdasarkan ID
+export const updateAddress = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { user_id, recipient_name, phone_number, address_line_1, city, state, postal_code, isDefault } = req.body;
+
+    // Cari alamat berdasarkan ID
+    const addressToUpdate = await Address.findOne({ where: { id } });
+
+    if (!addressToUpdate) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+
+    // Pastikan user_id yang mengirimkan request adalah pemilik alamat
+    if (addressToUpdate.user_id !== user_id) {
+      return res.status(403).json({ message: "You are not authorized to update this address" });
+    }
+
+    // Jika isDefault bernilai true dan alamat ini bukan default, ubah alamat lain menjadi non-default
+    if (isDefault && !addressToUpdate.is_default) {
+      await Address.update(
+        { is_default: false },
+        { where: { user_id: addressToUpdate.user_id, is_default: true } }
+      );
+    }
+
+    // Perbarui alamat dengan data baru
+    const updatedAddress = await addressToUpdate.update({
+      recipient_name,
+      phone_number,
+      address_line_1,
+      city,
+      state,
+      postal_code,
+      is_default: !!isDefault, // Pastikan boolean
+    });
+
+    res.status(200).json({
+      message: "Address updated successfully",
+      data: updatedAddress,
+    });
+  } catch (error) {
+    console.error("Error updating address:", error.message);
+    res.status(500).json({ message: "Error updating address", error: error.message });
+  }
+};
+
+
+// Mendapatkan alamat berdasarkan ID
+export const getAddressById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Cari alamat berdasarkan ID
+    const address = await Address.findOne({ where: { id } });
+
+    if (!address) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+
+    res.status(200).json({
+      message: "Address retrieved successfully",
+      data: address,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error retrieving address",
+      error: error.message,
+    });
+  }
+};
+
 
 
 //mendapatkan semua alamat milik user tertentu
@@ -81,12 +131,6 @@ export const getUserAddresses = async (req, res) => {
 
     const addresses = await Address.findAll({
       where: { user_id },
-      include: [
-        {
-          model: SupportedArea,
-          as: "area",
-        },
-      ],
     });
 
     res
@@ -109,7 +153,7 @@ export const getDefaultAddress = async (req, res) => {
       where: {
         user_id,
         is_default: true,
-      }
+      },
     });
 
     if (!defaultAddress) {
@@ -127,7 +171,6 @@ export const getDefaultAddress = async (req, res) => {
     });
   }
 };
-
 
 //hapus alamat berdasarkan ID
 export const deleteAddress = async (req, res) => {

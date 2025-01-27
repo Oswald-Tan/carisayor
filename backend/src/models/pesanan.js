@@ -47,6 +47,11 @@ const Pesanan = db.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    paymentStatus: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'unpaid', //untuk COD
+    },
     status: { 
       type: DataTypes.STRING,
       allowNull: false,
@@ -61,7 +66,12 @@ const Pesanan = db.define(
   }
 );
 
-Pesanan.belongsTo(User, { foreignKey: 'userId' });
-User.hasMany(Pesanan, { foreignKey: 'userId' });
+// Pesanan.belongsTo(User, { foreignKey: 'userId' });
+// User.hasMany(Pesanan, { foreignKey: 'userId' });
+
+Pesanan.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+User.hasMany(Pesanan, { foreignKey: 'userId', as: 'pesanans' });
+
+
 
 export default Pesanan;

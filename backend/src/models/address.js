@@ -43,10 +43,6 @@ const Address = db.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    supported_area: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,

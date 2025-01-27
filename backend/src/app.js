@@ -44,6 +44,7 @@ import Setting from "./routes/web/settingRoute.js";
 import UserStats from "./routes/web/userStatsRoute.js";
 import SupportedArea from "./routes/web/supportedAreaRoute.js";
 import Count from "./routes/web/countRoute.js";
+import ProvincesCities from "./routes/web/cityProvinceRoute.js";
 
 const app = express();
 
@@ -123,6 +124,7 @@ app.use("/api/v1/settings", sessionMiddleware, Setting);
 app.use("/api/v1/user-stats", sessionMiddleware, UserStats);
 app.use("/api/v1/supported-area", sessionMiddleware, SupportedArea);
 app.use("/api/v1/count", sessionMiddleware, Count);
+app.use("/api/v1/provinces-cities", sessionMiddleware, ProvincesCities);
 
 //jadwal cron job untuk memeriksa bonus yang sudah expired
 cron.schedule("0 0 * * *", async () => {

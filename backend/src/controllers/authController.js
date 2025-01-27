@@ -5,20 +5,23 @@ import Role from "../models/role.js";
 import DetailsUsers from "../models/details_users.js";
 import { addTokenToBlacklist } from "../middleware/checkTokenBlacklist.js";
 import UserPoints from "../models/userPoints.js";
-import moment from 'moment';
-import { v4 as uuidv4 } from "uuid";
+import moment from "moment";
 import { createOrUpdateUserStats } from "./userStatsController.js";
-import Address from "../models/address.js";
-
+import { Op } from "sequelize";
 
 //fungsi untuk mengasilkan kode referral unik
 const generateReferralCode = (minLength = 6, maxLength = 10) => {
-  const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
-  return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+  const length =
+    Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+  return Math.random()
+    .toString(36)
+    .substring(2, 2 + length)
+    .toUpperCase();
 };
 
 export const registerUser = async (req, res) => {
-  const { username, password, email, role_name, referralCode, phone_number } = req.body;
+  const { username, password, email, role_name, referralCode, phone_number } =
+    req.body;
 
   // Validasi input
   if (!username || !password || !email || !phone_number || !role_name) {
@@ -52,7 +55,7 @@ export const registerUser = async (req, res) => {
 
     // Generate referral code unik
     const newReferralCode = generateReferralCode();
-    
+
     // Tentukan siapa yang mengundang user (jika ada)
     let referredBy = null;
     if (referralCode) {
@@ -158,8 +161,8 @@ export const loginUser = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-     // Update atau buat UserStats setelah login berhasil
-     await createOrUpdateUserStats(user.id); // Memperbarui statistik pengguna
+    // Update atau buat UserStats setelah login berhasil
+    await createOrUpdateUserStats(user.id); // Memperbarui statistik pengguna
 
     return res.status(200).json({
       message: "Login successful.",
@@ -209,16 +212,15 @@ export const getUserData = async (req, res) => {
 
     // Ambil ID user dari decoded token yang sudah disimpan di req.user
     const userId = req.user.id;
-    console.log("User ID from token:", userId);
 
     // Ambil data user berdasarkan ID dan sertakan data role dalam query
     const user = await User.findOne({
       where: { id: userId },
       include: [
         {
-          model: Role, 
-          as: "userRole", 
-          attributes: ["role_name"], 
+          model: Role,
+          as: "userRole",
+          attributes: ["role_name"],
         },
         {
           model: UserPoints,
@@ -235,9 +237,9 @@ export const getUserData = async (req, res) => {
           as: "userDetails",
           attributes: ["fullname", "phone_number", "photo_profile"],
         },
+       
       ],
     });
-
 
     if (!user) {
       console.log("User not found in database");
@@ -246,7 +248,6 @@ export const getUserData = async (req, res) => {
 
     // Gunakan fallback default jika points tidak ada
     const points = user.userPoints ? user.userPoints.points : 0;
-    console.log("User points:", points);
 
     // Kirimkan data user beserta role
     const responseData = {
@@ -260,15 +261,63 @@ export const getUserData = async (req, res) => {
       referralCode: user.referralCode,
       referrals: user.Referrals,
       userDetails: user.userDetails, // Perhatikan alias
-     
     };
 
-   
-
     return res.status(200).json(responseData);
-
   } catch (error) {
     console.error("Error in getUserData:", error); // Log error untuk debug
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  const { userId } = req.params;
+  const { username, phone_number } = req.body;
+
+  try {
+
+    // Validasi apakah user ada
+    const user = await User.findByPk(userId, {
+      include: [{ model: DetailsUsers, as: "userDetails" }],
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update data username
+    if (username) {
+      const existingUser = await User.findOne({
+        where: { username, id: { [Op.ne]: userId } },
+      });
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      user.username = username;
+    }
+
+    // Update data phone_number di DetailsUsers
+    if (phone_number) {
+      const userDetails = user.userDetails;
+      if (!userDetails) {
+        // Jika data detail user belum ada, buat baru
+        await DetailsUsers.create({
+          user_id: userId,
+          phone_number,
+        });
+      } else {
+        // Jika data detail user ada, update
+        userDetails.phone_number = phone_number;
+        await userDetails.save();
+      }
+    }
+
+    // Simpan perubahan pada User
+    await user.save();
+
+    return res.status(200).json({ message: "User updated successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "An error occurred", error });
   }
 };
