@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:frontend/api/config.dart';
 import 'package:frontend/screens/produk/components/adress.dart';
 import 'package:frontend/screens/produk/components/order_confirmation_cart.dart';
+import 'package:frontend/screens/profile/components/alamat_saya.dart';
 import 'package:frontend/services/pesanan_service.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/model/cart_item.dart';
@@ -68,6 +69,8 @@ class PaymentSelectionCart extends StatelessWidget {
   }
 
   void bayarDenganCODCart(BuildContext context, CartItem item) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userId = userProvider.userId;
     int ongkir = 10000;
 
     int totalBayar = totalHarga + ongkir;
@@ -107,7 +110,7 @@ class PaymentSelectionCart extends StatelessWidget {
                   Text(
                     "Harga Produk",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -128,7 +131,7 @@ class PaymentSelectionCart extends StatelessWidget {
                   Text(
                     "Ongkir",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -152,7 +155,7 @@ class PaymentSelectionCart extends StatelessWidget {
                   Text(
                     "Total Bayar",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -166,6 +169,87 @@ class PaymentSelectionCart extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0x23FFC875),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            color: Color(0xFFFF9A01),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'Pastikan alamat Anda sudah diisi dan sudah sesuai!',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                              color: const Color(0xFFFF9A01),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFF0F1F5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Shipping Address',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddressPage(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Change',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF74B11A),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      AddressWidget(userId: userId ?? 0),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -227,7 +311,7 @@ class PaymentSelectionCart extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(
-                  'Confirm',
+                  'Pesan Sekarang',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
@@ -243,6 +327,8 @@ class PaymentSelectionCart extends StatelessWidget {
   }
 
   void bayarDenganPoinCart(BuildContext context, CartItem item) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userId = userProvider.userId;
     // final hargaPoinSet = await getHargaPoin(context) ?? 1;
     int ongkir = 10000;
     // int ongkirDalamPoin = (ongkir / hargaPoinSet).ceil();
@@ -285,7 +371,7 @@ class PaymentSelectionCart extends StatelessWidget {
                   Text(
                     "Harga Produk",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -315,7 +401,7 @@ class PaymentSelectionCart extends StatelessWidget {
                   Text(
                     "Ongkir",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -348,7 +434,7 @@ class PaymentSelectionCart extends StatelessWidget {
                   Text(
                     "Total Bayar",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -371,6 +457,87 @@ class PaymentSelectionCart extends StatelessWidget {
                     ],
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0x23FFC875),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            color: Color(0xFFFF9A01),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'Pastikan alamat Anda sudah diisi dan sudah sesuai!',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                              color: const Color(0xFFFF9A01),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFF0F1F5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Shipping Address',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddressPage(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Change',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF74B11A),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      AddressWidget(userId: userId ?? 0),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -430,7 +597,7 @@ class PaymentSelectionCart extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(
-                  'Confirm',
+                  'Pesan Sekarang',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
@@ -447,9 +614,6 @@ class PaymentSelectionCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final userId = userProvider.userId;
-
     return Scaffold(
       appBar: AppBar(
         // automaticallyImplyLeading: false,
@@ -460,15 +624,12 @@ class PaymentSelectionCart extends StatelessWidget {
               color: const Color(0xFF1F2131),
               fontSize: 16,
             )),
-        centerTitle: true,
       ),
       backgroundColor: const Color(0xFFF0F1F5),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            AddressWidget(userId: userId ?? 0),
-            const SizedBox(height: 20),
             SizedBox(
               height: MediaQuery.of(context).size.height - 200 - 150,
               child: ListView.builder(

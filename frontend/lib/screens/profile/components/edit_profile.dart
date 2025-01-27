@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/services/user_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:frontend/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
 class EditProfileScreen extends StatefulWidget {
@@ -16,35 +19,35 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   late String _profileImage;
   late String _currentUsername;
-  late String _phoneNumber; // Added phone number
+  late String _phoneNumber;
   late TextEditingController _usernameController;
-  late TextEditingController
-      _phoneNumberController; // Added phone number controller
+  late TextEditingController _phoneNumberController;
   late bool _isUsernameChanged;
   late bool _isProfileImageChanged;
-  late bool _isPhoneNumberChanged; // Added phone number changed flag
+  late bool _isPhoneNumberChanged;
+
+  final UserService _userService = UserService();
 
   @override
   void initState() {
     super.initState();
     _profileImage = '';
     _currentUsername = '';
-    _phoneNumber = ''; // Initialize phone number
+    _phoneNumber = '';
     _usernameController = TextEditingController();
-    _phoneNumberController =
-        TextEditingController(); // Initialize phone number controller
+    _phoneNumberController = TextEditingController();
     _isUsernameChanged = false;
     _isProfileImageChanged = false;
-    _isPhoneNumberChanged = false; // Initialize phone number changed flag
+    _isPhoneNumberChanged = false;
     _loadUserData();
   }
 
   Future<void> _loadUserData() async {
-    // Placeholder data loading logic (replace with local storage or any other data source)
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
     setState(() {
-      _currentUsername = 'SampleUsername';
+      _currentUsername = userProvider.username ?? 'SampleUsername';
       _usernameController.text = _currentUsername;
-      _phoneNumber = '1234567890';
+      _phoneNumber = userProvider.phoneNumber ?? '1234567890';
       _phoneNumberController.text = _phoneNumber;
     });
   }
@@ -105,6 +108,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  Future<void> _updateUserProfile() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userId = userProvider.userId ?? 0; // Default to 0 if null
+
+    final response = await _userService.updateUser(
+      context,
+      userId,
+      _usernameController.text.trim(),
+      _phoneNumberController.text.trim(),
+    );
+
+    if (response['status']) {
+      Fluttertoast.showToast(msg: response['message']);
+
+      // Update local state with the new values after a successful update
+      setState(() {
+        _currentUsername = _usernameController.text.trim();
+        _phoneNumber = _phoneNumberController.text.trim();
+        _isUsernameChanged = false;
+        _isPhoneNumberChanged = false;
+        _isProfileImageChanged = false;
+      });
+
+      // Update the UserProvider to keep it in sync with the local state
+      userProvider.updateUsername(_usernameController.text.trim());
+      userProvider.updatePhoneNumber(_phoneNumberController.text.trim());
+    } else {
+      Fluttertoast.showToast(msg: response['message']);
+    }
+  }
+
   Widget _buildProfileImage() {
     return GestureDetector(
       onTap: () {
@@ -140,28 +174,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
-          title: Text(
-            'Edit Profile',
-            style: GoogleFonts.poppins(
-              color: const Color(0xFF1F2131),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              color: Color(0xFF1F2131),
-              size: 14,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
         ),
-        backgroundColor: const Color(0xFFF0F1F5),
+        backgroundColor: Colors.white,
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -171,9 +186,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 30),
               TextFormField(
                 controller: _usernameController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return null; // No error message when the field is empty
+                  } else if (value.length < 4) {
+                    return 'Username must be at least 4 characters long';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
+                  // hintText: 'Enter your username',
+                  // hintStyle: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  suffixIcon: const Padding(
+                    padding: EdgeInsets.only(right: 28.0),
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.only(left: 28.0, top: 17, bottom: 17),
                   labelText: 'Username',
-                  border: OutlineInputBorder(),
+                  labelStyle: GoogleFonts.poppins(color: Colors.grey),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -181,12 +233,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   });
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _phoneNumberController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return null; // No error message when the field is empty
+                  }
+                  // Add phone number validation logic if needed
+                  return null;
+                },
+                keyboardType: TextInputType.phone, // Set keyboard type to phone
                 decoration: InputDecoration(
+                  // hintText: 'Enter your phone number',
+                  // hintStyle: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.only(left: 28.0, top: 17, bottom: 17),
                   labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
+                  labelStyle: GoogleFonts.poppins(color: Colors.grey),
+                  suffixIcon: const Padding(
+                    padding: EdgeInsets.only(right: 28),
+                    child: Icon(Icons.phone, color: Colors.grey),
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -206,8 +293,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     _phoneNumber)) &&
                         _usernameController.text.trim().isNotEmpty &&
                         _usernameController.text.trim().length >= 4
-                    ? () {
-                        // Perform save or update operations here
+                    ? () async {
+                        await _updateUserProfile();
                         setState(() {
                           _currentUsername = _usernameController.text.trim();
                           _phoneNumber = _phoneNumberController.text.trim();
@@ -215,15 +302,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           _isPhoneNumberChanged = false;
                           _isProfileImageChanged = false;
                         });
-                        Fluttertoast.showToast(
-                          msg: 'Profil berhasil diperbarui',
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.TOP,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.green,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -231,7 +309,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   backgroundColor: const Color(0xFF74B11A),
                 ),
                 child: Text(
-                  'Simpan Perubahan',
+                  'Update',
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                 ),
               )

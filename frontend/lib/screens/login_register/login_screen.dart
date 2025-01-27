@@ -150,6 +150,7 @@ class _LoginScreen1State extends State<LoginScreen> {
                   const SizedBox(height: 10),
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
+                    height: 50,
                     child: ElevatedButton(
                       onPressed: login,
                       style: ElevatedButton.styleFrom(
@@ -169,6 +170,7 @@ class _LoginScreen1State extends State<LoginScreen> {
                   const SizedBox(height: 10),
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
+                    height: 50,
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.push(

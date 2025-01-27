@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/profile/components/edit_address.dart';
 import 'package:frontend/services/address_service.dart';
 import 'package:frontend/model/address_model.dart';
 import 'package:frontend/providers/user_provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/screens/profile/components/add_address.dart';
 
 class AddressPage extends StatefulWidget {
@@ -48,11 +49,9 @@ class _AddressPageState extends State<AddressPage> {
           'Alamat',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF1F2131),
             fontSize: 16,
           ),
         ),
-        centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: Padding(
@@ -89,37 +88,38 @@ class _AddressPageState extends State<AddressPage> {
                           children: [
                             Card(
                               elevation: 0,
-                              color: Colors.white,
+                              color: const Color(0xFFF8F8F9),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
-                                side: const BorderSide(
-                                  color: Color(0xFFe9e8e8),
-                                ),
+                                // side: const BorderSide(
+                                //   color: Color(0xFFe9e8e8),
+                                // ),
                               ),
                               margin: const EdgeInsets.symmetric(vertical: 8),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: ListTile(
                                   title: RichText(
-                                    text: TextSpan(
-                                      text: address.recipientName,
-                                      style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                        color: const Color(0xFF1F2131),
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: ' | ${address.phoneNumber}',
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 14,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
+                                      text: TextSpan(
+                                    text: address.recipientName.length > 15
+                                        ? '${address.recipientName.substring(0, 15)}...'
+                                        : address.recipientName,
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: const Color(0xFF1F2131),
                                     ),
-                                  ),
+                                    children: [
+                                      TextSpan(
+                                        text: ' | ${address.phoneNumber}',
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  )),
                                   subtitle: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -138,7 +138,8 @@ class _AddressPageState extends State<AddressPage> {
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                               border: Border.all(
-                                                  color: Colors.green),
+                                                  color:
+                                                      const Color(0xFF74B11A)),
                                             ),
                                             child: Padding(
                                               padding:
@@ -146,7 +147,8 @@ class _AddressPageState extends State<AddressPage> {
                                               child: Text(
                                                 'Alamat Utama',
                                                 style: GoogleFonts.poppins(
-                                                  color: Colors.green,
+                                                  color:
+                                                      const Color(0xFF74B11A),
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -169,8 +171,8 @@ class _AddressPageState extends State<AddressPage> {
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
-                                      side: const BorderSide(
-                                        color: Colors.green,
+                                      side: BorderSide(
+                                        color: Colors.grey[300]!,
                                         width: 1,
                                       ),
                                     ),
@@ -183,12 +185,14 @@ class _AddressPageState extends State<AddressPage> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const AddAddress(),
+                                              EditAddressPage(address: address),
                                         ),
                                       );
                                     } else if (value == 'delete') {
-                                      await AddressService().deleteAddress(
-                                          context, address.id); // Address ID
+                                      debugPrint(
+                                          'Deleting Address ID: ${address.id}');
+                                      await AddressService()
+                                          .deleteAddress(context, address.id);
                                       setState(() {
                                         futureAddresses = fetchUserAddresses();
                                       });
@@ -200,11 +204,12 @@ class _AddressPageState extends State<AddressPage> {
                                       child: Row(
                                         children: [
                                           const Icon(Icons.edit,
-                                              size: 16, color: Colors.blue),
+                                              size: 16, color: Colors.orange),
                                           const SizedBox(width: 8),
                                           Text(
                                             'Edit',
-                                            style: GoogleFonts.poppins(),
+                                            style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.w600),
                                           ),
                                         ],
                                       ),
@@ -219,7 +224,8 @@ class _AddressPageState extends State<AddressPage> {
                                           const SizedBox(width: 8),
                                           Text(
                                             'Delete',
-                                            style: GoogleFonts.poppins(),
+                                            style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.w600),
                                           ),
                                         ],
                                       ),
@@ -241,13 +247,12 @@ class _AddressPageState extends State<AddressPage> {
             // Add New Address Button
             ElevatedButton(
               onPressed: () {
-                // Navigate to the AddAddressPage
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const AddAddress()),
                 );
               },
-              child: const Text("Tambah Alamat Baru"),
+              child: const Text("New Address"),
             ),
           ],
         ),

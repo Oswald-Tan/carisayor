@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/screens/login_register/login_screen.dart';
 import 'package:frontend/screens/profile/components/menu.dart';
 import 'package:frontend/screens/profile/components/profile_pic.dart';
@@ -27,7 +28,7 @@ class ProfileHeaderPlaceholder extends StatelessWidget {
       highlightColor: Colors.grey[100]!,
       child: const ProfileHeader(
         profileImageUrl: "",
-        name: "",
+        username: "",
         email: "",
       ),
     );
@@ -90,15 +91,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String userName = "Not Available"; // Ganti dengan sumber data lain
+    String userName =
+        Provider.of<UserProvider>(context).username ?? "Not Available";
 
     return Scaffold(
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   scrolledUnderElevation: 0,
-      //   backgroundColor: Colors.white,
-      // ),
-      // backgroundColor: const Color(0xFFF0F1F5),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
@@ -106,7 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.only(
-                  left: 20, right: 20, top: 70, bottom: 20),
+                  left: 20, right: 20, top: 70, bottom: 0),
               child: FutureBuilder<String>(
                 future:
                     Future.delayed(const Duration(seconds: 1), () => userName),
@@ -125,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   } else {
                     return ProfileHeader(
                       profileImageUrl: '',
-                      name: snapshot.data ?? 'Not Available',
+                      username: snapshot.data ?? 'Not Available',
                       email: "Not Available",
                     );
                   }

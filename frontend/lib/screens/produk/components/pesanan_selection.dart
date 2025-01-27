@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:frontend/api/config.dart';
 import 'package:frontend/screens/produk/components/adress.dart';
 import 'package:frontend/screens/produk/components/order_confirmation.dart';
+import 'package:frontend/screens/profile/components/alamat_saya.dart';
 import 'package:frontend/services/pesanan_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +20,8 @@ String formatRupiah(int value) {
 
 final Dio _dio = Dio();
 
-class PaymentSelection extends StatelessWidget {
+class PaymentSelection extends StatefulWidget {
+  static String routeName = "/paymentSelection";
   final String? id;
   final String nama;
   final int hargaRp;
@@ -41,6 +43,11 @@ class PaymentSelection extends StatelessWidget {
     required this.satuan,
   });
 
+  @override
+  State<PaymentSelection> createState() => _PaymentSelectionState();
+}
+
+class _PaymentSelectionState extends State<PaymentSelection> {
   Future<int?> getHargaPoin(BuildContext context) async {
     try {
       // Ambil token dari UserProvider
@@ -77,29 +84,30 @@ class PaymentSelection extends StatelessWidget {
   }
 
   void _bayarDenganCOD(BuildContext context) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userId = userProvider.userId;
     int ongkir = 10000;
 
     int totalBayar;
-    if (satuan.toLowerCase() == 'ikat') {
-      totalBayar = hargaRp * berat;
-    } else if (satuan.toLowerCase() == 'gram') {
-      totalBayar = (berat / 100).ceil() * hargaRp;
-    } else if (satuan.toLowerCase() == 'kilogram') {
-      double beratInKilogram = berat.toDouble();
-      totalBayar = (beratInKilogram * hargaRp).toInt();
+    if (widget.satuan.toLowerCase() == 'ikat') {
+      totalBayar = widget.hargaRp * widget.berat;
+    } else if (widget.satuan.toLowerCase() == 'gram') {
+      totalBayar = (widget.berat / 100).ceil() * widget.hargaRp;
+    } else if (widget.satuan.toLowerCase() == 'kilogram') {
+      double beratInKilogram = widget.berat.toDouble();
+      totalBayar = (beratInKilogram * widget.hargaRp).toInt();
     } else {
       totalBayar = 0;
     }
 
     int totalBayarSemua = totalBayar + ongkir;
-    debugPrint('total bayar semua: $totalBayarSemua');
 
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      isScrollControlled: true,
+      isScrollControlled: true, // Pastikan ini aktif
       backgroundColor: Colors.white,
       builder: (BuildContext context) {
         return Padding(
@@ -109,139 +117,229 @@ class PaymentSelection extends StatelessWidget {
             right: 20,
             bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
+          child: Wrap(
+            // Gunakan Wrap agar konten menyesuaikan tinggi
             children: [
-              Text(
-                'Pembayaran COD',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: const Color(0xFF1F2131),
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min, // Pastikan ini min
                 children: [
                   Text(
-                    "Harga Produk",
+                    'Pembayaran COD',
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
                       fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    formatRupiah(hargaRp),
-                    style: GoogleFonts.poppins(
                       color: const Color(0xFF1F2131),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Ongkir",
-                    style: GoogleFonts.poppins(
-                      color: Colors.grey,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    formatRupiah(ongkir),
-                    style: GoogleFonts.poppins(
-                      color: const Color(0xFF1F2131),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              const Divider(color: Color(0xFFE2E3E6), thickness: 1),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Total Bayar",
-                    style: GoogleFonts.poppins(
-                      color: Colors.grey,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    formatRupiah(totalBayarSemua),
-                    style: GoogleFonts.poppins(
-                      color: const Color(0xFF1F2131),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    String nameWithWeight = '$nama ($berat $satuan)';
-                    String invoiceNumber =
-                        'INV-${DateTime.now().millisecondsSinceEpoch}';
-                    bool berhasil = await PesananService().bayarDenganCOD(
-                      context,
-                      nameWithWeight,
-                      hargaRp,
-                      ongkir,
-                      totalBayarSemua,
-                      invoiceNumber, // Kirimkan nomor invoice
-                    );
-
-                    if (berhasil) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrderConfirmationPage(
-                            namaProduk: nama,
-                            jumlah: '$berat',
-                            satuan: satuan,
-                            beratNormal: beratNormal,
-                            hargaProduk: formatRupiah(hargaRp),
-                            ongkir: formatRupiah(ongkir),
-                            totalBayar: formatRupiah(totalBayar),
-                            totalBayarSemua: formatRupiah(totalBayarSemua),
-                            invoiceNumber: invoiceNumber,
-                          ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Harga Produk",
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
                         ),
-                      );
-                    }
-                  } catch (e) {
-                    debugPrint('Error: $e');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Gagal memproses pesanan: $e')),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF74B11A),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: Text(
-                  'Confirm',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    fontSize: 16,
+                      ),
+                      Text(
+                        formatRupiah(widget.hargaRp),
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Ongkir",
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        formatRupiah(ongkir),
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  const Divider(color: Color(0xFFE2E3E6), thickness: 1),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total Bayar",
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        formatRupiah(totalBayarSemua),
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: const Color(0x23FFC875),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Color(0xFFFF9A01),
+                                size: 16,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                'Pastikan alamat Anda sudah diisi dan sudah sesuai!',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                  color: const Color(0xFFFF9A01),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Address Section
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: const Color(0xFFF0F1F5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Shipping Address',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const AddressPage(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Change',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF74B11A),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          AddressWidget(userId: userId ?? 0),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        String nameWithWeight =
+                            '${widget.nama} (${widget.berat} ${widget.satuan})';
+                        String invoiceNumber =
+                            'INV-${DateTime.now().millisecondsSinceEpoch}';
+                        bool berhasil = await PesananService().bayarDenganCOD(
+                          context,
+                          nameWithWeight,
+                          widget.hargaRp,
+                          ongkir,
+                          totalBayarSemua,
+                          invoiceNumber,
+                        );
+
+                        if (berhasil) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OrderConfirmationPage(
+                                namaProduk: widget.nama,
+                                jumlah: '${widget.berat}',
+                                satuan: widget.satuan,
+                                beratNormal: widget.beratNormal,
+                                hargaProduk: formatRupiah(widget.hargaRp),
+                                ongkir: formatRupiah(ongkir),
+                                totalBayar: formatRupiah(totalBayar),
+                                totalBayarSemua: formatRupiah(totalBayarSemua),
+                                invoiceNumber: invoiceNumber,
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        debugPrint('Error: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Gagal memproses pesanan: $e')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF74B11A),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: Text(
+                      'Pesan Sekarang',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -251,6 +349,8 @@ class PaymentSelection extends StatelessWidget {
   }
 
   void _bayarDenganPoin(BuildContext context) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userId = userProvider.userId;
     // final hargaPoinSet = await getHargaPoin(context) ?? 1;
     int nilaiOngkir = 10000;
     // int ongkir = (nilaiOngkir / hargaPoinSet).ceil();
@@ -258,13 +358,13 @@ class PaymentSelection extends StatelessWidget {
 
     // Hitung total bayar berdasarkan satuan dan harga poin
     int totalBayar;
-    if (satuan.toLowerCase() == 'ikat') {
-      totalBayar = hargaPoin * berat;
-    } else if (satuan.toLowerCase() == 'gram') {
-      totalBayar = (berat / 100).ceil() * hargaPoin;
-    } else if (satuan.toLowerCase() == 'kilogram') {
-      double beratInKilogram = berat.toDouble();
-      totalBayar = (beratInKilogram * hargaPoin).toInt();
+    if (widget.satuan.toLowerCase() == 'ikat') {
+      totalBayar = widget.hargaPoin * widget.berat;
+    } else if (widget.satuan.toLowerCase() == 'gram') {
+      totalBayar = (widget.berat / 100).ceil() * widget.hargaPoin;
+    } else if (widget.satuan.toLowerCase() == 'kilogram') {
+      double beratInKilogram = widget.berat.toDouble();
+      totalBayar = (beratInKilogram * widget.hargaPoin).toInt();
     } else {
       totalBayar = 0;
     }
@@ -307,7 +407,7 @@ class PaymentSelection extends StatelessWidget {
                   Text(
                     "Harga Produk",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -337,7 +437,7 @@ class PaymentSelection extends StatelessWidget {
                   Text(
                     "Ongkir",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -370,7 +470,7 @@ class PaymentSelection extends StatelessWidget {
                   Text(
                     "Total Bayar",
                     style: GoogleFonts.poppins(
-                      color: Colors.grey,
+                      color: const Color(0xFF1F2131),
                       fontSize: 16,
                     ),
                   ),
@@ -395,16 +495,98 @@ class PaymentSelection extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0x23FFC875),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            color: Color(0xFFFF9A01),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'Pastikan alamat Anda sudah diisi dan sudah sesuai!',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                              color: const Color(0xFFFF9A01),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFF0F1F5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Shipping Address',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddressPage(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Change',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF74B11A),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      AddressWidget(userId: userId ?? 0),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   try {
-                    String nameWithWeight = '$nama ($berat $satuan)';
+                    String nameWithWeight =
+                        '${widget.nama} (${widget.berat} ${widget.satuan})';
                     String invoiceNumber =
                         'INV-${DateTime.now().millisecondsSinceEpoch}';
                     bool berhasil = await PesananService().bayarDenganPoin(
                       context,
                       nameWithWeight,
-                      hargaPoin,
+                      widget.hargaPoin,
                       ongkir,
                       totalBayarSemua,
                       invoiceNumber,
@@ -416,11 +598,11 @@ class PaymentSelection extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => OrderConfirmationPage(
-                            namaProduk: nama,
-                            jumlah: '$berat',
-                            satuan: satuan,
-                            beratNormal: beratNormal,
-                            hargaProduk: '$hargaPoin',
+                            namaProduk: widget.nama,
+                            jumlah: '${widget.berat}',
+                            satuan: widget.satuan,
+                            beratNormal: widget.beratNormal,
+                            hargaProduk: '${widget.hargaPoin}',
                             ongkir: '$ongkir',
                             totalBayar: '$totalBayar',
                             totalBayarSemua: '$totalBayarSemua',
@@ -438,7 +620,7 @@ class PaymentSelection extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(
-                  'Confirm',
+                  'Pesan Sekarang',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
@@ -456,31 +638,28 @@ class PaymentSelection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int totalBayarPoin;
-    if (satuan.toLowerCase() == 'ikat') {
-      totalBayarPoin = hargaPoin * berat;
-    } else if (satuan.toLowerCase() == 'gram') {
-      totalBayarPoin = (berat / 100).ceil() * hargaPoin;
-    } else if (satuan.toLowerCase() == 'kilogram') {
-      double beratInKilogram = berat.toDouble();
-      totalBayarPoin = (beratInKilogram * hargaPoin).toInt();
+    if (widget.satuan.toLowerCase() == 'ikat') {
+      totalBayarPoin = widget.hargaPoin * widget.berat;
+    } else if (widget.satuan.toLowerCase() == 'gram') {
+      totalBayarPoin = (widget.berat / 100).ceil() * widget.hargaPoin;
+    } else if (widget.satuan.toLowerCase() == 'kilogram') {
+      double beratInKilogram = widget.berat.toDouble();
+      totalBayarPoin = (beratInKilogram * widget.hargaPoin).toInt();
     } else {
       totalBayarPoin = 0;
     }
 
     int totalHargaRp;
-    if (satuan.toLowerCase() == 'ikat') {
-      totalHargaRp = hargaRp * berat;
-    } else if (satuan.toLowerCase() == 'gram') {
-      totalHargaRp = (berat / 100).ceil() * hargaRp;
-    } else if (satuan.toLowerCase() == 'kilogram') {
-      double beratInKilogram = berat.toDouble();
-      totalHargaRp = (beratInKilogram * hargaRp).toInt();
+    if (widget.satuan.toLowerCase() == 'ikat') {
+      totalHargaRp = widget.hargaRp * widget.berat;
+    } else if (widget.satuan.toLowerCase() == 'gram') {
+      totalHargaRp = (widget.berat / 100).ceil() * widget.hargaRp;
+    } else if (widget.satuan.toLowerCase() == 'kilogram') {
+      double beratInKilogram = widget.berat.toDouble();
+      totalHargaRp = (beratInKilogram * widget.hargaRp).toInt();
     } else {
       totalHargaRp = 0;
     }
-
-    final userProvider = Provider.of<UserProvider>(context);
-    final userId = userProvider.userId;
 
     return Scaffold(
       appBar: AppBar(
@@ -494,7 +673,6 @@ class PaymentSelection extends StatelessWidget {
             fontSize: 16,
           ),
         ),
-        centerTitle: true,
       ),
       backgroundColor: const Color(0xFFF0F1F5),
       body: SingleChildScrollView(
@@ -502,8 +680,6 @@ class PaymentSelection extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              AddressWidget(userId: userId ?? 0),
-              const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -518,9 +694,9 @@ class PaymentSelection extends StatelessWidget {
                         color: const Color(0xFFF0F1F5),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: imagePath.startsWith('http')
+                      child: widget.imagePath.startsWith('http')
                           ? Image.network(
-                              imagePath,
+                              widget.imagePath,
                               width: 50,
                               height: 50,
                               errorBuilder: (context, error, stackTrace) {
@@ -532,7 +708,7 @@ class PaymentSelection extends StatelessWidget {
                               },
                             )
                           : Image.asset(
-                              imagePath,
+                              widget.imagePath,
                               width: 50,
                               height: 50,
                             ),
@@ -547,7 +723,7 @@ class PaymentSelection extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                nama,
+                                widget.nama,
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -562,7 +738,7 @@ class PaymentSelection extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 2),
                                   Text(
-                                    '$hargaPoin',
+                                    '${widget.hargaPoin}',
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14,
@@ -572,7 +748,7 @@ class PaymentSelection extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                formatRupiah(hargaRp),
+                                formatRupiah(widget.hargaRp),
                                 style: GoogleFonts.poppins(
                                   color: Colors.grey,
                                   fontSize: 14,
@@ -582,7 +758,7 @@ class PaymentSelection extends StatelessWidget {
                             ],
                           ),
                           Text(
-                            '$berat ${satuan == "Kilogram" ? "Kg" : satuan == "Gram" ? "gram" : satuan}',
+                            '${widget.berat} ${widget.satuan == "Kilogram" ? "Kg" : widget.satuan == "Gram" ? "gram" : widget.satuan}',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,

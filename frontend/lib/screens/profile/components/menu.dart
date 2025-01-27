@@ -54,7 +54,7 @@ class Menu extends StatelessWidget {
                       Row(
                         children: [
                           const Icon(
-                            Icons.person_outline_outlined,
+                            Icons.person_2,
                             color: Color(0xFF1F2131),
                             size: 22,
                           ),
@@ -64,6 +64,7 @@ class Menu extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               color: const Color(0xFF1F2131),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -71,7 +72,7 @@ class Menu extends StatelessWidget {
                       const Icon(
                         Icons.arrow_forward_ios,
                         size: 12,
-                        color: Color(0xFFB9B9B9),
+                        color: const Color(0xFF1F2131),
                       ),
                     ],
                   ),
@@ -101,7 +102,7 @@ class Menu extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.location_on_outlined,
+                              Icons.location_on,
                               color: Color(0xFF1F2131),
                               size: 22,
                             ),
@@ -111,6 +112,7 @@ class Menu extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: const Color(0xFF1F2131),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -118,7 +120,7 @@ class Menu extends StatelessWidget {
                         const Icon(
                           Icons.arrow_forward_ios,
                           size: 12,
-                          color: Color(0xFFB9B9B9),
+                          color: const Color(0xFF1F2131),
                         ),
                       ],
                     ),
@@ -168,7 +170,7 @@ class Menu extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.list_alt_rounded,
+                              Icons.list_rounded,
                               color: Color(0xFF1F2131),
                               size: 22,
                             ),
@@ -178,6 +180,7 @@ class Menu extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: const Color(0xFF1F2131),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -185,7 +188,7 @@ class Menu extends StatelessWidget {
                         const Icon(
                           Icons.arrow_forward_ios,
                           size: 12,
-                          color: Color(0xFFB9B9B9),
+                          color: const Color(0xFF1F2131),
                         ),
                       ],
                     ),
@@ -215,7 +218,7 @@ class Menu extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.shield_outlined,
+                              Icons.shield,
                               color: Color(0xFF1F2131),
                               size: 22,
                             ),
@@ -225,6 +228,7 @@ class Menu extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: const Color(0xFF1F2131),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -232,7 +236,7 @@ class Menu extends StatelessWidget {
                         const Icon(
                           Icons.arrow_forward_ios,
                           size: 12,
-                          color: Color(0xFFB9B9B9),
+                          color: const Color(0xFF1F2131),
                         ),
                       ],
                     ),
@@ -283,6 +287,7 @@ class Menu extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               color: const Color(0xFF1F2131),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -403,7 +408,7 @@ class Menu extends StatelessWidget {
                       children: [
                         Icon(
                           size: 20,
-                          Icons.logout,
+                          Icons.logout_outlined,
                           color: Colors.red[400],
                         ),
                         const SizedBox(width: 10),
@@ -412,6 +417,7 @@ class Menu extends StatelessWidget {
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: Colors.red[400],
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],

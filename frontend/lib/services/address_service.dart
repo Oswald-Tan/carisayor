@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:frontend/model/address_model.dart';
 import 'package:frontend/api/config.dart';
 import 'package:provider/provider.dart';
@@ -44,22 +45,124 @@ class AddressService {
     }
   }
 
-  // Fungsi untuk mendapatkan alamat default pengguna
-  Future<Address> getDefaultAddress(BuildContext context, int? userId) async {
+  //dapatkan alamat berdasarkann Id
+  Future<Address?> getAddressById(
+      {required BuildContext context, required int addressId}) async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final token = userProvider.token;
+
+      if (token == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final response = await _dio.get(
+        '$baseUrl/addresses/get-address-id/$addressId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final address = Address.fromJson(response.data['data']);
+        return address;
+      } else {
+        String errorMessage = 'Failed to retrieve address';
+        if (response.data != null && response.data['message'] != null) {
+          errorMessage = response.data['message'];
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } catch (error) {
+      debugPrint("Error retrieving address: $error");
+      if (error is DioException) {
+        debugPrint("DioException Details:");
+        debugPrint("Type: ${error.type}");
+        debugPrint("Message: ${error.message}");
+        debugPrint("Response: ${error.response?.data}");
+        debugPrint("Status Code: ${error.response?.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error retrieving address")),
+        );
+      }
+    }
+    return null;
+  }
+
+  // Fungsi untuk mengedit alamat
+  Future<Map<String, dynamic>> editAddress({
+    required BuildContext context,
+    required int id,
+    required String recipientName,
+    required String phoneNumber,
+    required String addressLine1,
+    required String city,
+    required String state,
+    required String postalCode,
+    required bool isDefault,
+  }) async {
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final token = userProvider.token;
       final userId = userProvider.userId;
 
+      if (token == null || userId == null) {
+        throw Exception('User not authenticated.');
+      }
+
+      final response = await _dio.put(
+        '$baseUrl/addresses/$id',
+        data: {
+          'user_id': userId,
+          'recipient_name': recipientName,
+          'phone_number': phoneNumber,
+          'address_line_1': addressLine1,
+          'city': city,
+          'state': state,
+          'postal_code': postalCode,
+          'isDefault': isDefault,
+        },
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        debugPrint("Address updated successfully!");
+        return response.data; // Mengembalikan data dari server
+      } else {
+        debugPrint(
+            "Failed to update address. Status Code: ${response.statusCode}");
+        throw Exception('Failed to update address');
+      }
+    } catch (error) {
+      debugPrint("Error updating address: $error");
+      throw error; // Melempar kembali error ke pemanggil
+    }
+  }
+
+  // Fungsi untuk mendapatkan alamat default pengguna
+  Future<Address?> getDefaultAddress(BuildContext context, int? userId) async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final token = userProvider.token;
+
       debugPrint("Token: $token");
       debugPrint("User ID: $userId");
 
-      // Pastikan token dan userId ada
+      // Periksa apakah token dan userId valid
       if (token == null || userId == null) {
         debugPrint("User not authenticated.");
         throw Exception('User not authenticated.');
       }
 
+      // Kirim permintaan API untuk mendapatkan alamat default
       final response = await _dio.get(
         '$baseUrl/addresses/default/$userId',
         options: Options(
@@ -69,19 +172,25 @@ class AddressService {
         ),
       );
 
-      debugPrint("Response Status Code: ${response.statusCode}");
-      debugPrint("Response Data: ${response.data}");
-
+      // Periksa status respons
       if (response.statusCode == 200) {
-        Address defaultAddress =
-            Address.fromJson(response.data['defaultAddress']);
-        return defaultAddress;
+        final data = response.data;
+        if (data != null && data['defaultAddress'] != null) {
+          // Konversi data JSON ke objek Address
+          return Address.fromJson(data['defaultAddress']);
+        } else {
+          debugPrint("Default address not found for user $userId.");
+          return null; // Alamat default tidak ditemukan
+        }
       } else {
-        throw Exception('Failed to load default address');
+        debugPrint(
+            "Failed to fetch default address. Status code: ${response.statusCode}");
+        throw Exception('Failed to fetch default address.');
       }
     } catch (error) {
-      debugPrint("Error fetching default address: $error");
-      throw Exception('Failed to load default address');
+      // Tangani error
+      debugPrint("Error while fetching default address: $error");
+      return null; // Return null jika terjadi error
     }
   }
 
@@ -96,7 +205,6 @@ class AddressService {
     required String state,
     required String postalCode,
     required bool isDefault,
-    required bool supportedArea,
   }) async {
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -129,7 +237,6 @@ class AddressService {
           'state': state,
           'postal_code': postalCode,
           'isDefault': isDefault,
-          'supported_area': supportedArea,
         },
         options: Options(
           headers: {

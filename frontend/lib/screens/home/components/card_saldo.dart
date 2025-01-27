@@ -188,7 +188,7 @@ class _CardSaldoState extends State<CardSaldo> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 _buildIconWithText(
-                                  FontAwesomeIcons.plusCircle, // Top Up Icon
+                                  FontAwesomeIcons.circlePlus, // Top Up Icon
                                   'Top Up',
                                   () {
                                     Navigator.push(
@@ -200,7 +200,7 @@ class _CardSaldoState extends State<CardSaldo> {
                                   },
                                 ),
                                 _buildIconWithText(
-                                  FontAwesomeIcons.shareAlt, // Send Icon
+                                  FontAwesomeIcons.shareNodes, // Send Icon
                                   'Send',
                                   () {
                                     Navigator.push(

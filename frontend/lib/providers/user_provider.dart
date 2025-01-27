@@ -10,18 +10,15 @@ class UserProvider with ChangeNotifier {
   String? _role;
   int? _userId;
   int? _points;
-  List<Map<String, dynamic>> _referrals = [];
-
-  //tambah variable untuk menyimpan detail user
   String? _fullname;
   String? _phoneNumber;
   String? _photoProfile;
+  List<Map<String, dynamic>> _referrals = [];
 
   // Getter untuk data detail user
   String? get fullname => _fullname;
   String? get phoneNumber => _phoneNumber;
   String? get photoProfile => _photoProfile;
-
   String? get token => _token;
   String? get username => _username;
   String? get email => _email;
@@ -29,9 +26,9 @@ class UserProvider with ChangeNotifier {
   int? get userId => _userId;
   int? get points => _points;
   List<Map<String, dynamic>> get referrals => _referrals;
-
   bool get isAuthenticated => _token != null;
 
+  // Method untuk mendapatkan data user dari server
   Future<void> getUserData(String token) async {
     const url = '$baseUrl/auth/user';
 
@@ -49,14 +46,12 @@ class UserProvider with ChangeNotifier {
         _points = userData['points'];
         _referrals =
             List<Map<String, dynamic>>.from(userData['referrals'] ?? []);
-        // Menambahkan data detail user
         _fullname = userData['userDetails']?['fullname'] ?? 'Tidak tersedia';
         _phoneNumber =
             userData['userDetails']?['phone_number'] ?? 'Tidak tersedia';
         _photoProfile = userData['userDetails']?['photo_profile'];
-
         _token = token;
-
+        // Notify listeners after the data is updated
         notifyListeners();
       } else {
         throw Exception('Failed to load user data: ${response.statusCode}');
@@ -65,5 +60,16 @@ class UserProvider with ChangeNotifier {
       debugPrint('Error fetching user data: $error');
       rethrow;
     }
+  }
+
+  // Menambahkan metode untuk memperbarui username
+  void updateUsername(String newUsername) {
+    _username = newUsername;
+    notifyListeners(); // Notifikasi perubahan ke listener
+  }
+
+  void updatePhoneNumber(String newPhoneNumber) {
+    _phoneNumber = newPhoneNumber;
+    notifyListeners(); // Notifikasi perubahan ke listener
   }
 }

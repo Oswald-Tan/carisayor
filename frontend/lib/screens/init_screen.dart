@@ -74,7 +74,8 @@ class _InitScreenState extends State<InitScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  buildFloatingIconButton(Icons.home_outlined, 'Home', 0),
+                  buildFloatingIconButton(
+                      Icons.other_houses_outlined, 'Home', 0),
                   buildFloatingIconButton(
                       Icons.shopping_bag_outlined, 'Shop', 1),
                   buildFloatingIconButton(Icons.history, 'Activity', 2),

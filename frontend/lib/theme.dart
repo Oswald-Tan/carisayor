@@ -7,11 +7,15 @@ class AppTheme {
     return ThemeData(
       // scaffoldBackgroundColor: Colors.white,
       fontFamily: "Poppins",
-      // appBarTheme: const AppBarTheme(
-      //     color: Colors.white,
-      //     elevation: 0,
-      //     iconTheme: IconThemeData(color: Colors.black),
-      //     titleTextStyle: TextStyle(color: Colors.black)),
+      appBarTheme: const AppBarTheme(
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          iconTheme: IconThemeData(
+            color: Color(0xFF1F2131),
+          ),
+          titleTextStyle: TextStyle(
+            color: Color(0xFF1F2131),
+          )),
       textTheme: const TextTheme(
         bodyLarge: TextStyle(color: kTextColor),
         bodyMedium: TextStyle(color: kTextColor),
@@ -23,9 +27,9 @@ class AppTheme {
           elevation: 0,
           backgroundColor: kPrimaryColor,
           foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 48),
+          minimumSize: const Size(double.infinity, 50),
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
         ),
       ),
@@ -38,8 +42,8 @@ class AppTheme {
   }
 }
 
-// const OutlineInputBorder outlineInputBorder = OutlineInputBorder(
-//   borderRadius: BorderRadius.all(Radius.circular(28)),
-//   borderSide: BorderSide(color: kTextColor),
-//   gapPadding: 10,
-// );
+const OutlineInputBorder outlineInputBorder = OutlineInputBorder(
+  borderRadius: BorderRadius.all(Radius.circular(58)),
+  borderSide: BorderSide(color: Colors.grey),
+  gapPadding: 10,
+);

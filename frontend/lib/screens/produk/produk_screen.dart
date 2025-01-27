@@ -69,18 +69,16 @@ class _ProductScreenState extends State<ProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        scrolledUnderElevation: 0,
         backgroundColor: const Color(0xFFF0F1F5),
         title: Text(
           'Produk',
           style: GoogleFonts.poppins(
-            color: const Color(0xFF1F2131),
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       backgroundColor: Colors.white,
       body: Column(
@@ -121,7 +119,7 @@ class _ProductScreenState extends State<ProductScreen> {
                               crossAxisCount: 2,
                               crossAxisSpacing: 10,
                               mainAxisSpacing: 10,
-                              childAspectRatio: 0.68,
+                              childAspectRatio: 0.70,
                             ),
                             itemCount: filteredProducts.length,
                             itemBuilder: (context, index) {

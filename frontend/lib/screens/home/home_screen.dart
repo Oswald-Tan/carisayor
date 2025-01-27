@@ -94,31 +94,6 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-              // const SizedBox(height: 20),
-
-              // Menampilkan ProdukList dalam GridView dengan dua kolom
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 20),
-              //   child: GridView.count(
-              //       shrinkWrap: true,
-              //       physics: const NeverScrollableScrollPhysics(),
-              //       crossAxisCount: 2, // Jumlah kolom
-              //       crossAxisSpacing: 10,
-              //       mainAxisSpacing: 10,
-              //       childAspectRatio: 0.68, // Mengatur rasio aspek kartu
-              //       children: products.map((product) {
-              //         return ProdukCard(
-              //           nama: product["nama"],
-              //           harga: product["harga"],
-              //           hargaRp: product["hargaRp"],
-              //           berat: product["berat"],
-              //           imagePath: product["imagePath"],
-              //           deskripsi: product["deskripsi"],
-              //           satuan: product["satuan"],
-              //         );
-              //       }).toList()),
-              // ),
-
               const SizedBox(height: 10),
 
               // CategoriesCarousel muncul setelah BahanCard

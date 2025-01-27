@@ -90,7 +90,6 @@ class _BonusScreenState extends State<BonusScreen>
             color: const Color(0xFF1F2131),
           ),
         ),
-        centerTitle: true,
         actions: [
           IconButton(
             icon: const FaIcon(

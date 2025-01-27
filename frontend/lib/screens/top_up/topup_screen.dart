@@ -75,7 +75,6 @@ class _TopUpPageState extends State<TopUpPage> {
             fontSize: 16,
           ),
         ),
-        centerTitle: true,
       ),
       backgroundColor: const Color(0xFFF0F1F5),
       body: Padding(

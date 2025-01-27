@@ -30,14 +30,13 @@ class InvoicePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-          'Invoice',
+          'Detail Top Up',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             color: const Color(0xFF1F2131),
             fontSize: 16,
           ),
         ),
-        centerTitle: true,
       ),
       // backgroundColor: const Color(0xFFF0F1F5),
       backgroundColor: Colors.white,

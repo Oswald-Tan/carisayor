@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/api/config.dart';
 import 'package:frontend/model/cart_item.dart';
-import 'package:frontend/screens/produk/components/adress.dart';
 import 'package:frontend/screens/produk/components/pesanan_selection_cart.dart';
 import 'package:frontend/services/cart_service.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -172,8 +171,8 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final userId = userProvider.userId;
+    // final userProvider = Provider.of<UserProvider>(context);
+    // final userId = userProvider.userId;
 
     return Scaffold(
       appBar: AppBar(
@@ -187,7 +186,6 @@ class _CartScreenState extends State<CartScreen> {
             fontSize: 16,
           ),
         ),
-        centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {
@@ -218,36 +216,6 @@ class _CartScreenState extends State<CartScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cek jika ada data sebelum menampilkan Address()
-              FutureBuilder<List<CartItem>>(
-                future: _cartItemsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Terjadi kesalahan: ${snapshot.error}',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    );
-                  } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-                    // Menampilkan pesan jika data kosong
-                    return const SizedBox
-                        .shrink(); // Tidak menampilkan apapun jika kosong
-                  } else {
-                    // Menampilkan Address() jika data ada
-                    return Column(
-                      children: [
-                        AddressWidget(userId: userId ?? 0),
-                        const SizedBox(height: 20),
-                      ],
-                    );
-                  }
-                },
-              ),
-
               // Daftar produk keranjang dengan RefreshIndicator
               Expanded(
                 child: FutureBuilder<List<CartItem>>(

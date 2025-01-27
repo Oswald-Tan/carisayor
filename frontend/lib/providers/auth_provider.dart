@@ -42,10 +42,10 @@ class AuthProvider with ChangeNotifier {
           _token = null;
           notifyListeners(); //notifikasi perubahan untuk memperbarui UI
         } else {
-          print('Logout failed: ${res.body}');
+          debugPrint('Logout failed: ${res.body}');
         }
       } catch (error) {
-        print('Error: $error');
+        debugPrint('Error: $error');
       }
     }
   }
@@ -138,7 +138,7 @@ class AuthProvider with ChangeNotifier {
       }
     } catch (error) {
       // print('Error: $error');
-      throw error;
+      rethrow;
     }
   }
 

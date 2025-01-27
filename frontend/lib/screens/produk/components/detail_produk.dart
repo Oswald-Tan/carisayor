@@ -5,6 +5,7 @@ import 'package:frontend/services/cart_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 final currencyFormat =
     NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
@@ -50,19 +51,22 @@ class _DetailProdukState extends State<DetailProduk> {
         await CartService().addToCart(
             context, userId.toString(), widget.id.toString(), widget.berat);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Color(0xFF74B11A),
-            content: Text("Berhasil menambahkan ke keranjang!"),
-          ),
+        // Ganti SnackBar dengan Fluttertoast
+        Fluttertoast.showToast(
+          msg: "Berhasil menambahkan ke keranjang!",
+          gravity: ToastGravity.TOP,
         );
       } else {
         throw Exception("User tidak terautentikasi atau ID produk kosong.");
       }
     } catch (e) {
       debugPrint('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+
+      // Ganti SnackBar dengan Fluttertoast
+      Fluttertoast.showToast(
+        msg: "Error: $e",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     }
   }
@@ -81,7 +85,6 @@ class _DetailProdukState extends State<DetailProduk> {
             fontSize: 16,
           ),
         ),
-        centerTitle: true,
       ),
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,

@@ -7,13 +7,13 @@ import 'package:frontend/providers/user_provider.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String profileImageUrl;
-  final String name;
+  final String username;
   final String email;
 
   const ProfileHeader({
     Key? key,
     required this.profileImageUrl,
-    required this.name,
+    required this.username,
     required this.email,
   }) : super(key: key);
 
@@ -42,20 +42,20 @@ class ProfileHeader extends StatelessWidget {
             const SizedBox(height: 10),
 
             // Username
-            name.isNotEmpty
+            username.isNotEmpty
                 ? Consumer<UserProvider>(
                     builder: (context, userProvider, child) {
-                      final username = userProvider.username ?? 'User';
-                      return Text(
-                        username,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      );
-                    },
-                  )
+                    final username = userProvider.username ?? 'User';
+
+                    return Text(
+                      username,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  })
                 : Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,

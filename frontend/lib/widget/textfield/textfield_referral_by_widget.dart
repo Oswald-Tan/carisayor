@@ -46,16 +46,16 @@ class _TextfieldReferralCodeWidgetState
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: Colors.grey),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
               borderSide:
                   const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
               borderSide:
                   const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
             ),

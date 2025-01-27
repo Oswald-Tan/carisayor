@@ -21,7 +21,6 @@ class ReferralPage extends StatelessWidget {
             color: const Color(0xFF1F2131),
           ),
         ),
-        centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: Center(

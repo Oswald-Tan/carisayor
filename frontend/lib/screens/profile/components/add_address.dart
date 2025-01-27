@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/providers/user_provider.dart';
 
+import 'package:frontend/model/city_province_model.dart';
+import 'package:frontend/services/city_province_service.dart';
+
 class AddAddress extends StatefulWidget {
   const AddAddress({super.key});
 
@@ -23,46 +26,42 @@ class _AddAddressState extends State<AddAddress> {
 
   bool _isDefault = false;
 
-  // Dropdown selected values
-  String? _selectedCity;
-  String? _selectedState;
-
-  // List to store cities and states
-  List<String> _cities = [];
-  List<String> _states = [];
-
-  // Flag for loading data
-  bool _isLoadingCities = true;
-  bool _isLoadingStates = true;
+  final ProvinceService _provinceService = ProvinceService();
+  List<Province> _provinces = [];
+  List<City> _cities = [];
+  Province? _selectedProvince;
+  City? _selectedCity;
 
   @override
   void initState() {
     super.initState();
-    _loadCitiesAndStates();
+    _loadProvinces();
   }
 
-  // Function to load cities and states data
-  Future<void> _loadCitiesAndStates() async {
+  Future<void> _loadProvinces() async {
     try {
-      // Fetch cities and states from the service (menggunakan List<String>)
-      List<String> citiesData = await AddressService().getCities(context);
-      List<String> statesData = await AddressService().getStates(context);
-
-      // Extract city and state names into separate lists
+      final provinces = await _provinceService.fetchProvinces(context);
       setState(() {
-        _cities = citiesData; // List<String> sudah sesuai
-        _states = statesData; // List<String> sudah sesuai
-        _isLoadingCities = false;
-        _isLoadingStates = false;
+        _provinces = provinces;
       });
     } catch (error) {
-      setState(() {
-        _isLoadingCities = false;
-        _isLoadingStates = false;
-      });
-      // Handle error (e.g., show a message to the user)
-      debugPrint("Error loading cities or states: $error");
+      // Handle error
+      print('Error: $error');
     }
+  }
+
+  void _onProvinceChanged(Province? selectedProvince) {
+    setState(() {
+      _selectedProvince = selectedProvince;
+      _cities = selectedProvince?.cities ?? [];
+      _selectedCity = null; // Reset city selection when province changes
+    });
+  }
+
+  void _onCityChanged(City? selectedCity) {
+    setState(() {
+      _selectedCity = selectedCity;
+    });
   }
 
   @override
@@ -80,7 +79,6 @@ class _AddAddressState extends State<AddAddress> {
             fontSize: 16,
           ),
         ),
-        centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: Padding(
@@ -107,24 +105,31 @@ class _AddAddressState extends State<AddAddress> {
                   floatingLabelBehavior: FloatingLabelBehavior.never,
                   filled: true,
                   fillColor: Colors.white,
+                  suffixIcon: const Padding(
+                    padding: EdgeInsets.only(right: 28.0),
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.grey,
+                    ),
+                  ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide:
                         const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide:
                         const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
                   ),
                   contentPadding:
                       const EdgeInsets.only(left: 28.0, top: 17, bottom: 17),
                   labelText: 'Nama Penerima',
-                  labelStyle: GoogleFonts.poppins(color: Colors.grey),
+                  labelStyle: GoogleFonts.poppins(),
                 ),
               ),
               const SizedBox(height: 10),
@@ -142,28 +147,33 @@ class _AddAddressState extends State<AddAddress> {
                   }
                   return null; // Nomor telepon valid
                 },
+                keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
                   floatingLabelBehavior: FloatingLabelBehavior.never,
                   filled: true,
                   fillColor: Colors.white,
+                  suffixIcon: const Padding(
+                    padding: EdgeInsets.only(right: 28),
+                    child: Icon(Icons.phone, color: Colors.grey),
+                  ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide:
                         const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide:
                         const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
                   ),
                   contentPadding:
                       const EdgeInsets.only(left: 28.0, top: 17, bottom: 17),
                   labelText: 'Nomor Telepon',
-                  labelStyle: GoogleFonts.poppins(color: Colors.grey),
+                  labelStyle: GoogleFonts.poppins(),
                 ),
               ),
               const SizedBox(height: 10),
@@ -193,24 +203,28 @@ class _AddAddressState extends State<AddAddress> {
                   floatingLabelBehavior: FloatingLabelBehavior.never,
                   filled: true,
                   fillColor: Colors.white,
+                  suffixIcon: const Padding(
+                    padding: EdgeInsets.only(right: 28),
+                    child: Icon(Icons.location_on, color: Colors.grey),
+                  ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide:
                         const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide:
                         const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 28.0, vertical: 20), // Tinggi padding
                   labelText: 'Alamat Line 1',
-                  labelStyle: GoogleFonts.poppins(color: Colors.grey),
+                  labelStyle: GoogleFonts.poppins(),
                 ),
               ),
               const SizedBox(height: 10),
@@ -228,127 +242,118 @@ class _AddAddressState extends State<AddAddress> {
                   floatingLabelBehavior: FloatingLabelBehavior.never,
                   filled: true,
                   fillColor: Colors.white,
+                  suffixIcon: const Padding(
+                    padding: EdgeInsets.only(right: 28),
+                    child: Icon(Icons.map, color: Colors.grey),
+                  ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide:
                         const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide:
                         const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
                   ),
                   contentPadding:
                       const EdgeInsets.only(left: 28.0, top: 17, bottom: 17),
                   labelText: 'Kode Pos',
-                  labelStyle: GoogleFonts.poppins(color: Colors.grey),
+                  labelStyle: GoogleFonts.poppins(),
                 ),
               ),
               const SizedBox(height: 10),
-              // Loading City dropdown or City selection
-              _isLoadingCities
-                  ? const CircularProgressIndicator()
-                  : DropdownButtonFormField<String>(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Dropdown City
+                  Expanded(
+                    child: DropdownButtonFormField<Province>(
+                      isExpanded: true,
                       decoration: InputDecoration(
                         floatingLabelBehavior: FloatingLabelBehavior.never,
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(color: Colors.grey),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
                               color: Color(0xFFCDCDCD), width: 1.5),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
                               color: Color(0xFFCDCDCD), width: 1.5),
                         ),
                         contentPadding: const EdgeInsets.only(
-                            left: 28.0, top: 17, bottom: 17),
+                            left: 28, top: 17, bottom: 17, right: 18),
+                        labelStyle: GoogleFonts.poppins(color: Colors.grey),
+                      ),
+                      value: _selectedProvince,
+                      onChanged: _onProvinceChanged,
+                      hint:
+                          Text('Select Province', style: GoogleFonts.poppins()),
+                      items: _provinces.map((Province province) {
+                        return DropdownMenuItem<Province>(
+                          value: province,
+                          child: Text(province.name),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10), // Gap antara dropdown
+
+                  // Dropdown State
+                  Expanded(
+                    child: DropdownButtonFormField<City>(
+                      decoration: InputDecoration(
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color(0xFFCDCDCD), width: 1.5),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                              color: Color(0xFFCDCDCD), width: 1.5),
+                        ),
+                        contentPadding: const EdgeInsets.only(
+                            left: 28, top: 17, bottom: 17, right: 18),
                         labelStyle: GoogleFonts.poppins(color: Colors.grey),
                       ),
                       value: _selectedCity,
+                      onChanged: _onCityChanged,
                       hint: Text(
-                        'Pilih Kota', // Placeholder yang ditampilkan
-                        style: GoogleFonts.poppins(color: Colors.grey),
+                        'Select City',
+                        style: GoogleFonts.poppins(),
                       ),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedCity = newValue;
-                        });
-                      },
-                      items: _cities.map((String city) {
-                        return DropdownMenuItem<String>(
+                      items: _cities.map((City city) {
+                        return DropdownMenuItem<City>(
                           value: city,
-                          child: Text(city),
+                          child: Text(city.name),
                         );
                       }).toList(),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Silakan pilih kota';
-                        }
-                        return null;
-                      },
                     ),
+                  ),
+                ],
+              ),
 
-              const SizedBox(height: 10),
-              // Loading State dropdown or State selection
-              _isLoadingStates
-                  ? const CircularProgressIndicator()
-                  : DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: const BorderSide(color: Colors.grey),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: const BorderSide(
-                              color: Color(0xFFCDCDCD), width: 1.5),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: const BorderSide(
-                              color: Color(0xFFCDCDCD), width: 1.5),
-                        ),
-                        contentPadding: const EdgeInsets.only(
-                            left: 28.0, top: 17, bottom: 17),
-                        labelStyle: GoogleFonts.poppins(color: Colors.grey),
-                      ),
-                      value: _selectedState,
-                      hint: Text(
-                        'Pilih Provinsi', // Placeholder yang ditampilkan
-                        style: GoogleFonts.poppins(color: Colors.grey),
-                      ),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedState = newValue;
-                        });
-                      },
-                      items: _states.map((String state) {
-                        return DropdownMenuItem<String>(
-                          value: state,
-                          child: Text(state),
-                        );
-                      }).toList(),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Silakan pilih provinsi';
-                        }
-                        return null;
-                      },
-                    ),
               // Default Address Switch
               SwitchListTile(
                 title: const Text("Jadikan Alamat Default"),
@@ -356,9 +361,14 @@ class _AddAddressState extends State<AddAddress> {
                 onChanged: (bool newValue) {
                   setState(() {
                     _isDefault = newValue;
-                    print("isDefault updated: $_isDefault"); // Debugging
                   });
                 },
+                activeColor: const Color(0xFF74B11A),
+                inactiveThumbColor: Colors.grey,
+                inactiveTrackColor: Colors.white,
+                tileColor: Colors.white,
+                selectedTileColor: Colors.blue.shade50,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
 
               // Save Button
@@ -372,11 +382,10 @@ class _AddAddressState extends State<AddAddress> {
                       recipientName: _recipientNameController.text,
                       phoneNumber: _phoneNumberController.text,
                       addressLine1: _addressLine1Controller.text,
-                      city: _selectedCity ?? '',
-                      state: _selectedState ?? '',
+                      city: _selectedCity?.name ?? '',
+                      state: _selectedProvince?.name ?? '',
                       postalCode: _postalCodeController.text,
                       isDefault: _isDefault,
-                      supportedArea: true,
                     );
 
                     Navigator.of(context).pop();

@@ -8,7 +8,6 @@ class Address {
   final String state;
   final String postalCode;
   final bool isDefault;
-  final bool supportedArea;
 
   Address({
     required this.id,
@@ -20,7 +19,6 @@ class Address {
     required this.state,
     required this.postalCode,
     required this.isDefault,
-    required this.supportedArea,
   });
 
   factory Address.fromJson(Map<String, dynamic> json) {
@@ -34,7 +32,6 @@ class Address {
       state: json['state'],
       postalCode: json['postal_code'],
       isDefault: json['is_default'],
-      supportedArea: json['supported_area'],
     );
   }
 }
