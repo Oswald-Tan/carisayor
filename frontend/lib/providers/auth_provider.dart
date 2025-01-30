@@ -106,7 +106,8 @@ class AuthProvider with ChangeNotifier {
     final url = Uri.parse('$baseUrl/auth/login');
 
     try {
-      final res = await http.post(
+      final res = await http
+          .post(
         url,
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +116,15 @@ class AuthProvider with ChangeNotifier {
           'email': email,
           'password': password,
         }),
+      )
+          .timeout(
+        const Duration(seconds: 10), // Timeout 10 detik
+        onTimeout: () {
+          // Jika timeout terjadi, return custom response atau exception
+          throw 'Connection timeout, please try again later.';
+        },
       );
+      ;
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
@@ -133,7 +142,7 @@ class AuthProvider with ChangeNotifier {
         // Tangkap pesan kesalahan dari backend
         final errorData = jsonDecode(res.body);
         final errorMessage = errorData['message'] ?? 'Login failed';
-        // print('Failed to login: $errorMessage');
+        print('Failed to login: $errorMessage');
         throw errorMessage;
       }
     } catch (error) {

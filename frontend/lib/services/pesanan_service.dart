@@ -8,8 +8,8 @@ import 'package:provider/provider.dart';
 class PesananService {
   final Dio _dio = Dio();
 
-  Future<bool> bayarDenganCOD(BuildContext context, String nama, int hargaRp,
-      int ongkir, int totalBayar, String invoiceNumber) async {
+  Future<bool> bayarDenganCOD(BuildContext context, String nama, int totalBayar,
+      int ongkir, int totalBayarSemua, String invoiceNumber) async {
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final token = userProvider.token;
@@ -25,9 +25,9 @@ class PesananService {
           'userId': userId,
           'nama': nama,
           'metodePembayaran': 'COD',
-          'hargaRp': hargaRp,
+          'hargaRp': totalBayar,
           'ongkir': ongkir,
-          'totalBayar': totalBayar,
+          'totalBayar': totalBayarSemua,
           'status': 'pending',
           'invoiceNumber': invoiceNumber,
         },
@@ -243,8 +243,13 @@ class PesananService {
     }
   }
 
-  Future<bool> bayarDenganPoin(BuildContext context, String nama, int hargaPoin,
-      int ongkir, int totalBayar, String invoiceNumber) async {
+  Future<bool> bayarDenganPoin(
+      BuildContext context,
+      String nama,
+      int totalBayar,
+      int ongkir,
+      int totalBayarSemua,
+      String invoiceNumber) async {
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final token = userProvider.token;
@@ -260,9 +265,9 @@ class PesananService {
           'userId': userId,
           'nama': nama,
           'metodePembayaran': 'Poin',
-          'hargaPoin': hargaPoin,
+          'hargaPoin': totalBayar,
           'ongkir': ongkir,
-          'totalBayar': totalBayar,
+          'totalBayar': totalBayarSemua,
           'status': 'pending',
           'invoiceNumber': invoiceNumber,
         },

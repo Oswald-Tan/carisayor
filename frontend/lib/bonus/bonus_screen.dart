@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend/bonus/components/referrals_page.dart';
 import 'package:frontend/model/total_bonus_model.dart';
@@ -56,16 +55,20 @@ class _BonusScreenState extends State<BonusScreen>
   Future<void> _claimBonus(int bonusId) async {
     try {
       await _afiliasiBonusService.claimBonus(context, bonusId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bonus berhasil diklaim!')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bonus berhasil diklaim!')),
+        );
+      }
       setState(() {
         _pendingBonuses = _afiliasiBonusService.getPendingBonuses(context);
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal klaim bonus: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal klaim bonus: $e')),
+        );
+      }
     }
   }
 

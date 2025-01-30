@@ -35,20 +35,18 @@ class _TextfieldPhoneNumberWidgetState
             // hintStyle: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
             floatingLabelBehavior: FloatingLabelBehavior.never,
             filled: true,
-            fillColor: Colors.white,
+            fillColor: const Color(0XFFeef0f4),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: Colors.grey),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
+              borderSide: const BorderSide(color: Colors.transparent, width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
+              borderSide: const BorderSide(color: Colors.transparent, width: 1),
             ),
             contentPadding:
                 const EdgeInsets.only(left: 28.0, top: 17, bottom: 17),
@@ -56,11 +54,14 @@ class _TextfieldPhoneNumberWidgetState
             labelStyle: GoogleFonts.poppins(color: Colors.grey),
             suffixIcon: const Padding(
               padding: EdgeInsets.only(right: 28),
-              child: Icon(Icons.phone, color: Colors.grey),
+              child: Icon(
+                Icons.phone,
+                color: Colors.grey,
+                size: 20,
+              ),
             ),
           ),
         ),
-        const SizedBox(height: 10),
       ],
     );
   }

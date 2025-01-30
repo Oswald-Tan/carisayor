@@ -566,7 +566,7 @@ class PaymentSelectionCart extends StatelessWidget {
                     );
 
                     // Navigasi hanya jika pembayaran berhasil
-                    if (berhasil) {
+                    if (berhasil && context.mounted) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -618,7 +618,7 @@ class PaymentSelectionCart extends StatelessWidget {
       appBar: AppBar(
         // automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        title: Text('Payment Produk',
+        title: Text('Payment',
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
               color: const Color(0xFF1F2131),

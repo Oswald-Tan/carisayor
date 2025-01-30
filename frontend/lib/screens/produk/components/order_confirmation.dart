@@ -60,12 +60,13 @@ class OrderConfirmationPage extends StatelessWidget {
               Column(
                 children: [
                   Text(
-                    "Menjelaskan waktu pengiriman produk.",
+                    "Pengantaran produk dimulai setiap hari pukul 05.00 pagi untuk memastikan pesanan tiba cepat dan tepat waktu.",
                     style: GoogleFonts.poppins(
-                      fontSize: 12,
+                      fontSize: 14,
                       color: Colors.grey,
                       fontWeight: FontWeight.w500,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),

@@ -19,14 +19,23 @@ class ProdukService {
       }
 
       // Kirim request dengan token di header Authorization
-      final response = await _dio.get(
+      final response = await _dio
+          .get(
         '$baseUrl/products-app',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token', // Menambahkan token ke header
           },
         ),
+      )
+          .timeout(
+        const Duration(seconds: 10), // Timeout 10 detik
+        onTimeout: () {
+          // Jika timeout terjadi, return custom response atau exception
+          throw 'Connection timeout, please try again later.';
+        },
       );
+      ;
 
       // print('Response status: ${response.statusCode}');
 
@@ -41,7 +50,7 @@ class ProdukService {
         throw Exception('Failed to load produk');
       }
     } catch (e) {
-      throw Exception('Error fetching produk: $e');
+      throw Exception('$e');
     }
   }
 }

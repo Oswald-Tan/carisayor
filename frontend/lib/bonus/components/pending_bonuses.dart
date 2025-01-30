@@ -3,7 +3,7 @@ import 'package:frontend/services/afiliasi_bonus_service.dart';
 import 'package:frontend/model/afiliasi_bonus_model.dart';
 
 class PendingBonusesPage extends StatefulWidget {
-  const PendingBonusesPage({Key? key}) : super(key: key);
+  const PendingBonusesPage({super.key});
 
   @override
   State<PendingBonusesPage> createState() => _PendingBonusesPageState();
@@ -16,14 +16,18 @@ class _PendingBonusesPageState extends State<PendingBonusesPage> {
   Future<void> _claimBonus(int bonusId) async {
     try {
       await _bonusService.claimBonus(context, bonusId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bonus berhasil diklaim!')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bonus berhasil diklaim!')),
+        );
+      }
       setState(() {}); // Refresh data setelah klaim
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal klaim bonus: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal klaim bonus: $e')),
+        );
+      }
     }
   }
 

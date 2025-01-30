@@ -138,14 +138,14 @@ class _PaymentSelectionState extends State<PaymentSelection> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Harga Produk",
+                        "Total Harga Produk",
                         style: GoogleFonts.poppins(
                           color: const Color(0xFF1F2131),
                           fontSize: 16,
                         ),
                       ),
                       Text(
-                        formatRupiah(widget.hargaRp),
+                        formatRupiah(totalBayar),
                         style: GoogleFonts.poppins(
                           color: const Color(0xFF1F2131),
                           fontSize: 16,
@@ -294,7 +294,7 @@ class _PaymentSelectionState extends State<PaymentSelection> {
                         bool berhasil = await PesananService().bayarDenganCOD(
                           context,
                           nameWithWeight,
-                          widget.hargaRp,
+                          totalBayar,
                           ongkir,
                           totalBayarSemua,
                           invoiceNumber,
@@ -586,7 +586,7 @@ class _PaymentSelectionState extends State<PaymentSelection> {
                     bool berhasil = await PesananService().bayarDenganPoin(
                       context,
                       nameWithWeight,
-                      widget.hargaPoin,
+                      totalBayar,
                       ongkir,
                       totalBayarSemua,
                       invoiceNumber,
@@ -666,7 +666,7 @@ class _PaymentSelectionState extends State<PaymentSelection> {
         // automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Text(
-          'Payment Produk',
+          'Payment',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             color: const Color(0xFF1F2131),

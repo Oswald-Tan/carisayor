@@ -19,7 +19,6 @@ class _TextfieldPasswordWidgetState extends State<TextfieldPasswordWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 10),
         TextFormField(
           controller: widget.controller,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -47,24 +46,23 @@ class _TextfieldPasswordWidgetState extends State<TextfieldPasswordWidget> {
                 child: Icon(
                   obscureText ? Icons.visibility : Icons.visibility_off,
                   color: Colors.grey,
+                  size: 20,
                 ),
               ),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: const Color(0XFFeef0f4),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: Colors.grey),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
+              borderSide: const BorderSide(color: Colors.transparent, width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  const BorderSide(color: Color(0xFFCDCDCD), width: 1.5),
+              borderSide: const BorderSide(color: Colors.transparent, width: 1),
             ),
             contentPadding:
                 const EdgeInsets.only(left: 28.0, top: 17, bottom: 17),

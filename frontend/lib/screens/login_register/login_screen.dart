@@ -7,7 +7,8 @@ import 'package:frontend/widget/textfield/textfield_pass_widget.dart';
 import 'package:frontend/screens/init_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/providers/auth_provider.dart';
-import 'package:frontend/providers/user_provider.dart'; // Pastikan UserProvider di-import
+import 'package:frontend/providers/user_provider.dart';
+import 'package:flutter/gestures.dart';
 
 class LoginScreen extends StatefulWidget {
   static String routeName = "/login";
@@ -49,7 +50,7 @@ class _LoginScreen1State extends State<LoginScreen> {
         isLoading = false;
       });
 
-      if (isLoggedIn) {
+      if (isLoggedIn && mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const InitScreen()),
@@ -71,7 +72,7 @@ class _LoginScreen1State extends State<LoginScreen> {
           ),
         );
       } else {
-        print("Context not mounted, can't show SnackBar");
+        debugPrint("Context not mounted, can't show SnackBar");
       }
     }
   }
@@ -92,31 +93,18 @@ class _LoginScreen1State extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.center,
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 30),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Image.asset(
-                            width: 80,
-                            color: const Color(0XFF74B11A),
-                            "assets/images/login_logo.png",
-                          ),
-                          const SizedBox(height: 20),
                           Text(
-                            'Welcome Back,',
+                            'Log in',
                             style: GoogleFonts.poppins(
-                              fontSize: 25,
+                              fontSize: 28,
                               color: const Color(0xFF1F2131),
                               fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Silakan login untuk melanjutkan.', // Teks tambahan
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.grey[500],
                             ),
                           ),
                         ],
@@ -125,29 +113,32 @@ class _LoginScreen1State extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 20),
                   TextfieldEmailWidget(controller: email),
+                  const SizedBox(height: 10),
                   TextfieldPasswordWidget(controller: password),
                   const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ResetPasswordScreen(),
-                        ),
-                      );
-                    },
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Lupa Password?',
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: RichText(
+                      text: TextSpan(
+                        text: 'Lupa Password?',
                         style: GoogleFonts.poppins(
-                          color: const Color(0xFF1F2131),
+                          color: Colors.grey[500],
                           fontSize: 14,
+                          decoration: TextDecoration.underline,
                         ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ResetPasswordScreen(),
+                              ),
+                            );
+                          },
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
                     height: 50,
@@ -167,49 +158,52 @@ class _LoginScreen1State extends State<LoginScreen> {
                             ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const RegisterScreen(),
-                            transitionsBuilder: (context, animation,
-                                secondaryAnimation, child) {
-                              const begin = Offset(0.0, 1.0);
-                              const end = Offset.zero;
-                              const curve = Curves.easeInOut;
-
-                              var tween = Tween(begin: begin, end: end)
-                                  .chain(CurveTween(curve: curve));
-                              var offsetAnimation = animation.drive(tween);
-
-                              return SlideTransition(
-                                position: offsetAnimation,
-                                child: child,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        foregroundColor: const Color(0XFF74B11A),
-                        elevation: 0,
-                        side: const BorderSide(
-                          color: Color(0XFF74B11A),
-                          width: 1,
+                  const SizedBox(height: 20),
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Don't have an account? ",
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 14,
                         ),
-                      ),
-                      child: Text(
-                        'Create Account',
-                        style:
-                            GoogleFonts.poppins(color: const Color(0XFF74B11A)),
+                        children: [
+                          TextSpan(
+                            text: "Sign up",
+                            style: GoogleFonts.poppins(
+                              color: const Color(0XFF74B11A),
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        const RegisterScreen(),
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      const begin = Offset(0.0, 1.0);
+                                      const end = Offset.zero;
+                                      const curve = Curves.easeInOut;
+
+                                      var tween = Tween(begin: begin, end: end)
+                                          .chain(CurveTween(curve: curve));
+                                      var offsetAnimation =
+                                          animation.drive(tween);
+
+                                      return SlideTransition(
+                                        position: offsetAnimation,
+                                        child: child,
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                          ),
+                        ],
                       ),
                     ),
                   ),

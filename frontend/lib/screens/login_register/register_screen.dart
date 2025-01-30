@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/login_register/login_screen.dart';
 import 'package:frontend/screens/privacy_policy.dart';
 import 'package:frontend/screens/terms_of_use.dart';
 import 'package:frontend/widget/textfield/textfield_no_hp_widget.dart';
@@ -46,9 +47,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
         child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-          ),
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: Container(
@@ -56,19 +54,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             child: Form(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.center,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.only(bottom: 30),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Let\'s Get Started,',
+                            'Sign up',
                             style: GoogleFonts.poppins(
-                              fontSize: 25,
+                              fontSize: 28,
                               color: const Color(0xFF1F2131),
                               fontWeight: FontWeight.bold,
                             ),
@@ -79,24 +78,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 20),
                   TextfieldReferralCodeWidget(controller: referralBy),
+                  const SizedBox(height: 10),
                   TextfieldUsernameWidget(controller: username),
                   const SizedBox(height: 10),
                   TextfieldEmailWidget(controller: email),
                   const SizedBox(height: 10),
                   TextfieldPhoneNumberWidget(controller: phoneNumber),
+                  const SizedBox(height: 10),
                   TextfieldPasswordWidget(controller: password),
                   const SizedBox(height: 20),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Checkbox(
-                        activeColor: const Color(0XFF74B11A),
-                        value: isAgreed,
-                        onChanged: (value) {
-                          setState(() {
-                            isAgreed = value!;
-                          });
-                        },
+                      Transform.scale(
+                        scale: 0.8,
+                        child: Checkbox(
+                          activeColor: const Color(0XFF74B11A),
+                          value: isAgreed,
+                          onChanged: (value) {
+                            setState(() {
+                              isAgreed = value!;
+                            });
+                          },
+                        ),
                       ),
                       Expanded(
                         child: GestureDetector(
@@ -160,9 +164,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         if (!isAgreed) {
                           // Tampilkan pesan validasi jika tidak di-checklist
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(
-                                  "You must agree to the Privacy Policy and Terms of Use to register."),
+                                "You must agree to the Privacy Policy and Terms of Use to register.",
+                                style: GoogleFonts.poppins(),
+                              ),
                             ),
                           );
                           return;
@@ -200,6 +206,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Text(
                         'Register',
                         style: GoogleFonts.poppins(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Already have an account? ",
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF1F2131),
+                          fontSize: 14,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: "Login",
+                            style: GoogleFonts.poppins(
+                              color: const Color(0XFF74B11A),
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        const LoginScreen(),
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      const begin = Offset(0.0, 1.0);
+                                      const end = Offset.zero;
+                                      const curve = Curves.easeInOut;
+
+                                      var tween = Tween(begin: begin, end: end)
+                                          .chain(CurveTween(curve: curve));
+                                      var offsetAnimation =
+                                          animation.drive(tween);
+
+                                      return SlideTransition(
+                                        position: offsetAnimation,
+                                        child: child,
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                          ),
+                        ],
                       ),
                     ),
                   ),

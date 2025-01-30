@@ -62,14 +62,23 @@ class TopUpPoinService {
         throw Exception('User not authenticated');
       }
 
-      final response = await _dio.get(
+      final response = await _dio
+          .get(
         '$baseUrl/topup-app/user',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
           },
         ),
+      )
+          .timeout(
+        const Duration(seconds: 10), // Timeout 10 detik
+        onTimeout: () {
+          // Jika timeout terjadi, return custom response atau exception
+          throw 'Connection timeout, please try again later.';
+        },
       );
+      ;
 
       if (response.statusCode == 200) {
         if (response.data is Map &&
