@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { RiSettings4Line, RiCoinLine } from "react-icons/ri";
 import { TbLayoutDashboard } from "react-icons/tb";
 import { AiOutlineUser, AiOutlineProduct } from "react-icons/ai";
@@ -12,66 +12,102 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Sidebar = () => {
-  const { user } = useSelector((state) => state.auth); // Ambil data user dari Redux store
+  const { user } = useSelector((state) => state.auth);
   const { open, toggleSidebar } = useSidebar();
+  const [menus, setMenus] = useState([]);
 
-  // Menambahkan pengecekan role pada menu User
-  const menus = [
-    { 
-      name: "dashboard", 
-      link: "/dashboard", 
-      icon: TbLayoutDashboard 
-    },
-    ...(user && user.role === "admin"
-      ? [{ name: "User", link: "/users", icon: AiOutlineUser }]
-      : []),
-    { 
-      name: "top up", 
-      link: "/topup/poin", 
-      icon: LuHandCoins, 
-      margin: true },
-    { 
-      name: "poin", 
-      link: "/poin", 
-      icon: RiCoinLine },
-    { 
-      name: "harga poin", 
-      link: "/harga/poin", 
-      icon: MdOutlinePriceChange },
-    { 
-      name: "pesanan", 
-      link: "/pesanan", 
-      icon: HiOutlineClipboardList, 
-      margin: true,
-    },
-    { 
-      name: "products", 
-      link: "/products", 
-      icon: AiOutlineProduct, 
-    },
-    { 
-      name: "harga product", 
-      link: "/harga/poin/product", 
-      icon: TbReportMoney, 
-    },
-    { 
-      name: "Supported area", 
-      link: "/supported/area", 
-      icon: PiMapPinSimpleAreaBold,
-      margin: true,
-    },
-    { 
-      name: "City Province", 
-      link: "/city/province", 
-      icon: PiMapPinSimpleAreaBold,
-    },
-    { 
-      name: "Setting", 
-      link: "/setting", 
-      icon: RiSettings4Line,
-      margin: true,
-    },
-  ];
+  useEffect(() => {
+    if (user?.role) {
+      const userRole = user.role;
+
+      // Update menus berdasarkan role setelah user tersedia
+      const updatedMenus = [
+        {
+          name: "Dashboard",
+          link: "/dashboard",
+          icon: TbLayoutDashboard,
+        },
+        ...(userRole !== "delivery"
+          ? [{ name: "User", link: "/users", icon: AiOutlineUser }]
+          : []),
+
+        ...(userRole !== "delivery"
+          ? [
+              {
+                name: "Top up",
+                link: "/topup/poin",
+                icon: LuHandCoins,
+                margin: true,
+              },
+            ]
+          : []),
+
+        ...(userRole !== "delivery"
+          ? [
+              {
+                name: "Poin",
+                link: "/poin",
+                icon: RiCoinLine,
+              },
+            ]
+          : []),
+        ...(userRole !== "delivery"
+          ? [
+              {
+                name: "Harga poin",
+                link: "/harga/poin",
+                icon: MdOutlinePriceChange,
+              },
+            ]
+          : []),
+        {
+          name: "Pesanan",
+          link: "/pesanan",
+          icon: HiOutlineClipboardList,
+          margin: true,
+        },
+        ...(userRole !== "delivery"
+          ? [
+            {
+              name: "Products",
+              link: "/products",
+              icon: AiOutlineProduct,
+            }
+          ]
+          : []
+        ),
+        ...(userRole !== "delivery"
+          ? [
+            {
+              name: "Harga product",
+              link: "/harga/poin/product",
+              icon: TbReportMoney,
+            }
+          ]
+          : []
+        ),
+        ...(userRole !== "delivery"
+          ? [
+            {
+              name: "City Province",
+              link: "/city/province",
+              icon: PiMapPinSimpleAreaBold,
+              margin: true,
+            }
+          ]
+          : []
+        ),
+        {
+          name: "Setting",
+          link: "/setting",
+          icon: RiSettings4Line,
+          margin: true,
+        },
+      ];
+      
+      setMenus(updatedMenus);
+    }
+  }, [user]);
 
   return (
     <>
@@ -85,7 +121,7 @@ const Sidebar = () => {
 
       <section className="flex gap-6 relative">
         <div
-          className={` bg-gradient-to-b from-[#200a26] to-[#371141] min-h-screen ${
+          className={`bg-gradient-to-b from-[#200a26] to-[#371141] min-h-screen ${
             open
               ? "w-[280px]"
               : "md:w-[68px] md:translate-x-0 -translate-x-[280px]"

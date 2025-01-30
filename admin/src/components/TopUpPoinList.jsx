@@ -6,6 +6,7 @@ import { MdEditSquare, MdDelete } from "react-icons/md";
 import { formatDate } from "../utils/formateDate";
 import ReactPaginate from "react-paginate";
 import { MdSearch } from "react-icons/md";
+import { io } from "socket.io-client";
 
 const TopUpPoinList = () => {
   const [topUp, setTopUp] = useState([]);
@@ -17,6 +18,50 @@ const TopUpPoinList = () => {
   const [keyword, setKeyword] = useState("");
   const [query, setQuery] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
+
+  useEffect(() => {
+    const socket = io("http://localhost:8080", {
+      withCredentials: true,
+    });
+    
+  
+    socket.on("connect", () => {
+      console.log("Connected to socket server");
+    });
+  
+    socket.on("disconnect", (reason) => {
+      console.log("Disconnected from socket.io. Reason:", reason);
+    });
+  
+    socket.on("newTopUp", (data) => {
+      if (data.status === "pending") {
+        new Notification("Top Up Pending", {
+          body: `${data.username} has made a top-up of ${data.points} points.`,
+        });
+        console.log("New top-up pending:", data);
+      }
+    });
+  
+    return () => {
+      socket.disconnect();
+      console.log("Disconnected from socket.io");
+    };
+  }, []);
+  
+  
+  
+
+  useEffect(() => {
+    // Meminta izin untuk notifikasi
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission().then(permission => {
+        if (permission !== "granted") {
+          console.log("User denied notification permission");
+        }
+      });
+    }
+  }, []);
+  
 
   const changePage = ({ selected }) => {
     setPage(selected);

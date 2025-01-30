@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { useSidebar } from "../context/useSidebar";
 
+const currentYear = new Date().getFullYear();
+
 const AdminLayout = () => {
   const { open } = useSidebar();
   return (
@@ -21,8 +23,16 @@ const AdminLayout = () => {
         }`}
       >
         <Navbar />
-        <main className="p-5 min-h-[calc(100vh-56px)] bg-gray-100">
-          <Outlet />
+        <main className="bg-gray-100">
+          <div className="p-5 min-h-[calc(100vh-116px)]">
+            <Outlet />
+          </div>
+
+          <footer className="p-5 md:text-end text-center">
+            <p className="text-sm text-[#909090]">
+              © {currentYear} - All rights reserved.
+            </p>
+          </footer>
         </main>
       </div>
     </div>

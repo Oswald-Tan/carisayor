@@ -86,7 +86,7 @@ const Layout = () => {
   return (
     <div>
       <div className=" p-5 text-white rounded-lg mb-5 bg-gradient-to-r from-pink-500 to-violet-600">
-        <p>Hello, {user && user.username}!</p>
+        <p>Hello, {user && user.role}!</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">

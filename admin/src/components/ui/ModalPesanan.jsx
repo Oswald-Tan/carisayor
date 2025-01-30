@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import { formatShortDate } from "../../utils/formateDate";
+import { IoIosCloseCircleOutline } from "react-icons/io";
 import CSPoin from "../../assets/poin_cs.png";
 
 const ModalPesanan = ({ pesanan, onClose }) => {
@@ -15,7 +16,7 @@ const ModalPesanan = ({ pesanan, onClose }) => {
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className="bg-white rounded-lg w-[600px]"
+            className="bg-white rounded-lg w-[600px] relative"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
@@ -25,8 +26,8 @@ const ModalPesanan = ({ pesanan, onClose }) => {
               <p>#{pesanan.invoiceNumber || "-"}</p>
               <p className="text-xs mt-2 text-gray-500">Detail Pesanan</p>
             </div>
-            <div className="p-5">
-              <div className="flex gap-x-8">
+            <div className="p-5 ">
+              <div className="flex gap-x-10">
                 <div>
                   <p className="text-xs text-gray-500">Create at</p>
                   <p className="mt-2 text-sm">
@@ -93,8 +94,10 @@ const ModalPesanan = ({ pesanan, onClose }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-2">Address</p>
                   <p className="text-sm mt-2">
-                    {pesanan?.user?.user[0]?.address_line_1 || "-"}
-                    {pesanan.user.user[0]?.city || "-"}
+                    {pesanan?.user?.user?.length > 0 &&
+                    pesanan?.user?.user[0]?.address_line_1
+                      ? `${pesanan.user.user[0].address_line_1}, ${pesanan.user.user[0].city}`
+                      : "-"}
                   </p>
                 </div>
               </div>
@@ -173,9 +176,9 @@ const ModalPesanan = ({ pesanan, onClose }) => {
 
               <button
                 onClick={onClose}
-                className="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
+                className="mt-4 text-sm absolute top-0 right-3 text-gray-500"
               >
-                Tutup
+                <IoIosCloseCircleOutline size={23} />
               </button>
             </div>
           </motion.div>

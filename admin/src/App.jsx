@@ -27,17 +27,17 @@ import EditPesanan from "./pages/EditPesanan";
 import HargaPoinProduct from "./pages/HargaPoinProduct";
 import EditHargaPoinProduct from "./pages/EditHargaPoinProduct";
 import AddHargaPoinProduct from "./pages/AddHargaPoinProduct";
-import SupporedArea from "./pages/SupportedArea";
-import AddSupportedArea from "./pages/AddSupportedArea";
-import EditSupportedArea from "./pages/EditSupportedArea";
 import AddCityProvince from "./pages/AddCityProvince";
 import CityProvince from "./pages/CityProvince";
+import LupaPassword from "./pages/LupaPassword";
 
 function App() {
   return (
+    
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/forgot/password" element={<LupaPassword />} />
 
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<Dashboard />} exact />
@@ -77,10 +77,6 @@ function App() {
           <Route path="/harga/poin/product/add" element={<AddHargaPoinProduct />} exact />
           <Route path="/harga/poin/product/edit/:id" element={<EditHargaPoinProduct />} exact />
         
-          <Route path="/supported/area" element={<SupporedArea />} exact />
-          <Route path="/supported/area/add" element={<AddSupportedArea />} exact />
-          <Route path="/supported/area/edit/:id" element={<EditSupportedArea />} exact />
-
           <Route path="/city/province" element={<CityProvince />} exact />
           <Route path="/city/province/add" element={<AddCityProvince />} exact />
         </Route>

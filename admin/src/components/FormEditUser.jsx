@@ -131,8 +131,10 @@ const FormEditUser = () => {
                 onChange={(e) => setRole(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
-                <option value="admin">admin</option>
-                <option value="user">user</option>
+                <option value="">...</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+                <option value="delivery">Delivery</option>
               </select>
             </div>
             <button

@@ -1,22 +1,31 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LoginUser, reset } from "../../features/authSlice";
+import { FaLongArrowAltRight } from "react-icons/fa";
+import { HiEye, HiEyeOff } from "react-icons/hi";
+import { HiMiniUser } from "react-icons/hi2";
+import LoginLogo from "../../assets/login_logo.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, isError, isSuccess, isLoading, message } = useSelector(
     (state) => state.auth
   );
 
+  // Cek apakah sudah login, jika ya arahkan ke dashboard
   useEffect(() => {
     if (user || isSuccess) {
       navigate("/dashboard");
     }
-    dispatch(reset());
+    // Reset state hanya ketika pengguna logout
+    return () => {
+      dispatch(reset());
+    };
   }, [user, isSuccess, dispatch, navigate]);
 
   const Auth = async (e) => {
@@ -25,39 +34,57 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+    <div className="flex justify-center items-center min-h-screen bg-[#eef0f4]">
+      <div className="bg-white p-8 rounded-lg w-full max-w-md">
+        <img src={LoginLogo} alt="logo" className="mx-auto w-[45px] mb-5" />
+        <h2 className="text-3xl font-bold text-center">Welcome back!</h2>
+        <p className="text-sm text-gray-500 mb-8 mt-1 text-center">
+          Please login to your account
+        </p>
         {isError && <p className="text-red-600">{message}</p>}
         <form onSubmit={Auth} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium">
-              Email
-            </label>
+          <div className="relative">
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full mt-2 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Email"
+              className="w-full text-sm px-4 py-3 border rounded-md focus:outline-none bg-[#eef0f4]"
             />
+            <span className="text-gray-500 absolute top-[15px] right-[17px]">
+              <HiMiniUser />
+            </span>
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium">
-              Password
-            </label>
+          <div className="relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full mt-2 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="password"
+              className="appearance-none w-full text-sm px-4 py-3 border rounded-md focus:outline-none bg-[#eef0f4]"
             />
+            <span
+              className="text-gray-500 absolute top-[15px] right-[17px]"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <HiEyeOff /> : <HiEye />}
+            </span>
           </div>
-          <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none">
-            {isLoading ? "Loading..." : "Login"}
+          <Link to="/forgot/password" className="flex justify-end">
+            <p className="text-sm text-gray-500 underline cursor-pointer">
+              Forgot Password?
+            </p>
+          </Link>
+          <button
+            type="submit"
+            className="flex items-center justify-center gap-x-1 w-full py-3 bg-blue-600 font-semibold text-white text-sm rounded-md hover:bg-blue-700 transition-all duration-300 ease-in-out"
+          >
+            {isLoading ? "Loading..." : "Login"}{" "}
+            <FaLongArrowAltRight size={18} />
           </button>
         </form>
       </div>

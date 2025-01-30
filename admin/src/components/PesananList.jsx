@@ -73,9 +73,9 @@ const PesananList = () => {
         `${API_URL}/pesanan?search=${keyword}&page=${page}&limit=${limit}`
       );
 
-      if (Array.isArray(res.data.data)) {
-        setPesanan(res.data.data);
-        console.log(res.data.data);
+      if (Array.isArray(res.data?.data)) {
+        setPesanan(res.data?.data);
+        console.log(res.data?.data);
       } else {
         setPesanan([]); // Set empty array if the response is not an array
       }
@@ -94,15 +94,28 @@ const PesananList = () => {
   };
 
   const deletePesanan = async (id) => {
-    await axios.delete(`${API_URL}/pesanan/${id}`);
-    getPesanan();
-
     Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: "Pesanan deleted successfully",
+      title: "Apakah Anda yakin?",
+      text: "Pesanan ini akan dihapus secara permanen!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, hapus!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await axios.delete(`${API_URL}/pesanan/${id}`);
+        getPesanan();
+  
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Pesanan berhasil dihapus.",
+        });
+      }
     });
   };
+  
 
   return (
     <>
@@ -197,7 +210,7 @@ const PesananList = () => {
                       {formatShortDate(pesanan.created_at)}
                     </td>
                     <td className="px-4 py-2 border-b whitespace-nowrap">
-                      {pesanan.User ? pesanan.User.username : "-"}
+                      {pesanan.user ? pesanan.user.username : "-"}
                     </td>
                     <td className="px-4 py-2 border-b whitespace-nowrap">
                       {pesanan.nama && pesanan.nama.includes(",") ? (
