@@ -147,6 +147,19 @@ export const postTopUp = async (req, res) => {
       status: "pending",
     });
 
+    const username = user.username;
+
+    const io = req.app.get("socketio");
+    io.emit("newTopUp", {
+      userId,
+      username,
+      points,
+      price,
+      date,
+      bankName,
+      status: "pending",
+    });
+
     return res.status(201).json({ message: "Top Up successful", topUpData });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -63,6 +63,7 @@ export const getPesanan = async (req, res) => {
                 "is_default",
               ],
               where: { is_default: true },
+              required: false,
             },
             {
               model: DetailsUsers,

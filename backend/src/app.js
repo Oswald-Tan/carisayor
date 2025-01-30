@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import session from "express-session";
 import SequelizeStore from "connect-session-sequelize";
+import { Server } from "socket.io";
+import { createServer } from "http";
+import http from "http";
 import db from "./config/database.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -47,6 +50,15 @@ import Count from "./routes/web/countRoute.js";
 import ProvincesCities from "./routes/web/cityProvinceRoute.js";
 
 const app = express();
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173", // URL frontend Anda
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
 
 const sessionStore = SequelizeStore(session.Store);
 
@@ -152,7 +164,34 @@ cron.schedule("0 0 * * *", async () => {
   }
 });
 
+
+
+
+// Socket.IO middleware for session
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, (err) => {
+    if (err) return next(err);
+    console.log(socket.request.session);  // Periksa apakah sesi tersedia di sini
+    next();
+  });
+});
+
+
+// Handle socket connections
+io.on("connection", (socket) => {
+  console.log("New client connected", socket.id);
+  socket.on("disconnect", () => {
+    console.log("Client disconnected", socket.id);
+  });
+});
+
+
+
+// Save io instance to app
+app.set("socketio", io);
+
+
 const PORT = process.env.PORT;
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

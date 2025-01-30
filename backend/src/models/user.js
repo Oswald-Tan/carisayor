@@ -29,7 +29,7 @@ const User = db.define(
     },
     referralCode: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     referredBy: {
@@ -43,6 +43,14 @@ const User = db.define(
     referralUsedAt: {
       type: DataTypes.DATE,
       allowNull: true,
+    },
+    resetOtp: { 
+      type: DataTypes.STRING, 
+      allowNull: true 
+    },
+    resetOtpExpires: { 
+      type: DataTypes.DATE, 
+      allowNull: true 
     },
   },
   {
