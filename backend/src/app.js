@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import session from "express-session";
 import SequelizeStore from "connect-session-sequelize";
 import { Server } from "socket.io";
-import { createServer } from "http";
 import http from "http";
 import db from "./config/database.js";
 import path from "path";
@@ -32,7 +31,6 @@ import CartApp from "./routes/app/cartRoute.js";
 import AfiliasiBonusApp from "./routes/app/afiliasiBonusRoute.js";
 import SettingApp from "./routes/app/settingRoute.js";
 import Address from "./routes/app/addressRoute.js";
-import SupportedAreaApp from "./routes/app/supportedAreaRoute.js";
 
 //web
 import AuthWeb from "./routes/web/authWebRoute.js";
@@ -45,9 +43,9 @@ import TopUpPoin from "./routes/web/topUpPoinRoute.js";
 import Pesanan from "./routes/web/pesananRoute.js";
 import Setting from "./routes/web/settingRoute.js";
 import UserStats from "./routes/web/userStatsRoute.js";
-import SupportedArea from "./routes/web/supportedAreaRoute.js";
 import Count from "./routes/web/countRoute.js";
 import ProvincesCities from "./routes/web/cityProvinceRoute.js";
+import ShippingRate from "./routes/web/shippingRatesRoute.js";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -120,7 +118,6 @@ app.use("/api/v1/cart-app", CartApp);
 app.use("/api/v1/afiliasi-bonus-app", AfiliasiBonusApp);
 app.use("/api/v1/settings-app", SettingApp);
 app.use("/api/v1/addresses", Address);
-app.use("/api/v1/supported-area-app", SupportedAreaApp);
 
 //web
 // Terapkan session hanya untuk rute web
@@ -134,9 +131,9 @@ app.use("/api/v1/topup", sessionMiddleware, TopUpPoin);
 app.use("/api/v1/pesanan", sessionMiddleware, Pesanan);
 app.use("/api/v1/settings", sessionMiddleware, Setting);
 app.use("/api/v1/user-stats", sessionMiddleware, UserStats);
-app.use("/api/v1/supported-area", sessionMiddleware, SupportedArea);
 app.use("/api/v1/count", sessionMiddleware, Count);
 app.use("/api/v1/provinces-cities", sessionMiddleware, ProvincesCities);
+app.use("/api/v1/shipping-rates", sessionMiddleware, ShippingRate);
 
 //jadwal cron job untuk memeriksa bonus yang sudah expired
 cron.schedule("0 0 * * *", async () => {

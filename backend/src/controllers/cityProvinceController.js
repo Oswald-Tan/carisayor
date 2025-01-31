@@ -24,6 +24,30 @@ export const getProvinceAndCity = async (req, res) => {
   }
 };
 
+// Get all cities
+export const getCity = async (req, res) => {
+  try {
+    const cities = await City.findAll({
+      include: {
+        model: Province,
+        attributes: ["id", "name"], // Ambil data provinsi yang terkait
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: cities,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching cities",
+      error: error.message,
+    });
+  }
+};
+
+
 // Create province and cities
 export const createProvinceAndCity = async (req, res) => {
   const { provinceName, cities } = req.body;

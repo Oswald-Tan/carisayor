@@ -1,4 +1,6 @@
 import Address from "../models/address.js";
+import City from "../models/city.js";
+import ShippingRate from "../models/shipping_rates.js";
 
 //tambah alamat baru
 export const createAddress = async (req, res) => {
@@ -160,9 +162,40 @@ export const getDefaultAddress = async (req, res) => {
       return res.status(404).json({ message: "Default address not found" });
     }
 
+    // Cari City berdasarkan nama kota dari defaultAddress
+    const city = await City.findOne({
+      where: { name: defaultAddress.city },
+    });
+
+    // Jika city tidak ditemukan, langsung return tanpa shippingRate
+    if (!city) {
+      return res.status(200).json({
+        message: "Default address retrieved successfully",
+        defaultAddress,
+        shippingRate: null,
+      });
+    }
+
+    // Cari ShippingRate berdasarkan cityId
+    const shippingRate = await ShippingRate.findOne({
+      where: { cityId: city.id },
+      include: {
+        model: City,
+        attributes: ["id", "name"],
+      },
+    });
+
     res.status(200).json({
       message: "Default address retrieved successfully",
       defaultAddress,
+      shippingRate: shippingRate
+        ? {
+            id: shippingRate.id,
+            cityId: shippingRate.cityId,
+            price: shippingRate.price,
+            city: shippingRate.City,
+          }
+        : null,
     });
   } catch (error) {
     res.status(500).json({
@@ -171,6 +204,9 @@ export const getDefaultAddress = async (req, res) => {
     });
   }
 };
+
+
+
 
 //hapus alamat berdasarkan ID
 export const deleteAddress = async (req, res) => {

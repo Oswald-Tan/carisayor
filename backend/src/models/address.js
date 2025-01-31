@@ -1,7 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "../config/database.js";
 import User from "./user.js";
-import SupportedArea from "./supportedArea.js";
 
 const Address = db.define(
   "Address",
@@ -64,6 +63,5 @@ const Address = db.define(
 
 Address.belongsTo(User, { foreignKey: "user_id", as: "user" });
 User.hasMany(Address, { foreignKey: 'user_id', as: 'user' });
-Address.belongsTo(SupportedArea, { foreignKey: 'postal_code', as: 'area' });
 
 export default Address;
