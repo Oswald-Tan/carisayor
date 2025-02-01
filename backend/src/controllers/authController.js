@@ -48,6 +48,16 @@ export const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newReferralCode = generateReferralCode();
+    
+    // Cari user yang memiliki referral code yang digunakan
+    let referredByUser = null;
+    let referralUsedAt = null;
+    if (referralCode) {
+      referredByUser = await User.findOne({ where: { referralCode } });
+      if (referredByUser) {
+        referralUsedAt = new Date(); 
+      }
+    }
 
     const newUser = await User.create({
       username,
@@ -55,6 +65,8 @@ export const registerUser = async (req, res) => {
       email,
       role_id: role.id,
       referralCode: newReferralCode,
+      referredBy: referredByUser ? referredByUser.id : null,
+      referralUsedAt,
     });
 
     // Simpan data ke tabel DetailsUsers

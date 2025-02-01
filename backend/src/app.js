@@ -106,6 +106,10 @@ app.use(
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
+app.get("/api/v1/hello-world", (req, res) => {
+  res.status(200).json({ message: "Hello, World!" });
+});
+
 //app
 app.use("/api/v1/auth", Auth);
 app.use("/api/v1/poin-app", PoinApp);
