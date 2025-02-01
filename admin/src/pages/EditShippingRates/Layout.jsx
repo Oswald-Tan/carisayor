@@ -1,4 +1,4 @@
-import ProductList from "../../components/ProductList";
+import FormEditShippingRates from "../../components/FormEditShippingRates";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -22,11 +22,9 @@ const Layout = () => {
     }
   }, [isError, user, navigate]);
 
-    
-
   return (
     <>
-      <ProductList />
+      <FormEditShippingRates />
     </>
   );
 };

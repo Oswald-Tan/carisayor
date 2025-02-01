@@ -44,7 +44,7 @@ const Navbar = () => {
         </div>
 
         {isProfileOpen && (
-          <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg">
+          <div className="absolute right-0 mt-3 w-auto bg-white border border-gray-200 rounded-lg">
             <button
               onClick={logout}
               className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 hover:rounded-lg transition-all duration-150"

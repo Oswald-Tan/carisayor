@@ -30,18 +30,22 @@ import AddHargaPoinProduct from "./pages/AddHargaPoinProduct";
 import AddCityProvince from "./pages/AddCityProvince";
 import CityProvince from "./pages/CityProvince";
 import LupaPassword from "./pages/LupaPassword";
+import NotFound from "./components/404";
+import ShippingRates from "./pages/ShippingRates";
+import EditShippingRates from "./pages/EditShippingRates";
+import AddShippingRates from "./pages/AddShippingRates";
 
 function App() {
   return (
-    
     <Router>
       <Routes>
+        <Route path="*" element={<NotFound />} />
         <Route path="/" element={<Login />} />
         <Route path="/forgot/password" element={<LupaPassword />} />
 
         <Route element={<AdminLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} exact />
-          
+          <Route path="/dashboard" element={<Dashboard />} />
+
           <Route path="/users" element={<User />} exact />
           <Route path="/users/add" element={<AddUser />} exact />
           <Route path="/users/edit/:id" element={<EditUser />} exact />
@@ -56,29 +60,77 @@ function App() {
 
           <Route path="/harga/poin" element={<HargaPoin />} exact />
           <Route path="/harga/poin/add" element={<AddHargaPoin />} exact />
-          <Route path="/harga/poin/edit/:id" element={<EditHargaPoin />} exact />
+          <Route
+            path="/harga/poin/edit/:id"
+            element={<EditHargaPoin />}
+            exact
+          />
 
           <Route path="/poin" element={<Poin />} exact />
           <Route path="/poin/add" element={<AddPoin />} exact />
-          <Route path="/poin/add/discount/:id" element={<AddDiscountPoin />} exact />
+          <Route
+            path="/poin/add/discount/:id"
+            element={<AddDiscountPoin />}
+            exact
+          />
           <Route path="/poin/edit/:id" element={<EditPoin />} exact />
 
           <Route path="/discount/poin" element={<DiscountPoin />} exact />
-          <Route path="/discount/poin/add" element={<AddDiscountPoin />} exact />
-          <Route path="/discount/poin/edit/:id" element={<EditDiscountPoin />} exact />
+          <Route
+            path="/discount/poin/add"
+            element={<AddDiscountPoin />}
+            exact
+          />
+          <Route
+            path="/discount/poin/edit/:id"
+            element={<EditDiscountPoin />}
+            exact
+          />
 
           <Route path="/topup/poin" element={<TopUpPoin />} exact />
-          <Route path="/topup/poin/edit/:id" element={<EditTopUpPoin />} exact />
+          <Route
+            path="/topup/poin/edit/:id"
+            element={<EditTopUpPoin />}
+            exact
+          />
 
           <Route path="/pesanan" element={<Pesanan />} exact />
           <Route path="/pesanan/edit/:id" element={<EditPesanan />} exact />
 
-          <Route path="/harga/poin/product" element={<HargaPoinProduct />} exact />
-          <Route path="/harga/poin/product/add" element={<AddHargaPoinProduct />} exact />
-          <Route path="/harga/poin/product/edit/:id" element={<EditHargaPoinProduct />} exact />
-        
+          <Route
+            path="/harga/poin/product"
+            element={<HargaPoinProduct />}
+            exact
+          />
+          <Route
+            path="/harga/poin/product/add"
+            element={<AddHargaPoinProduct />}
+            exact
+          />
+          <Route
+            path="/harga/poin/product/edit/:id"
+            element={<EditHargaPoinProduct />}
+            exact
+          />
+
           <Route path="/city/province" element={<CityProvince />} exact />
-          <Route path="/city/province/add" element={<AddCityProvince />} exact />
+          <Route
+            path="/city/province/add"
+            element={<AddCityProvince />}
+            exact
+          />
+
+          <Route path="/shipping/rates" element={<ShippingRates />} exact />
+          <Route
+            path="/shipping/rates/add"
+            element={<AddShippingRates />}
+            exact
+          />
+          <Route
+            path="/shipping/rates/edit/:id"
+            element={<EditShippingRates />}
+            exact
+          />
         </Route>
       </Routes>
     </Router>

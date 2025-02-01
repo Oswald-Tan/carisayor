@@ -7,14 +7,14 @@ import Button from "./ui/Button";
 import { RiApps2AddFill } from "react-icons/ri";
 import Swal from "sweetalert2";
 
-const SupportedAreaList = () => {
-  const [areas, setAreas] = useState([]);
+const ShippingRatesList = () => {
+  const [shippingRate, setShippingRate] = useState([]);
 
-  //fetch all supported areas
-  const fetchAreas = async () => {
+  //fetch all shipping rates
+  const fetchShippingRates = async () => {
     try {
-      const res = await axios.get(`${API_URL}/supported-area`);
-      setAreas(res.data.data);
+      const res = await axios.get(`${API_URL}/shipping-rates`);
+      setShippingRate(res.data.data);
     } catch (error) {
       console.error(
         "Error fetching data",
@@ -23,9 +23,8 @@ const SupportedAreaList = () => {
     }
   };
 
-  //delete a supported area
-  const handleDeleteArea = async (id) => {
-    // Menampilkan konfirmasi sebelum melanjutkan penghapusan
+  //delete a shipping rate
+  const handleDeleteShippingRate = async (id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -38,73 +37,70 @@ const SupportedAreaList = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${API_URL}/supported-area/${id}`);
+        await axios.delete(`${API_URL}/shipping-rates/${id}`);
         Swal.fire(
           "Deleted!",
-          "The supported area has been deleted.",
+          "The shipping rate has been deleted.",
           "success"
         );
-        fetchAreas();
+        fetchShippingRates();
       } catch (error) {
         console.error(
-          "Failed to delete supported area:",
+          "Failed to delete shipping rate:",
           error.response?.data?.message || error.message
         );
         Swal.fire(
           "Failed!",
-          "There was an error while deleting the area.",
+          "There was an error while deleting the shipping rate.",
           "error"
         );
       }
     } else {
-      Swal.fire("Cancelled", "Your supported area is safe.", "info");
+      Swal.fire("Cancelled", "Your shipping rate is safe.", "info");
     }
   };
 
   useEffect(() => {
-    fetchAreas();
+    fetchShippingRates();
   }, []);
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">Supported Area</h2>
+      <h2 className="text-2xl font-semibold mb-4">Shipping Rates</h2>
       <Button
         text="Add New"
-        to="/supported/area/add"
+        to="/shipping/rates/add"
         iconPosition="left"
         icon={<RiApps2AddFill />}
         width={"w-[120px]"}
       />
 
       <div className="mt-5 overflow-x-auto bg-white rounded-xl p-4">
-        {/* Tabel responsif */}
         <table className="table-auto w-full text-left text-black-100">
           <thead>
             <tr className="text-sm">
               <th className="px-4 py-2 border-b">No</th>
-              <th className="px-4 py-2 border-b">Postal Code</th>
-              <th className="px-4 py-2 border-b">City</th>
-              <th className="px-4 py-2 border-b">State</th>
+              <th className="px-4 py-2 border-b">Kota</th>
+              <th className="px-4 py-2 border-b">Ongkos Kirim</th>
               <th className="px-4 py-2 border-b">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {areas.length > 0 ? (
-              areas.map((area, index) => (
-                <tr key={area.id} className="text-sm">
+            {shippingRate.length > 0 ? (
+              shippingRate.map((shipping, index) => (
+                <tr key={shipping.id} className="text-sm">
                   <td className="px-4 py-2 border-b">{index + 1}</td>
-                  <td className="px-4 py-2 border-b">{area.postal_code}</td>
-                  <td className="px-4 py-2 border-b">{area.city}</td>
-                  <td className="px-4 py-2 border-b">{area.state}</td>
+                  <td className="px-4 py-2 border-b">{shipping['City ']?.name}</td>
+                  <td className="px-4 py-2 border-b">Rp. {shipping.price.toLocaleString("id-ID")}</td>
                   <td className="px-4 py-2 border-b">
                     <div className="flex gap-x-2">
                       <ButtonAction
-                        to={`/supported/area/edit/${area.id}`}
+                        to={`/shipping/rates/edit/${shipping.id}`}
                         icon={<MdEditSquare />}
                         className={"bg-orange-600 hover:bg-orange-700"}
                       />
                       <ButtonAction
-                        onClick={() => handleDeleteArea(area.id)}
+                        onClick={() => handleDeleteShippingRate(shipping.id)}
                         icon={<MdDelete />}
                         className={"bg-red-600 hover:bg-red-700"}
                       />
@@ -118,7 +114,7 @@ const SupportedAreaList = () => {
                   colSpan="4"
                   className="px-4 py-2 text-center text-gray-500 text-sm"
                 >
-                  Belum ada data
+                  No data available
                 </td>
               </tr>
             )}
@@ -129,4 +125,4 @@ const SupportedAreaList = () => {
   );
 };
 
-export default SupportedAreaList;
+export default ShippingRatesList;

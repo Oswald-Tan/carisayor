@@ -13,7 +13,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, isError, isSuccess, isLoading, message } = useSelector(
+  const { user, isSuccess, isLoading } = useSelector(
     (state) => state.auth
   );
 
@@ -34,14 +34,13 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[#eef0f4]">
+    <div className="flex justify-center items-center min-h-screen bg-[#eef0f4] p-5">
       <div className="bg-white p-8 rounded-lg w-full max-w-md">
         <img src={LoginLogo} alt="logo" className="mx-auto w-[45px] mb-5" />
         <h2 className="text-3xl font-bold text-center">Welcome back!</h2>
         <p className="text-sm text-gray-500 mb-8 mt-1 text-center">
           Please login to your account
         </p>
-        {isError && <p className="text-red-600">{message}</p>}
         <form onSubmit={Auth} className="space-y-4">
           <div className="relative">
             <input

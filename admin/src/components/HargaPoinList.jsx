@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import { API_URL } from "../config";
 import Swal from "sweetalert2";
+import Button from "./ui/Button";
+import ButtonAction from "./ui/ButtonAction";
+import { RiApps2AddFill } from "react-icons/ri";
+import { MdEditSquare, MdDelete } from "react-icons/md";
 
 const HargaPoinList = () => {
   const [hargas, setHargas] = useState([]);
@@ -31,12 +34,13 @@ const HargaPoinList = () => {
   return (
     <div className="h-screen">
       <h2 className="text-2xl font-semibold mb-4">Harga Poin</h2>
-      <Link
-        className="text-sm bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none px-6 py-1"
+      <Button
+        text="Add New"
         to="/harga/poin/add"
-      >
-        Add New
-      </Link>
+        iconPosition="left"
+        icon={<RiApps2AddFill />}
+        width={"w-[120px] "}
+      />
       <div className="mt-5 overflow-x-auto bg-white rounded-xl p-4">
         {/* Tabel responsif */}
         <table className="table-auto w-full text-left text-black-100">
@@ -53,18 +57,19 @@ const HargaPoinList = () => {
                 <td className="px-4 py-2 border-b">{index + 1}</td>
                 <td className="px-4 py-2 border-b">{harga.harga}</td>
                 <td className="px-4 py-2 border-b">
-                  <Link
-                    to={`/harga/poin/edit/${harga.id}`}
-                    className="bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 focus:outline-none px-6 py-1 mr-2"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => deleteHargaPoin(harga.id)}
-                    className=" bg-red-600 text-white rounded-md shadow hover:bg-red-700 focus:outline-none px-6 py-1"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-x-2">
+                    <ButtonAction
+                      to={`/harga/poin/edit/${harga.id}`}
+                      icon={<MdEditSquare />}
+                      className={"bg-orange-600 hover:bg-orange-700"}
+                    />
+
+                    <ButtonAction
+                      onClick={() => deleteHargaPoin(harga.id)}
+                      icon={<MdDelete />}
+                      className={"bg-red-600 hover:bg-red-700"}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

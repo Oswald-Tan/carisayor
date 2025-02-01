@@ -1,4 +1,4 @@
-import ProductList from "../../components/ProductList";
+import FormAddShippingRates from "../../components/FormAddShippingRates";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -21,12 +21,10 @@ const Layout = () => {
       navigate("/dashboard");
     }
   }, [isError, user, navigate]);
-
-    
-
+  
   return (
     <>
-      <ProductList />
+      <FormAddShippingRates />
     </>
   );
 };

@@ -1,11 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      animation: {
+        progress: "progress 1.5s ease-in-out infinite",
+        "spin-slow": "spin 2s linear infinite",
+      },
+      keyframes: {
+        progress: {
+          "0%": { transform: "scaleX(0)" },
+          "50%": { transform: "scaleX(1)" },
+          "100%": { transform: "scaleX(0) translateX(100%)" },
+        },
+      },
       fontFamily: {
         sans: ["Poppins", "sans-serif"],
       },
@@ -22,7 +30,7 @@ export default {
           200: "#C1C2D3",
         },
         blue: {
-          "100": "#E4ECFF",
+          100: "#E4ECFF",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -41,4 +49,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

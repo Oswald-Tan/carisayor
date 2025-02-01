@@ -6,10 +6,12 @@ import { MdOutlinePriceChange } from "react-icons/md";
 import { LuHandCoins } from "react-icons/lu";
 import { PiMapPinSimpleAreaBold } from "react-icons/pi";
 import { TbReportMoney } from "react-icons/tb";
+import { LiaShippingFastSolid } from "react-icons/lia";
 import { HiOutlineClipboardList } from "react-icons/hi";
 import { useSidebar } from "../context/useSidebar";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Logo from "../assets/cs.png";
 
 const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
@@ -68,35 +70,41 @@ const Sidebar = () => {
         },
         ...(userRole !== "delivery"
           ? [
-            {
-              name: "Products",
-              link: "/products",
-              icon: AiOutlineProduct,
-            }
-          ]
-          : []
-        ),
+              {
+                name: "Products",
+                link: "/products",
+                icon: AiOutlineProduct,
+              },
+            ]
+          : []),
         ...(userRole !== "delivery"
           ? [
-            {
-              name: "Harga product",
-              link: "/harga/poin/product",
-              icon: TbReportMoney,
-            }
-          ]
-          : []
-        ),
+              {
+                name: "Harga product",
+                link: "/harga/poin/product",
+                icon: TbReportMoney,
+              },
+            ]
+          : []),
         ...(userRole !== "delivery"
           ? [
-            {
-              name: "City Province",
-              link: "/city/province",
-              icon: PiMapPinSimpleAreaBold,
-              margin: true,
-            }
-          ]
-          : []
-        ),
+              {
+                name: "City Province",
+                link: "/city/province",
+                icon: PiMapPinSimpleAreaBold,
+                margin: true,
+              },
+            ]
+          : []),
+          ...(userRole !== "delivery"
+            ? [
+                {
+                  name: "Shipping Rate",
+                  link: "/shipping/rates",
+                  icon: LiaShippingFastSolid,
+                },
+              ]
+            : []),
         {
           name: "Setting",
           link: "/setting",
@@ -104,7 +112,7 @@ const Sidebar = () => {
           margin: true,
         },
       ];
-      
+
       setMenus(updatedMenus);
     }
   }, [user]);
@@ -127,15 +135,23 @@ const Sidebar = () => {
               : "md:w-[68px] md:translate-x-0 -translate-x-[280px]"
           } fixed top-0 left-0 z-20 duration-500 text-gray-100 px-4`}
         >
-          <div className="py-4 px-2 flex">
+          <div className="py-4 px-2 flex relative">
             <h2
-              className={`whitespace-pre duration-500 text-xl font-semibold ${
+              className={`whitespace-pre duration-1000 text-xl font-semibold ${
                 !open && "-translate-x-[280px] opacity-0"
               }`}
             >
               Admin Dashboard
             </h2>
+            <img
+              src={Logo}
+              className={`absolute left-[6px] w-6 overflow-hidden duration-300 transition-opacity ${
+                open ? "opacity-0 delay-0" : "opacity-100 delay-500"
+              }`}
+              alt="Logo"
+            />
           </div>
+
           <div className="mt-2 flex flex-col gap-4 relative">
             {menus.map((menu, i) => (
               <Link

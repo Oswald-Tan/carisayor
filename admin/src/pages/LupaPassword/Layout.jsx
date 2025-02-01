@@ -94,7 +94,7 @@ const ResetPasswordPage = () => {
                   Request OTP
                 </p>
                 <p className="text-sm text-center text-[#909090]">
-                  Email yang di input merupkan email aktif yang terdaftar!
+                  Email yang di input merupkan email aktif terdaftar!
                 </p>
                 <div className="form-content">
                   <div className="form-group">

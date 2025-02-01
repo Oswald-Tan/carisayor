@@ -8,7 +8,7 @@ const currentYear = new Date().getFullYear();
 const AdminLayout = () => {
   const { open } = useSidebar();
   return (
-    <div className="flex">
+    <div className="flex relative">
       <div
         className={`fixed top-0 left-0 z-50 w-16 transition-all duration-500 ${
           open ? "w-[280px]" : "w-[68px]"

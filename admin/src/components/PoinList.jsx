@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../config";
+import Button from "./ui/Button";
 import ButtonAction from "./ui/ButtonAction";
+import { RiApps2AddFill } from "react-icons/ri";
 import { MdDiscount, MdEditSquare, MdDelete } from "react-icons/md";
 
 const PoinList = () => {
@@ -30,12 +31,14 @@ const PoinList = () => {
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-4">Poins</h2>
-      <Link
-        className="text-sm bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none px-6 py-1"
+
+      <Button
+        text="Add New"
         to="/poin/add"
-      >
-        Add New
-      </Link>
+        iconPosition="left"
+        icon={<RiApps2AddFill />}
+        width={"w-[120px] "}
+      />
       <div className="overflow-x-auto bg-white rounded-xl p-4 mt-5">
         {/* Tabel responsif */}
         <table className="table-auto w-full text-left text-black-100">
@@ -43,9 +46,15 @@ const PoinList = () => {
             <tr className="text-sm">
               <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
               <th className="px-4 py-2 border-b whitespace-nowrap">Poin</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Diskon (%)</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Harga Asli</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Harga Setelah Diskon</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">
+                Diskon (%)
+              </th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">
+                Harga Asli
+              </th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">
+                Harga Setelah Diskon
+              </th>
               <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
             </tr>
           </thead>
@@ -54,7 +63,9 @@ const PoinList = () => {
               <tr key={index} className="text-sm">
                 <td className="px-4 py-2 border-b">{index + 1}</td>
                 <td className="px-4 py-2 border-b">{poin.poin}</td>
-                <td className="px-4 py-2 border-b">{poin.discountPercentage}</td>
+                <td className="px-4 py-2 border-b">
+                  {poin.discountPercentage}
+                </td>
                 <td className="px-4 py-2 border-b">
                   Rp. {poin.originalPrice.toLocaleString()}
                 </td>
@@ -63,9 +74,21 @@ const PoinList = () => {
                 </td>
                 <td className="px-4 py-2 border-b">
                   <div className="flex gap-x-2">
-                    <ButtonAction to={`/poin/edit/${poin.id}`} icon={<MdEditSquare />} className={"bg-orange-600 hover:bg-orange-700"} />
-                    <ButtonAction to={`/poin/add/discount/${poin.id}`} icon={<MdDiscount />} className={"bg-blue-600 hover:bg-blue-700"} />
-                    <ButtonAction onClick={() => deletePoin(poin.id)} icon={<MdDelete />} className={"bg-red-600 hover:bg-red-700"} />
+                    <ButtonAction
+                      to={`/poin/edit/${poin.id}`}
+                      icon={<MdEditSquare />}
+                      className={"bg-orange-600 hover:bg-orange-700"}
+                    />
+                    <ButtonAction
+                      to={`/poin/add/discount/${poin.id}`}
+                      icon={<MdDiscount />}
+                      className={"bg-blue-600 hover:bg-blue-700"}
+                    />
+                    <ButtonAction
+                      onClick={() => deletePoin(poin.id)}
+                      icon={<MdDelete />}
+                      className={"bg-red-600 hover:bg-red-700"}
+                    />
                   </div>
                 </td>
               </tr>
