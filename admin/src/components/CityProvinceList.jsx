@@ -75,19 +75,19 @@ const CityProvinceList = () => {
         <table className="table-auto w-full text-left text-black-100">
           <thead>
             <tr className="text-sm">
-              <th className="px-4 py-2 border-b">No</th>
-              <th className="px-4 py-2 border-b">Province Name</th>
-              <th className="px-4 py-2 border-b">City Names</th>
-              <th className="px-4 py-2 border-b">Actions</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Province Name</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">City Names</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {provinces.length > 0 ? (
               provinces.map((province, index) => (
                 <tr key={province.id} className="text-sm">
-                  <td className="px-4 py-2 border-b">{index + 1}</td>
-                  <td className="px-4 py-2 border-b">{province.name}</td>
-                  <td className="px-4 py-2 border-b">
+                  <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
+                  <td className="px-4 py-2 border-b whitespace-nowrap">{province.name}</td>
+                  <td className="px-4 py-2 border-b whitespace-nowrap">
                     {province.cities.length > 0 ? (
                       <ul>
                         {province.cities.map((city) => (

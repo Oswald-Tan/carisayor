@@ -61,18 +61,18 @@ const PoinList = () => {
           <tbody>
             {poins.map((poin, index) => (
               <tr key={index} className="text-sm">
-                <td className="px-4 py-2 border-b">{index + 1}</td>
-                <td className="px-4 py-2 border-b">{poin.poin}</td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{poin.poin}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">
                   {poin.discountPercentage}
                 </td>
                 <td className="px-4 py-2 border-b">
                   Rp. {poin.originalPrice.toLocaleString()}
                 </td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b whitespace-nowrap">
                   Rp. {poin.price.toLocaleString()}
                 </td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b whitespace-nowrap">
                   <div className="flex gap-x-2">
                     <ButtonAction
                       to={`/poin/edit/${poin.id}`}

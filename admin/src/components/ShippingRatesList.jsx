@@ -79,20 +79,20 @@ const ShippingRatesList = () => {
         <table className="table-auto w-full text-left text-black-100">
           <thead>
             <tr className="text-sm">
-              <th className="px-4 py-2 border-b">No</th>
-              <th className="px-4 py-2 border-b">Kota</th>
-              <th className="px-4 py-2 border-b">Ongkos Kirim</th>
-              <th className="px-4 py-2 border-b">Actions</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Kota</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Ongkos Kirim</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {shippingRate.length > 0 ? (
               shippingRate.map((shipping, index) => (
                 <tr key={shipping.id} className="text-sm">
-                  <td className="px-4 py-2 border-b">{index + 1}</td>
-                  <td className="px-4 py-2 border-b">{shipping['City ']?.name}</td>
-                  <td className="px-4 py-2 border-b">Rp. {shipping.price.toLocaleString("id-ID")}</td>
-                  <td className="px-4 py-2 border-b">
+                  <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
+                  <td className="px-4 py-2 border-b whitespace-nowrap">{shipping['City ']?.name}</td>
+                  <td className="px-4 py-2 border-b whitespace-nowrap">Rp. {shipping.price.toLocaleString("id-ID")}</td>
+                  <td className="px-4 py-2 border-b whitespace-nowrap">
                     <div className="flex gap-x-2">
                       <ButtonAction
                         to={`/shipping/rates/edit/${shipping.id}`}

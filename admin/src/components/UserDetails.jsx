@@ -50,20 +50,20 @@ const UserDetails = () => {
           <table className="table-auto w-full text-left text-black-100">
             <thead>
               <tr className="text-sm">
-                <th className="px-4 py-2 border-b">Username</th>
-                <th className="px-4 py-2 border-b">Email</th>
-                <th className="px-4 py-2 border-b">Fullname</th>
-                <th className="px-4 py-2 border-b">Phone Number</th>
-                <th className="px-4 py-2 border-b">Image</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Username</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Email</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Fullname</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Phone Number</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Image</th>
               </tr>
             </thead>
             <tbody>
               <tr className="text-sm">
-                <td className="px-4 py-2 border-b">{userDetails.username}</td>
-                <td className="px-4 py-2 border-b">{userDetails.email}</td>
-                <td className="px-4 py-2 border-b">{userDetails.fullname || "-"}</td>
-                <td className="px-4 py-2 border-b">{userDetails.phone_number || "-"}</td>
-                <td className="px-4 py-2 border-b">{userDetails.photo_profile || "-"}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{userDetails.username}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{userDetails.email}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{userDetails.fullname || "-"}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{userDetails.phone_number || "-"}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{userDetails.photo_profile || "-"}</td>
               </tr>
             </tbody>
           </table>

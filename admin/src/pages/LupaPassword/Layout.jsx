@@ -65,14 +65,14 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <div className="w-full h-screen flex justify-center items-center bg-[#eef0f4] p-5">
-      <div className="w-full md:w-[380px] h-auto bg-white rounded-md p-8">
+    <div className="w-full h-screen flex justify-center items-center bg-white p-5">
+      <div className="w-full max-w-sm h-auto">
         <div className="flex justify-center">
-          <div className="w-[80px] h-[80px] bg-[#eef0f4] p-[5px] rounded-full flex items-center justify-center">
-            <div className="w-[50px] h-[50px] bg-[#475be84d] p-[5px] rounded-full flex items-center justify-center">
+          <div className="w-[80px] h-[80px] bg-[#f2fce2] p-[5px] rounded-full flex items-center justify-center">
+            <div className="w-[50px] h-[50px] bg-[#d8faa5] p-[5px] rounded-full flex items-center justify-center">
               <TbPasswordUser
                 size={30}
-                className="bg-opacity-5 text-[#475be8]"
+                className="bg-opacity-5 text-[#74B11A]"
               />
             </div>
           </div>
@@ -117,7 +117,7 @@ const ResetPasswordPage = () => {
                   type="submit"
                   disabled={loading}
                   className="mt-[10px] w-full p-3 rounded-[10px] 
-                  bg-gradient-to-[121deg] bg-[#475BE8] text-white
+                  bg-gradient-to-[121deg] bg-[#74B11A] hover:bg-[#a1e043] text-white
                   transition-all duration-300 ease-in-out 
                   font-medium text-sm cursor-pointer"
                 >
@@ -188,7 +188,7 @@ const ResetPasswordPage = () => {
                   type="submit"
                   disabled={loading}
                   className="mt-[10px] w-full p-3 rounded-[10px] 
-                  bg-gradient-to-[121deg] bg-[#475BE8] text-white
+                  bg-gradient-to-[121deg] bg-[#74B11A] hover:bg-[#a1e043] text-white
                   transition-all duration-300 ease-in-out 
                   font-medium text-sm cursor-pointer"
                 >

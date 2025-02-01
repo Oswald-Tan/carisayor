@@ -24,7 +24,7 @@ const FormAddHargaPoin = () => {
   return (
     <div className="bg-gray-100">
       <div className="w-full">
-        <h1 className="text-2xl font-semibold text-black-100">Form Add Poin</h1>
+        <h1 className="text-2xl font-semibold text-black-100">Add Poin</h1>
         <div className="bg-white p-6 rounded-lg shadow-md mt-4">
           <form onSubmit={savePoin}>
             <div className="mb-4">

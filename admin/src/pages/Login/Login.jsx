@@ -34,9 +34,9 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[#eef0f4] p-5">
-      <div className="bg-white p-8 rounded-lg w-full max-w-md">
-        <img src={LoginLogo} alt="logo" className="mx-auto w-[45px] mb-5" />
+    <div className="flex justify-center items-center min-h-screen bg-white p-5">
+      <div className="rounded-lg w-full max-w-sm">
+        <img src={LoginLogo} alt="logo" className="mx-auto w-[85px] mb-5" />
         <h2 className="text-3xl font-bold text-center">Welcome back!</h2>
         <p className="text-sm text-gray-500 mb-8 mt-1 text-center">
           Please login to your account
@@ -80,7 +80,7 @@ const Login = () => {
           </Link>
           <button
             type="submit"
-            className="flex items-center justify-center gap-x-1 w-full py-3 bg-blue-600 font-semibold text-white text-sm rounded-md hover:bg-blue-700 transition-all duration-300 ease-in-out"
+            className="flex items-center justify-center gap-x-1 w-full py-3 bg-[#74B11A] font-semibold text-white text-sm rounded-md hover:bg-[#a1e043] transition-all duration-300 ease-in-out"
           >
             {isLoading ? "Loading..." : "Login"}{" "}
             <FaLongArrowAltRight size={18} />

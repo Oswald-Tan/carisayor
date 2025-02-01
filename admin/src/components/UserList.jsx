@@ -117,18 +117,19 @@ const UserList = () => {
       <div>
         <h2 className="text-2xl font-semibold mb-4">Users</h2>
 
-        <div className="flex gap-2 justify-between items-center">
+        <div className="flex gap-2 justify-between items-center overflow-x-auto">
+
           <Button
             text="Add New"
             to="/users/add"
             iconPosition="left"
             icon={<RiApps2AddFill />}
-            width={"w-[120px] "}
+            width={"min-w-[120px] "}
           />
           <div className="flex gap-2">
             {/* Search filter */}
             <form onSubmit={searchData}>
-              <div className="flex items-center relative w-[220px]">
+              <div className="flex items-center relative md:w-[220px] w-[200px]">
                 <input
                   type="text"
                   className="pr-10 pl-4 py-2 border border-gray-300 rounded-md w-full text-xs"
@@ -169,21 +170,21 @@ const UserList = () => {
           <table className="table-auto w-full text-left text-black-100">
             <thead>
               <tr className="text-sm">
-                <th className="px-4 py-2 border-b">No</th>
-                <th className="px-4 py-2 border-b">Username</th>
-                <th className="px-4 py-2 border-b">Email</th>
-                <th className="px-4 py-2 border-b">Role</th>
-                <th className="px-4 py-2 border-b">Actions</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Username</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Email</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Role</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.length > 0 ? (
                 users.map((user, index) => (
                   <tr key={user.id} className="text-sm">
-                    <td className="px-4 py-2 border-b">{index + 1}</td>
-                    <td className="px-4 py-2 border-b">{user.username}</td>
-                    <td className="px-4 py-2 border-b">{user.email}</td>
-                    <td className="px-4 py-2 border-b">
+                    <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
+                    <td className="px-4 py-2 border-b whitespace-nowrap">{user.username}</td>
+                    <td className="px-4 py-2 border-b whitespace-nowrap">{user.email}</td>
+                    <td className="px-4 py-2 border-b whitespace-nowrap">
                       {user.role === "admin" ? (
                         <span className="px-2 py-1 text-xs text-orange-600 border border-orange-600 rounded-lg">
                           Admin

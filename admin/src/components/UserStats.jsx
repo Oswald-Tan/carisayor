@@ -45,18 +45,18 @@ const UserStats = () => {
           <table className="table-auto w-full text-left text-black-100">
             <thead>
               <tr className="text-sm">
-                <th className="px-4 py-2 border-b">Username</th>
-                <th className="px-4 py-2 border-b">Email</th>
-                <th className="px-4 py-2 border-b">Last Login</th>
-                <th className="px-4 py-2 border-b">Total Login</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Username</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Email</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Last Login</th>
+                <th className="px-4 py-2 border-b whitespace-nowrap">Total Login</th>
               </tr>
             </thead>
             <tbody>
               <tr className="text-sm">
-                <td className="px-4 py-2 border-b">{userStats.username}</td>
-                <td className="px-4 py-2 border-b">{userStats.email}</td>
-                <td className="px-4 py-2 border-b">{formattedLastLogin}</td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b whitespace-nowrap">{userStats.username}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{userStats.email}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{formattedLastLogin}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">
                   {userStats.total_logins || "-"}
                 </td>
               </tr>

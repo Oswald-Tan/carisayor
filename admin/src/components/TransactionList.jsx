@@ -36,21 +36,21 @@ const TransactionList = () => {
         <table className="table-auto w-full text-left text-black-100">
           <thead>
             <tr className="text-sm">
-              <th className="px-4 py-2 border-b">No</th>
-              <th className="px-4 py-2 border-b">Username</th>
-              <th className="px-4 py-2 border-b">Email</th>
-              <th className="px-4 py-2 border-b">Role</th>
-              <th className="px-4 py-2 border-b">Actions</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Username</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Email</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Role</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user, index) => (
               <tr key={user.id} className="text-sm">
-                <td className="px-4 py-2 border-b">{index + 1}</td>
-                <td className="px-4 py-2 border-b">{user.username}</td>
-                <td className="px-4 py-2 border-b">{user.email}</td>
-                <td className="px-4 py-2 border-b">{user.role}</td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{user.username}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{user.email}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{user.role}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">
                   <Link
                     to={`/users/edit/${user.id}`}
                     className="bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 focus:outline-none px-6 py-1 mr-2"

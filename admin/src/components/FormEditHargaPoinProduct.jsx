@@ -16,6 +16,7 @@ const FormEditHargaPoinProduct = () => {
         try {
           const res = await axios.get(`${API_URL}/harga/${id}`);
           setHarga(res.data.harga);
+          console.log(res.data);
         } catch (error) {
           if (error.response) {
             setMsg(error.response.data.message);
@@ -42,7 +43,7 @@ const FormEditHargaPoinProduct = () => {
     return (
       <div className="bg-gray-100">
         <div className="w-full">
-          <h1 className="text-2xl font-bold text-black-100">Edit Harga Product</h1>
+          <h1 className="text-2xl font-semibold text-black-100">Edit Harga Product</h1>
           <div className="bg-white p-6 rounded-lg shadow-md mt-4">
             <form onSubmit={updateProduct}>
             <p className="text-red-500">{msg}</p>

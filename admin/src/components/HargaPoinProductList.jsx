@@ -7,6 +7,7 @@ import { MdEditSquare } from "react-icons/md";
 const HargaPoinProductList = () => {
   const [hargaPoin, setHargaPoin] = useState(null);
 
+
   useEffect(() => {
     getHargaPoin();
   }, []);
@@ -25,20 +26,20 @@ const HargaPoinProductList = () => {
         <table className="table-auto w-full text-left text-black-100">
           <thead>
             <tr className="text-sm">
-              <th className="px-4 py-2 border-b">No</th>
-              <th className="px-4 py-2 border-b">Harga</th>
-              <th className="px-4 py-2 border-b">Actions</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Harga</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {hargaPoin !== null ? (
               <tr className="text-sm">
-                <td className="px-4 py-2 border-b">1</td>
-                <td className="px-4 py-2 border-b">{hargaPoin}</td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b whitespace-nowrap">1</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{hargaPoin}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">
                   <div className="flex gap-x-2">
                     <ButtonAction
-                      to={`/harga/poin/product/add`}
+                      to={`/harga/poin/product/edit`}
                       icon={<MdEditSquare />}
                       className={"bg-orange-600 hover:bg-orange-700"}
                     />

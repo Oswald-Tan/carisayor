@@ -157,15 +157,15 @@ const ModalPesanan = ({ pesanan, onClose }) => {
                 </div>
               </div>
               <div className="flex justify-between mt-2">
-                <p className="text-sm">Total</p>
+                <p className="text-sm font-semibold">Total</p>
                 <div>
                   {pesanan.hargaPoin ? (
                     <div className="flex items-center justify-center gap-1">
                       <img src={CSPoin} alt="poin" className="w-4" />
-                      <span className="text-sm">{`${pesanan.totalBayar} Poin`}</span>
+                      <span className="text-sm font-semibold">{`${pesanan.totalBayar} Poin`}</span>
                     </div>
                   ) : pesanan.hargaRp ? (
-                    <span className="text-sm">
+                    <span className="text-sm font-semibold">
                       Rp. {pesanan.totalBayar.toLocaleString("id-ID")}
                     </span>
                   ) : (

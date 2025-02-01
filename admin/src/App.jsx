@@ -103,7 +103,7 @@ function App() {
             exact
           />
           <Route
-            path="/harga/poin/product/add"
+            path="/harga/poin/product/edit"
             element={<AddHargaPoinProduct />}
             exact
           />

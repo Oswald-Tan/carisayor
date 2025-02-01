@@ -10,7 +10,7 @@ const Button = ({ text, icon, iconPosition = "left", onClick, className, to, wid
     </>
   );
 
-  const buttonClasses = `flex items-center justify-center gap-2 px-4 py-2 text-xs rounded-lg text-white bg-purple-500 hover:bg-purple-600 transition-all duration-150 ${className} ${width ? width : 'w-auto'}`;
+  const buttonClasses = `flex items-center justify-center gap-2 px-4 py-2 text-xs rounded-lg text-white bg-purple-500 hover:bg-purple-600 transition-all duration-150 ${className} ${width ? width : 'w-auto'} whitespace-nowrap`;
 
   if (to) {
     return (

@@ -37,8 +37,8 @@ const FormAddHargaPoinProduct = () => {
   return (
     <div className="bg-gray-100">
       <div className="w-full">
-        <h1 className="text-2xl font-bold text-black-100">
-          Add Harga Poin Product
+        <h1 className="text-2xl font-semibold text-black-100">
+          Harga Poin Product
         </h1>
         <div className="bg-white p-6 rounded-lg shadow-md mt-4">
           <form onSubmit={saveHargaPoin}>

@@ -8,12 +8,18 @@ import { PiMapPinSimpleAreaBold } from "react-icons/pi";
 import { TbReportMoney } from "react-icons/tb";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { HiOutlineClipboardList } from "react-icons/hi";
+import { FiLogOut } from "react-icons/fi";
 import { useSidebar } from "../context/useSidebar";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { LogOut, reset } from "../features/authSlice";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import Logo from "../assets/cs.png";
 
 const Sidebar = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const { open, toggleSidebar } = useSidebar();
   const [menus, setMenus] = useState([]);
@@ -96,26 +102,50 @@ const Sidebar = () => {
               },
             ]
           : []),
-          ...(userRole !== "delivery"
-            ? [
-                {
-                  name: "Shipping Rate",
-                  link: "/shipping/rates",
-                  icon: LiaShippingFastSolid,
-                },
-              ]
-            : []),
+        ...(userRole !== "delivery"
+          ? [
+              {
+                name: "Shipping Rate",
+                link: "/shipping/rates",
+                icon: LiaShippingFastSolid,
+              },
+            ]
+          : []),
         {
           name: "Setting",
           link: "/setting",
           icon: RiSettings4Line,
           margin: true,
         },
+        {
+          name: "Logout",
+          action: () => logout(),
+          icon: FiLogOut,
+        },
       ];
 
       setMenus(updatedMenus);
     }
   }, [user]);
+
+  const logout = async () => {
+    Swal.fire({
+      title: "Konfirmasi Logout",
+      text: "Apakah Anda yakin ingin logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Logout",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(LogOut());
+        dispatch(reset());
+        navigate("/");
+      }
+    });
+  };
 
   return (
     <>
@@ -152,35 +182,52 @@ const Sidebar = () => {
             />
           </div>
 
-          <div className="mt-2 flex flex-col gap-4 relative">
-            {menus.map((menu, i) => (
-              <Link
-                to={menu.link}
-                key={i}
-                className={`${
-                  menu.margin && "mt-5"
-                } group flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-[#36143f] rounded-xl`}
-              >
-                <div>{React.createElement(menu.icon, { size: "20" })}</div>
-                <h2
-                  style={{
-                    transitionDelay: `${i + 3}00ms`,
-                  }}
-                  className={`whitespace-pre duration-500 ${
-                    !open && "opacity-0 translate-x-28 overflow-hidden"
-                  }`}
-                >
-                  {menu.name}
-                </h2>
-                <h2
+          <div className="mt-2 flex flex-col gap-1 relative">
+            {menus.map((menu, i) =>
+              menu.action ? (
+                // Untuk Logout atau menu yang memiliki action
+                <button
+                  key={i}
+                  onClick={menu.action}
                   className={`${
-                    open && "hidden"
-                  } absolute left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit`}
+                    menu.margin && "mt-5"
+                  } group flex items-center text-sm gap-3.5 font-medium px-2 py-3 hover:bg-[#36143f] rounded-xl w-full text-left`}
                 >
-                  {menu.name}
-                </h2>
-              </Link>
-            ))}
+                  <div>{React.createElement(menu.icon, { size: "20" })}</div>
+                  <h2
+                    style={{
+                      transitionDelay: `${i + 3}00ms`,
+                    }}
+                    className={`whitespace-pre duration-500 ${
+                      !open && "opacity-0 translate-x-28 overflow-hidden"
+                    }`}
+                  >
+                    {menu.name}
+                  </h2>
+                </button>
+              ) : (
+                // Untuk menu biasa yang memiliki link
+                <Link
+                  to={menu.link}
+                  key={i}
+                  className={`${
+                    menu.margin && "mt-5"
+                  } group flex items-center text-sm gap-3.5 font-medium px-2 py-3 hover:bg-[#36143f] rounded-xl`}
+                >
+                  <div>{React.createElement(menu.icon, { size: "20" })}</div>
+                  <h2
+                    style={{
+                      transitionDelay: `${i + 3}00ms`,
+                    }}
+                    className={`whitespace-pre duration-500 ${
+                      !open && "opacity-0 translate-x-28 overflow-hidden"
+                    }`}
+                  >
+                    {menu.name}
+                  </h2>
+                </Link>
+              )
+            )}
           </div>
         </div>
       </section>

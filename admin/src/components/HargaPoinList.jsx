@@ -46,17 +46,17 @@ const HargaPoinList = () => {
         <table className="table-auto w-full text-left text-black-100">
           <thead>
             <tr className="text-sm">
-              <th className="px-4 py-2 border-b">No</th>
-              <th className="px-4 py-2 border-b">Harga</th>
-              <th className="px-4 py-2 border-b">Actions</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Harga</th>
+              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {hargas.map((harga, index) => (
               <tr key={harga.id} className="text-sm">
-                <td className="px-4 py-2 border-b">{index + 1}</td>
-                <td className="px-4 py-2 border-b">{harga.harga}</td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">{harga.harga}</td>
+                <td className="px-4 py-2 border-b whitespace-nowrap">
                   <div className="flex gap-x-2">
                     <ButtonAction
                       to={`/harga/poin/edit/${harga.id}`}
