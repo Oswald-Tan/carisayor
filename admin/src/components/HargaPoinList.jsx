@@ -33,30 +33,31 @@ const HargaPoinList = () => {
 
   return (
     <div className="h-screen">
-      <h2 className="text-2xl font-semibold mb-4">Harga Poin</h2>
+      <h2 className="text-2xl font-semibold mb-4 dark:text-white">Harga Poin</h2>
       <Button
         text="Add New"
-        to="/harga/poin/add"
+        to="/harga/poin/add" 
         iconPosition="left"
         icon={<RiApps2AddFill />}
         width={"w-[120px] "}
+        className={"bg-purple-500 hover:bg-purple-600"}
       />
-      <div className="mt-5 overflow-x-auto bg-white rounded-xl p-4">
+      <div className="mt-5 overflow-x-auto bg-white dark:bg-[#282828] rounded-xl p-4">
         {/* Tabel responsif */}
         <table className="table-auto w-full text-left text-black-100">
           <thead>
-            <tr className="text-sm">
-              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Harga</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
+            <tr className="text-sm dark:text-white">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Harga</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {hargas.map((harga, index) => (
-              <tr key={harga.id} className="text-sm">
-                <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">{harga.harga}</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">
+              <tr key={harga.id} className="text-sm dark:text-white">
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">{index + 1}</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Rp. {harga.harga.toLocaleString()}</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   <div className="flex gap-x-2">
                     <ButtonAction
                       to={`/harga/poin/edit/${harga.id}`}

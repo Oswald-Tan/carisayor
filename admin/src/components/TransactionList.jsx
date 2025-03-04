@@ -30,7 +30,7 @@ const TransactionList = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">Transaction</h2>
+      <h2 className="text-2xl font-semibold mb-4 dark:text-white">Transaction</h2>
       <div className="mt-5 overflow-x-auto bg-white rounded-xl p-4">
         {/* Tabel responsif */}
         <table className="table-auto w-full text-left text-black-100">

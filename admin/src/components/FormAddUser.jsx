@@ -5,7 +5,7 @@ import { API_URL } from "../config";
 import Swal from "sweetalert2";
 
 const FormAddUser = () => {
-  const [username, setUsername] = useState("");
+  const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,7 +17,7 @@ const FormAddUser = () => {
     e.preventDefault();
     try {
       await axios.post(`${API_URL}/users/user`, {
-        username,
+        fullname,
         email,
         password,
         confirmPassword,
@@ -32,31 +32,31 @@ const FormAddUser = () => {
     }
   };
   return (
-    <div className="bg-gray-100">
+    <div>
       <div className="w-full">
-        <h1 className="text-2xl font-semibold text-black-100">Add User</h1>
-        <div className="bg-white p-6 rounded-lg shadow-md mt-4">
+        <h1 className="text-2xl font-semibold text-black-100 dark:text-white">Add User</h1>
+        <div className="bg-white dark:bg-[#282828] p-6 rounded-lg shadow-md mt-4">
           <form onSubmit={saveUser}>
             <p className="text-red-500">{msg}</p>
             <div className="mb-4">
               <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
+                htmlFor="fullname"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
-                Username
+                Fullname
               </label>
               <input
                 type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                id="fullname"
+                value={fullname}
+                onChange={(e) => setFullname(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               />
             </div>
             <div className="mb-4">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Email
               </label>
@@ -65,13 +65,13 @@ const FormAddUser = () => {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               />
             </div>
             <div className="mb-4">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Password
               </label>
@@ -80,13 +80,13 @@ const FormAddUser = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               />
             </div>
             <div className="mb-4">
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Confirm Password
               </label>
@@ -95,13 +95,13 @@ const FormAddUser = () => {
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               />
             </div>
             <div className="mb-4">
               <label
                 htmlFor="role"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Role
               </label>
@@ -109,11 +109,11 @@ const FormAddUser = () => {
                 id="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+               className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               >
                 <option value="">...</option>
-                <option value="admin">Admin</option>
                 <option value="user">User</option>
+                <option value="admin">Admin</option>
                 <option value="delivery">Delivery</option>
               </select>
             </div>

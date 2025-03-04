@@ -22,7 +22,7 @@ const DiscountPoinList = () => {
 
   return (
     <div className="h-screen">
-      <h2 className="text-2xl font-semibold mb-4">Dicount Poin</h2>
+      <h2 className="text-2xl font-semibold mb-4 dark:text-white">Dicount Poin</h2>
       <Link
         className="bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none px-6 py-1"
         to="/discount/poin/add"

@@ -1,9 +1,12 @@
+import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { io } from "socket.io-client";
 import AdminLayout from "./layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login/Login";
 import Transaction from "./pages/Transaction";
 import User from "./pages/Users";
+import UserApprove from "./pages/UsersApprove";
 import UserDetail from "./pages/UserDetail";
 import UserStats from "./pages/UserStats";
 import Products from "./pages/Products";
@@ -36,6 +39,47 @@ import EditShippingRates from "./pages/EditShippingRates";
 import AddShippingRates from "./pages/AddShippingRates";
 
 function App() {
+  useEffect(() => {
+    // Inisialisasi socket.io
+    const socket = io("http://localhost:8080", {
+      withCredentials: true,
+    });
+
+    socket.on("connect", () => {
+      console.log("Connected to socket server");
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("Disconnected from socket.io. Reason:", reason);
+    });
+
+    // Mendengarkan event newTopUp
+    socket.on("newTopUp", (data) => {
+      if (data.status === "pending") {
+        // Meminta izin untuk notifikasi
+        if ("Notification" in window && Notification.permission !== "granted") {
+          Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+              new Notification("Top Up Pending", {
+                body: `${data.fullname} has made a top-up of ${data.points} points.`,
+              });
+            }
+          });
+        } else if (Notification.permission === "granted") {
+          new Notification("Top Up Pending", {
+            body: `${data.fullname} has made a top-up of ${data.points} points.`,
+          });
+        }
+        console.log("New top-up pending:", data);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+      console.log("Disconnected from socket.io");
+    };
+  }, []);
+
   return (
     <Router>
       <Routes>
@@ -47,6 +91,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="/users" element={<User />} exact />
+          <Route path="/users/approve" element={<UserApprove />} exact />
           <Route path="/users/add" element={<AddUser />} exact />
           <Route path="/users/edit/:id" element={<EditUser />} exact />
           <Route path="/users/:id/details" element={<UserDetail />} exact />

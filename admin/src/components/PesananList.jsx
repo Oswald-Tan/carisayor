@@ -23,6 +23,7 @@ const PesananList = () => {
   const [rows, setRows] = useState(0);
   const [keyword, setKeyword] = useState("");
   const [query, setQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [typingTimeout, setTypingTimeout] = useState(null);
 
   const [selectedPesanan, setSelectedPesanan] = useState(null);
@@ -52,7 +53,7 @@ const PesananList = () => {
 
   useEffect(() => {
     getPesanan();
-  }, [page, keyword, limit]);
+  }, [page, keyword, limit, selectedStatus]);
 
   useEffect(() => {
     // Menangani pencarian otomatis
@@ -70,7 +71,7 @@ const PesananList = () => {
   const getPesanan = async () => {
     try {
       const res = await axios.get(
-        `${API_URL}/pesanan?search=${keyword}&page=${page}&limit=${limit}`
+        `${API_URL}/pesanan?search=${keyword}&page=${page}&limit=${limit}&status=${selectedStatus}`
       );
 
       if (Array.isArray(res.data?.data)) {
@@ -106,7 +107,7 @@ const PesananList = () => {
       if (result.isConfirmed) {
         await axios.delete(`${API_URL}/pesanan/${id}`);
         getPesanan();
-  
+
         Swal.fire({
           icon: "success",
           title: "Deleted!",
@@ -115,7 +116,6 @@ const PesananList = () => {
       }
     });
   };
-  
 
   return (
     <>
@@ -123,15 +123,15 @@ const PesananList = () => {
         <ModalPesanan pesanan={selectedPesanan} onClose={closeModal} />
       )}
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Pesanan</h2>
+        <h2 className="text-2xl font-semibold mb-4 dark:text-white">Pesanan</h2>
 
-        <div className="flex gap-2 mt-5">
+        <div className="flex gap-2 mt-5 overflow-x-auto">
           {/* Search filter */}
           <form onSubmit={searchData}>
             <div className="flex items-center relative w-[220px]">
               <input
                 type="text"
-                className="pr-10 pl-4 py-2 border border-gray-300 rounded-md w-full text-xs"
+                className="pr-10 pl-4 py-2 border dark:text-white border-gray-300 dark:border-[#3f3f3f] rounded-md w-full text-xs focus:outline-none dark:bg-[#282828]"
                 placeholder="Search..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -149,12 +149,11 @@ const PesananList = () => {
               <select
                 id="limit"
                 name="limit"
-                className="px-4 py-2 border border-gray-300 rounded-md text-xs appearance-none pr-10" // Menambahkan padding kanan ekstra untuk memberi ruang ikon
+                className="px-4 py-2 border dark:text-white border-gray-300 dark:border-[#3f3f3f] rounded-md text-xs appearance-none pr-7 focus:outline-none dark:bg-[#282828]" 
                 onChange={(e) => {
                   setLimit(e.target.value);
                 }}
               >
-                <option value="">Select Limit</option>
                 <option value="10">10</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
@@ -165,33 +164,50 @@ const PesananList = () => {
               </span>
             </div>
           </form>
+
+          {/* Status filter */}
+          <div className="flex items-center relative">
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="px-4 py-2 border dark:text-white border-gray-300 dark:border-[#3f3f3f] rounded-md text-xs appearance-none pr-7 focus:outline-none dark:bg-[#282828]" 
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="processed">Processed</option>
+              <option value="out-for-delivery">Out for Delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <span className="absolute right-3 text-gray-500">
+              <MdKeyboardArrowDown />
+            </span>
+          </div>
         </div>
-        <div className="overflow-x-auto bg-white rounded-xl p-4 mt-5">
+        <div className="overflow-x-auto bg-white dark:bg-[#282828] rounded-xl p-4 mt-5">
           {/* Tabel responsif */}
           <table className="table-auto w-full text-left text-black-100">
             <thead>
-              <tr className="text-sm">
-                <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">
+              <tr className="text-sm dark:text-white">
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">No</th>
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Invoice
                 </th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Created at
                 </th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Customer
                 </th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">
-                  Nama Produk
-                </th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Pembayaran
                 </th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Total bayar
                 </th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">Status</th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Status</th>
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Actions
                 </th>
               </tr>
@@ -199,32 +215,20 @@ const PesananList = () => {
             <tbody>
               {pesanan.length > 0 ? (
                 pesanan.map((pesanan, index) => (
-                  <tr key={index} className="text-sm">
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
+                  <tr key={index} className="text-sm dark:text-white">
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                       {index + 1}
                     </td>
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                       {pesanan.invoiceNumber || "-"}
                     </td>
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                       {formatShortDate(pesanan.created_at)}
                     </td>
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
-                      {pesanan.user ? pesanan.user.username : "-"}
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
+                      {pesanan.user?.userDetails?.fullname || "-"}
                     </td>
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
-                      {pesanan.nama && pesanan.nama.includes(",") ? (
-                        <div className="flex flex-col gap-y-1">
-                          {pesanan.nama.split(",").map((item, index) => (
-                            <div key={index}>{item.trim()}</div>
-                          ))}
-                        </div>
-                      ) : (
-                        <span>{pesanan.nama || "-"}</span>
-                      )}
-                    </td>
-
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                       {pesanan.metodePembayaran === "Poin" ? (
                         <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded-lg">
                           {pesanan.metodePembayaran}
@@ -238,7 +242,7 @@ const PesananList = () => {
                       )}
                     </td>
 
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                       {pesanan.hargaPoin ? (
                         <span className="px-2 py-1 text-xs text-white bg-yellow-500 rounded-lg">{`${pesanan.totalBayar} Poin`}</span>
                       ) : pesanan.hargaRp ? (
@@ -250,13 +254,13 @@ const PesananList = () => {
                       )}
                     </td>
 
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                       {pesanan.status === "pending" ? (
                         <span className="px-2 py-1 text-xs text-white bg-orange-600 rounded-lg">
                           Pending
                         </span>
                       ) : pesanan.status === "confirmed" ? (
-                        <span className="px-2 py-1 text-xs text-white bg-green-600 rounded-lg">
+                        <span className="px-2 py-1 text-xs text-white bg-[#74B11A] rounded-lg">
                           Confirmed
                         </span>
                       ) : pesanan.status === "processed" ? (
@@ -264,11 +268,11 @@ const PesananList = () => {
                           Processed
                         </span>
                       ) : pesanan.status === "out-for-delivery" ? (
-                        <span className="px-2 py-1 text-xs text-white bg-yellow-600 rounded-lg">
+                        <span className="px-2 py-1 text-xs text-white bg-purple-600 rounded-lg">
                           Out for Delivery
                         </span>
                       ) : pesanan.status === "delivered" ? (
-                        <span className="px-2 py-1 text-xs text-white bg-gray-600 rounded-lg">
+                        <span className="px-2 py-1 text-xs text-white bg-teal-600 rounded-lg">
                           Delivered
                         </span>
                       ) : (
@@ -277,7 +281,7 @@ const PesananList = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-2 border-b whitespace-nowrap">
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                       <div className="flex gap-x-2">
                         <ButtonAction
                           onClick={() => openModal(pesanan)}
@@ -314,7 +318,7 @@ const PesananList = () => {
         </div>
       </div>
 
-      <p className="mt-5 text-sm text-inverted-color pr-2">
+      <p className="mt-5 text-sm text-inverted-color pr-2 dark:text-white">
         Total Rows: {rows} Page: {rows ? page + 1 : 0} of {pages}
       </p>
       <div>

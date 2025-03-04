@@ -5,6 +5,7 @@ import Button from "./ui/Button";
 import ButtonAction from "./ui/ButtonAction";
 import { RiApps2AddFill } from "react-icons/ri";
 import { MdEditSquare, MdDelete } from "react-icons/md";
+import Swal from "sweetalert2";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -24,77 +25,102 @@ const ProductList = () => {
   };
 
   const deleteProduct = async (id) => {
-    await axios.delete(`${API_URL}/products/${id}`);
-    getProduct();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await axios.delete(`${API_URL}/products/${id}`);
+        getProduct();
+
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Product deleted successfully.",
+        });
+      }
+    });
   };
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">Produk</h2>
+      <h2 className="text-2xl font-semibold mb-4 dark:text-white">Produk</h2>
       <Button
         text="Add New"
         to="/products/add"
         iconPosition="left"
         icon={<RiApps2AddFill />}
         width={"w-[120px]"}
+        className={"bg-purple-500 hover:bg-purple-600"}
       />
-      <div className="overflow-x-auto bg-white rounded-xl p-4 mt-5">
+      <div className="overflow-x-auto bg-white dark:bg-[#282828] rounded-xl p-4 mt-5">
         {/* Tabel responsif */}
         <table className="table-auto w-full text-left text-black-100">
           <thead>
-            <tr className="text-sm">
-              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">
+            <tr className="text-sm dark:text-white">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                 Nama Produk
               </th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                 Deskripsi
               </th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
+                Kategori
+              </th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                 Harga (Poin)
               </th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                 Harga (Rp)
               </th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Jumlah</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Satuan</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Image</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Jumlah</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Satuan</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Image</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {products.length > 0 ? (
               products.map((product, index) => (
-                <tr key={index} className="text-sm">
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                <tr key={index} className="text-sm dark:text-white">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     {index + 1}
                   </td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     {product.nameProduk}
                   </td>
-                  <td className="px-4 py-2 border-b whitespace-normal break-words w-72 min-w-72">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-normal break-words w-72 min-w-72">
                     {product.deskripsi}
                   </td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-normal break-words w-72 min-w-72">
+                    {product.kategori}
+                  </td>
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     {product.hargaPoin}
                   </td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     Rp. {product.hargaRp.toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     {product.jumlah}
                   </td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     {product.satuan}
                   </td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     <img
                       src={`${API_URL_STATIC}/${product.image}`}
                       alt={product.nameProduk}
                       className="w-10"
                     />
                   </td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     <div className="flex gap-x-2">
                       <ButtonAction
                         to={`/products/edit/${product.id}`}

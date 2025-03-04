@@ -7,12 +7,13 @@ const Card = ({
   iconColor = "text-blue-500"
 }) => {
   return (
-    <div className="flex items-center justify-between p-5 bg-white rounded-lg">
-      <div>
-        <h5 className="text-sm text-gray-700">{title}</h5>
-        <p className="text-2xl font-bold text-gray-900">{count}</p>
+    <div className="flex flex-col p-5 bg-white dark:bg-[#282828] rounded-3xl">
+      <div className={`text-2xl bg-gray-100 dark:bg-[#3f3f3f] w-10 p-2 rounded-full ${iconColor}`}>{icon}</div>
+      <div className="mt-10">
+        <h5 className="text-sm text-gray-700 dark:text-white max-w-[100px] uppercase">{title}</h5>
+        <p className="text-[40px] font-normal text-gray-900 dark:text-white mt-4">{count}</p>
       </div>
-      <div className={`text-2xl bg-gray-100 p-2 rounded-full ${iconColor}`}>{icon}</div>
+      
     </div>
   );
 };

@@ -4,20 +4,15 @@ import { API_URL } from "../config";
 import Swal from "sweetalert2";
 import Button from "./ui/Button";
 import ButtonAction from "./ui/ButtonAction";
-import { RiApps2AddFill } from "react-icons/ri";
-import {
-  MdEditSquare,
-  MdDelete,
-  MdSearch,
-  MdKeyboardArrowDown,
-} from "react-icons/md";
-import { GrPowerReset } from "react-icons/gr";
-import { BiSolidUserDetail, BiStats } from "react-icons/bi";
+import { MdSearch, MdKeyboardArrowDown } from "react-icons/md";
+import { BiSolidSelectMultiple } from "react-icons/bi";
+import { FaCircleCheck } from "react-icons/fa6";
 import { FaUserCheck } from "react-icons/fa6";
 import ReactPaginate from "react-paginate";
 
-const UserList = () => {
+const UserApproveList = () => {
   const [users, setUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [message, setMessage] = useState("");
@@ -30,6 +25,22 @@ const UserList = () => {
   const changePage = ({ selected }) => {
     setPage(selected);
     setMessage("");
+  };
+
+  const handleSelectUser = (userId) => {
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const handleSelectAllUsers = () => {
+    if (selectedUsers.length === users.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(users.map((user) => user.id));
+    }
   };
 
   const searchData = (e) => {
@@ -59,7 +70,7 @@ const UserList = () => {
   const getUsers = async () => {
     try {
       const res = await axios.get(
-        `${API_URL}/users/users?search=${keyword}&page=${page}&limit=${limit}`
+        `${API_URL}/users/users-approve?search=${keyword}&page=${page}&limit=${limit}`
       );
       setUsers(res.data.data);
       setPages(res.data.totalPage);
@@ -74,74 +85,102 @@ const UserList = () => {
     }
   };
 
-  const handleReset = async (id) => {
-    Swal.fire({
+  const handleApproveUser = async (userId) => {
+    const confirmApprove = await Swal.fire({
       title: "Apakah Anda yakin?",
-      text: "Password akan direset ke default!",
+      text: "User ini akan disetujui untuk login!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Ya, reset!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.put(`${API_URL}/auth-web/update-pass/${id}`);
-          Swal.fire("Berhasil!", "Password telah direset.", "success");
-        } catch (error) {
-          Swal.fire(
-            "Error!",
-            error.response?.data?.message || "Terjadi kesalahan",
-            "error"
-          );
-        }
-      }
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, setujui!",
+      cancelButtonText: "Batal",
     });
-  };
 
-  const deleteUser = async (userId) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        await axios.delete(`${API_URL}/users/user/${userId}`);
-        getUsers();
-
-        Swal.fire({
-          icon: "success",
-          title: "Deleted!",
-          text: "User deleted successfully.",
+    if (confirmApprove.isConfirmed) {
+      try {
+        const response = await axios.put(`${API_URL}/users/approve`, {
+          userId,
         });
+
+        if (response.status === 200) {
+          Swal.fire({
+            title: "Berhasil!",
+            text: "User telah disetujui.",
+            icon: "success",
+          });
+          getUsers();
+        }
+      } catch (error) {
+        console.error("Gagal menyetujui user", error.response);
       }
-    });
+    }
   };
+
+  const handleApproveSelectedUsers = async () => {
+    if (selectedUsers.length === 0) {
+      Swal.fire({
+        title: "Peringatan!",
+        text: "Pilih pengguna terlebih dahulu!",
+        icon: "warning",
+      });
+      return;
+    }
+  
+    const confirmApprove = await Swal.fire({
+      title: "Apakah Anda yakin?",
+      text: "User yang dipilih akan disetujui untuk login!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, setujui!",
+      cancelButtonText: "Batal",
+    });
+  
+    if (confirmApprove.isConfirmed) {
+      try {
+        const response = await axios.put(`${API_URL}/users/approve-users`, {
+          userIds: selectedUsers,
+        });
+  
+        if (response.status === 200) {
+          Swal.fire({
+            title: "Berhasil!",
+            text: "User telah disetujui.",
+            icon: "success",
+          });
+          setSelectedUsers([]); 
+          getUsers(); 
+        }
+      } catch (error) {
+        console.error("Gagal menyetujui user", error.response);
+      }
+    }
+  };
+  
 
   return (
     <>
       <div>
-        <h2 className="text-2xl font-semibold mb-4 dark:text-white">Users</h2>
-
+        <h2 className="text-2xl font-semibold mb-4 dark:text-white">Users Approve</h2>
         <div className="flex gap-2 justify-between items-center overflow-x-auto">
           <div className="flex gap-2">
             <Button
-              text="Add New"
-              to="/users/add"
+              text="Sellect All"
               iconPosition="left"
-              icon={<RiApps2AddFill />}
+              onClick={handleSelectAllUsers}
+              icon={<BiSolidSelectMultiple />}
               width={"min-w-[120px] "}
-              className={"bg-purple-500 hover:bg-purple-600"}
+              className={"bg-cyan-500 hover:bg-cyan-600"}
             />
             <Button
-              text="Approve"
-              to="/users/approve"
+              text="Approve All User"
               iconPosition="left"
+              onClick={handleApproveSelectedUsers}
               icon={<FaUserCheck />}
               width={"min-w-[120px] "}
-              className={"bg-green-500 hover:bg-green-600"}
+              className={"bg-green-600 hover:bg-green-700"}
             />
           </div>
 
@@ -192,7 +231,13 @@ const UserList = () => {
           <table className="table-auto w-full text-left text-black-100">
             <thead>
               <tr className="text-sm dark:text-white">
-                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">No</th>
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] w-[20px]">
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAllUsers}
+                    checked={selectedUsers.length === users.length}
+                  />
+                </th>
                 <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Fullname
                 </th>
@@ -205,13 +250,17 @@ const UserList = () => {
             </thead>
             <tbody>
               {users.length > 0 ? (
-                users.map((user, index) => (
+                users.map((user) => (
                   <tr key={user.id} className="text-sm dark:text-white">
-                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
-                      {index + 1}
+                    <td className="px-4 py-2 border-b dark:border-[#3f3f3f]">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleSelectUser(user.id)}
+                      />
                     </td>
                     <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
-                      {user.fullname || "_"}
+                      {user.fullname}
                     </td>
                     <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                       {user.email}
@@ -235,29 +284,9 @@ const UserList = () => {
                     <td className="px-4 py-2 border-b dark:border-[#3f3f3f]">
                       <div className="flex gap-x-2">
                         <ButtonAction
-                          to={`/users/edit/${user.id}`}
-                          icon={<MdEditSquare />}
-                          className={"bg-orange-600 hover:bg-orange-700"}
-                        />
-                        <ButtonAction
-                          to={`/users/${user.id}/details`}
-                          icon={<BiSolidUserDetail />}
-                          className={"bg-blue-600 hover:bg-blue-700"}
-                        />
-                        <ButtonAction
-                          to={`/users/${user.id}/stats`}
-                          icon={<BiStats />}
-                          className={"bg-purple-600 hover:bg-purple-700"}
-                        />
-                        <ButtonAction
-                          onClick={() => handleReset(user.id)}
-                          icon={<GrPowerReset />}
+                          icon={<FaCircleCheck />}
                           className={"bg-green-600 hover:bg-green-700"}
-                        />
-                        <ButtonAction
-                          onClick={() => deleteUser(user.id)}
-                          icon={<MdDelete />}
-                          className={"bg-red-600 hover:bg-red-700"}
+                          onClick={() => handleApproveUser(user.id)}
                         />
                       </div>
                     </td>
@@ -305,4 +334,4 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+export default UserApproveList;

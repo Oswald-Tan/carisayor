@@ -159,7 +159,7 @@ const Sidebar = () => {
 
       <section className="flex gap-6 relative">
         <div
-          className={`bg-gradient-to-b from-[#200a26] to-[#371141] min-h-screen ${
+          className={`bg-[#121212] border-r border-[#282828] min-h-screen ${
             open
               ? "w-[280px]"
               : "md:w-[68px] md:translate-x-0 -translate-x-[280px]"
@@ -191,7 +191,7 @@ const Sidebar = () => {
                   onClick={menu.action}
                   className={`${
                     menu.margin && "mt-5"
-                  } group flex items-center text-sm gap-3.5 font-medium px-2 py-3 hover:bg-[#36143f] rounded-xl w-full text-left`}
+                  } group flex items-center text-sm gap-3.5 font-medium px-2 py-3 hover:bg-[#282828] rounded-xl w-full text-left`}
                 >
                   <div>{React.createElement(menu.icon, { size: "20" })}</div>
                   <h2
@@ -212,7 +212,7 @@ const Sidebar = () => {
                   key={i}
                   className={`${
                     menu.margin && "mt-5"
-                  } group flex items-center text-sm gap-3.5 font-medium px-2 py-3 hover:bg-[#36143f] rounded-xl`}
+                  } group flex items-center text-sm gap-3.5 font-medium px-2 py-3 hover:bg-[#282828] rounded-xl`}
                 >
                   <div>{React.createElement(menu.icon, { size: "20" })}</div>
                   <h2

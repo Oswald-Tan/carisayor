@@ -66,33 +66,34 @@ const ShippingRatesList = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">Shipping Rates</h2>
+      <h2 className="text-2xl font-semibold mb-4 dark:text-white">Shipping Rates</h2>
       <Button
         text="Add New"
         to="/shipping/rates/add"
         iconPosition="left"
         icon={<RiApps2AddFill />}
         width={"w-[120px]"}
+        className={"bg-purple-500 hover:bg-purple-600"}
       />
 
-      <div className="mt-5 overflow-x-auto bg-white rounded-xl p-4">
+      <div className="mt-5 overflow-x-auto bg-white dark:bg-[#282828] rounded-xl p-4">
         <table className="table-auto w-full text-left text-black-100">
           <thead>
-            <tr className="text-sm">
-              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Kota</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Ongkos Kirim</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
+            <tr className="text-sm dark:text-white">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Kota</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Ongkos Kirim</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {shippingRate.length > 0 ? (
               shippingRate.map((shipping, index) => (
-                <tr key={shipping.id} className="text-sm">
-                  <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">{shipping['City ']?.name}</td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">Rp. {shipping.price.toLocaleString("id-ID")}</td>
-                  <td className="px-4 py-2 border-b whitespace-nowrap">
+                <tr key={shipping.id} className="text-sm dark:text-white">
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">{index + 1}</td>
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">{shipping['City ']?.name}</td>
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Rp. {shipping.price.toLocaleString("id-ID")}</td>
+                  <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                     <div className="flex gap-x-2">
                       <ButtonAction
                         to={`/shipping/rates/edit/${shipping.id}`}

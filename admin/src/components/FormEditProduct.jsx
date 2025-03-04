@@ -1,17 +1,20 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { API_URL } from "../config";
+import { API_URL, API_URL_STATIC } from "../config";
 import Swal from "sweetalert2";
 
 const FormEditProduct = () => {
   const [name, setName] = useState("");
   const [deskripsi, setDeskripsi] = useState("");
+  const [kategori, setKategori] = useState("");
   const [hargaPoin, setHargaPoin] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [hargaRp, setHargaRp] = useState("");
   const [jumlah, setJumlah] = useState("");
   const [satuan, setSatuan] = useState("");
+  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
 
@@ -23,10 +26,16 @@ const FormEditProduct = () => {
         const res = await axios.get(`${API_URL}/products/${id}`);
         setName(res.data.nameProduk);
         setDeskripsi(res.data.deskripsi);
+        setKategori(res.data.kategori);
         setHargaPoin(res.data.hargaPoin);
         setHargaRp(res.data.hargaRp);
         setJumlah(res.data.jumlah);
         setSatuan(res.data.satuan);
+        setImage(res.data.image);
+
+        // Set imageUrl with the current image URL from the API
+        setImageUrl(res.data.image ? `${API_URL_STATIC}/${res.data.image}` : "");
+        console.log("Image: ", res.data.image);
       } catch (error) {
         if (error.response) {
           setMsg(error.response.data.message);
@@ -37,16 +46,31 @@ const FormEditProduct = () => {
     getProductById();
   }, [id]);
 
+
+  const handleImageChange = (e) => {
+    const selectedImage = e.target.files[0];
+    setImage(selectedImage);
+
+    // Create a local URL to display the selected image
+    if (selectedImage) {
+      setImageUrl(URL.createObjectURL(selectedImage));
+    }
+  };
   const updateProduct = async (e) => {
     e.preventDefault();
+
+    //create a formdata object untuk kirim file gambar dan data lain
+    const formData = new FormData();
+    formData.append("nameProduk", name);
+    formData.append("deskripsi", deskripsi);
+    formData.append("kategori", kategori);
+    formData.append("hargaPoin", hargaPoin);
+    formData.append("jumlah", jumlah);
+    formData.append("satuan", satuan);
+    formData.append("image", image);
+
     try {
-      await axios.patch(`${API_URL}/products/${id}`, {
-        name,
-        deskripsi,
-        hargaPoin,
-        jumlah,
-        satuan,
-      });
+      await axios.patch(`${API_URL}/products/${id}`, formData);
       navigate("/products");
       Swal.fire("Success", "Product updated successfully", "success");
     } catch (error) {
@@ -57,16 +81,16 @@ const FormEditProduct = () => {
   };
 
   return (
-    <div className="bg-gray-100">
+    <div>
       <div className="w-full">
-        <h1 className="text-2xl font-semibold text-black-100">Edit Product</h1>
-        <div className="bg-white p-6 rounded-lg shadow-md mt-4">
+        <h1 className="text-2xl font-semibold text-black-100 dark:text-white">Edit Product</h1>
+        <div className="bg-white dark:bg-[#282828] p-6 rounded-lg shadow-md mt-4">
           <form onSubmit={updateProduct}>
             <p className="text-red-500">{msg}</p>
             <div className="mb-4">
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Name
               </label>
@@ -75,13 +99,13 @@ const FormEditProduct = () => {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               />
             </div>
             <div className="mb-4">
               <label
                 htmlFor="deskripsi"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Deskripsi
               </label>
@@ -90,13 +114,35 @@ const FormEditProduct = () => {
                 id="deskripsi"
                 value={deskripsi}
                 onChange={(e) => setDeskripsi(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               />
             </div>
             <div className="mb-4">
               <label
+                htmlFor="kategori"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
+              >
+                Kategori
+              </label>
+              <select
+                id="kategori"
+                value={kategori}
+                onChange={(e) => setKategori(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
+              >
+                <option value="">...</option>
+                <option value="Vegetables">Sayuran</option>
+                <option value="Spices">Rempah & Bumbu</option>
+                <option value="Fruits">Buah-buahan</option>
+                <option value="Seafood">Seafood</option>
+                <option value="Meat_poultry">Daging & Unggas</option>
+                <option value="Tubers">Umbi-umbian</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label
                 htmlFor="hargaPoin"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Harga (Poin)
               </label>
@@ -105,13 +151,13 @@ const FormEditProduct = () => {
                 id="hargaPoin"
                 value={hargaPoin}
                 onChange={(e) => setHargaPoin(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               />
             </div>
             <div className="mb-4">
               <label
                 htmlFor="jumlah"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Jumlah
               </label>
@@ -120,13 +166,13 @@ const FormEditProduct = () => {
                 id="jumlah"
                 value={jumlah}
                 onChange={(e) => setJumlah(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               />
             </div>
             <div className="mb-4">
               <label
                 htmlFor="satuan"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
               >
                 Satuan
               </label>
@@ -134,16 +180,38 @@ const FormEditProduct = () => {
                 id="satuan"
                 value={satuan}
                 onChange={(e) => setSatuan(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
               >
+                <option value="">...</option>
                 <option value="Gram">Gram</option>
                 <option value="Kilogram">Kilogram</option>
                 <option value="Ikat">Ikat</option>
               </select>
             </div>
+            <div className="mb-4">
+              <label
+                htmlFor="image"
+                className="block text-sm font-medium text-gray-700 dark:text-white"
+              >
+                Product Image
+              </label>
+              <input
+                type="file"
+                id="image"
+                onChange={handleImageChange}
+                className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
+              />
+            </div>
+            <div className="bg-gray-100 dark:bg-[#3f3f3f] p-5 rounded-xl w-[200px] flex justify-center">
+              <img
+                src={imageUrl || `${API_URL_STATIC}/${imageUrl}`} 
+                alt="product"
+                className="w-[150px]"
+              />
+            </div>
             <button
               type="submit"
-              className="text-sm py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="mt-5 text-sm py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Update
             </button>

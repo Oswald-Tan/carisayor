@@ -40,14 +40,14 @@ const FormEditHargaPoin = () => {
   };
 
     return (
-      <div className="bg-gray-100">
+      <div>
         <div className="w-full">
-          <h1 className="text-2xl font-semibold text-black-100">Edit Harga Poin</h1>
-          <div className="bg-white p-6 rounded-lg shadow-md mt-4">
+          <h1 className="text-2xl font-semibold text-black-100 dark:text-white">Edit Harga Poin</h1>
+          <div className="bg-white dark:bg-[#282828] p-6 rounded-lg shadow-md mt-4">
             <form onSubmit={updateProduct}>
             <p className="text-red-500">{msg}</p>
               <div className="mb-4">
-                <label htmlFor="harga" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="harga" className="block text-sm font-medium text-gray-700 dark:text-white">
                   Harga
                 </label>
                 <input
@@ -55,7 +55,7 @@ const FormEditHargaPoin = () => {
                   id="harga"
                   value={harga}
                   onChange={(e) => setHarga(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:text-white border-gray-300 dark:border-[#575757] rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-[#3f3f3f]"
                 />
               </div>
               <button

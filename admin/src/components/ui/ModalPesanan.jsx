@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { formatShortDate } from "../../utils/formateDate";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import CSPoin from "../../assets/poin_cs.png";
+import { API_URL_STATIC } from "../../config";
 
 const ModalPesanan = ({ pesanan, onClose }) => {
   return (
@@ -16,7 +17,7 @@ const ModalPesanan = ({ pesanan, onClose }) => {
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className="bg-white rounded-lg w-[600px] relative"
+            className="bg-white rounded-lg w-[600px] max-h-[600px] relative overflow-x-auto"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
@@ -27,7 +28,7 @@ const ModalPesanan = ({ pesanan, onClose }) => {
               <p className="text-xs mt-2 text-gray-500">Detail Pesanan</p>
             </div>
             <div className="p-5 ">
-              <div className="flex gap-x-10">
+              <div className="flex gap-x-5 md:gap-x-10">
                 <div>
                   <p className="text-xs text-gray-500">Create at</p>
                   <p className="mt-2 text-sm">
@@ -105,20 +106,53 @@ const ModalPesanan = ({ pesanan, onClose }) => {
               <hr className="border-t border-gray-200 my-4" />
               <div>
                 <p className="text-xs text-gray-500 mb-2">Produk</p>
-                <ul className="text-sm">
-                  {pesanan.nama ? (
-                    pesanan.nama
-                      .split(",")
-                      .map((item, index) => <li key={index}>{item.trim()}</li>)
-                  ) : (
-                    <li>-</li>
-                  )}
+                <ul className="text-sm grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {pesanan.orderItems.map((item) => (
+                    <li key={item.id}>
+                      <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-2 w-full">
+                        <div className="flex p-2 bg-white rounded-lg">
+                          <img
+                            src={
+                              item.produk?.image
+                                ? `${API_URL_STATIC}/${item.produk.image}`
+                                : "../../assets/placeholder.png"
+                            }
+                            alt={item.namaProduk}
+                            className="w-8 h-8 object-contain"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <p className="text-xs">
+                            {item.namaProduk} ({item.jumlah}{" "}
+                            {item.satuan === "Gram"
+                              ? "gr"
+                              : item.satuan === "Kilogram"
+                              ? "kg"
+                              : item.satuan}
+                            )
+                          </p>
+
+                          <p className="text-xs">
+                            {pesanan.hargaPoin ? (
+                              <span>{`${item.totalHarga} Poin`}</span>
+                            ) : pesanan.hargaRp ? (
+                              <span>
+                                Rp. {item.totalHarga.toLocaleString("id-ID")}
+                              </span>
+                            ) : (
+                              "-"
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
               <hr className="border-t border-gray-200 my-4" />
 
-              <p>
+              <div>
                 <p className="text-xs text-gray-500 mb-2">Payment</p>
                 <div className="flex justify-between">
                   <p className="text-sm">Subtotal</p>
@@ -137,7 +171,7 @@ const ModalPesanan = ({ pesanan, onClose }) => {
                     )}
                   </div>
                 </div>
-              </p>
+              </div>
 
               <div className="flex justify-between">
                 <p className="text-sm">Ongkir</p>

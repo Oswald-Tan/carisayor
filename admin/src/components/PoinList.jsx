@@ -30,49 +30,52 @@ const PoinList = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">Poins</h2>
+      <h2 className="text-2xl font-semibold mb-4 dark:text-white">Poins</h2>
 
+  
       <Button
         text="Add New"
         to="/poin/add"
         iconPosition="left"
         icon={<RiApps2AddFill />}
         width={"w-[120px] "}
+        className={"bg-purple-500 hover:bg-purple-600"}
       />
-      <div className="overflow-x-auto bg-white rounded-xl p-4 mt-5">
+
+      <div className="overflow-x-auto bg-white dark:bg-[#282828] rounded-xl p-4 mt-5">
         {/* Tabel responsif */}
         <table className="table-auto w-full text-left text-black-100">
           <thead>
-            <tr className="text-sm">
-              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Poin</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">
+            <tr className="text-sm dark:text-white">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Poin</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                 Diskon (%)
               </th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                 Harga Asli
               </th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                 Harga Setelah Diskon
               </th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {poins.map((poin, index) => (
-              <tr key={index} className="text-sm">
-                <td className="px-4 py-2 border-b whitespace-nowrap">{index + 1}</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">{poin.poin}</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">
+              <tr key={index} className="text-sm dark:text-white">
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">{index + 1}</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">{poin.poin}</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   {poin.discountPercentage}
                 </td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Rp. {poin.originalPrice.toLocaleString()}
                 </td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   Rp. {poin.price.toLocaleString()}
                 </td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   <div className="flex gap-x-2">
                     <ButtonAction
                       to={`/poin/edit/${poin.id}`}

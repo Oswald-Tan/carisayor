@@ -20,23 +20,23 @@ const HargaPoinProductList = () => {
 
   return (
     <div className="h-screen">
-      <h2 className="text-2xl font-semibold mb-4">Harga Poin</h2>
-      <div className="mt-5 overflow-x-auto bg-white rounded-xl p-4">
+      <h2 className="text-2xl font-semibold mb-4 dark:text-white">Harga Poin</h2>
+      <div className="mt-5 overflow-x-auto bg-white dark:bg-[#282828] rounded-xl p-4">
         {/* Tabel responsif */}
         <table className="table-auto w-full text-left text-black-100">
           <thead>
-            <tr className="text-sm">
-              <th className="px-4 py-2 border-b whitespace-nowrap">No</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Harga</th>
-              <th className="px-4 py-2 border-b whitespace-nowrap">Actions</th>
+            <tr className="text-sm dark:text-white">
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">No</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Harga</th>
+              <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {hargaPoin !== null ? (
-              <tr className="text-sm">
-                <td className="px-4 py-2 border-b whitespace-nowrap">1</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">{hargaPoin}</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">
+              <tr className="text-sm dark:text-white">
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">1</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Rp. {hargaPoin.toLocaleString()}</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   <div className="flex gap-x-2">
                     <ButtonAction
                       to={`/harga/poin/product/edit`}

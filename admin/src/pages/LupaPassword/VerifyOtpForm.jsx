@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { API_URL } from '../../config';
-import OtpInput from 'react-otp-input';
+import PropTypes from "prop-types";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { API_URL } from "../../config";
+import OtpInput from "react-otp-input";
 
 const VerifyOtpForm = ({ email, onVerified }) => {
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [expiryTime, setExpiryTime] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -19,13 +19,13 @@ const VerifyOtpForm = ({ email, onVerified }) => {
           { email },
           {
             headers: {
-              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
             },
           }
         );
         setExpiryTime(new Date(response.data.expiryTime));
       } catch (error) {
-        console.error('Failed to fetch OTP expiry time', error);
+        console.error("Failed to fetch OTP expiry time", error);
       }
     };
 
@@ -41,7 +41,7 @@ const VerifyOtpForm = ({ email, onVerified }) => {
 
       if (timeDifference <= 0) {
         clearInterval(interval);
-        setTimeLeft('OTP kadaluarsa');
+        setTimeLeft("OTP kadaluarsa");
       } else {
         const minutes = Math.floor(timeDifference / (1000 * 60));
         const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
@@ -60,10 +60,10 @@ const VerifyOtpForm = ({ email, onVerified }) => {
       onVerified();
     } catch (err) {
       Swal.fire({
-        title: 'Failed',
+        title: "Failed",
         text: err.response.data.message,
-        icon: 'error',
-        confirmButtonText: 'Ok',
+        icon: "error",
+        confirmButtonText: "Ok",
       });
     } finally {
       setLoading(false);
@@ -80,33 +80,37 @@ const VerifyOtpForm = ({ email, onVerified }) => {
           numInputs={6}
           separator={<span>-</span>}
           containerStyle={{
-            display: 'flex',
-            justifyContent: 'center',
-            columnGap: '10px',
+            display: "flex",
+            justifyContent: "center",
+            columnGap: "10px",
           }}
           inputStyle={{
-            width: '100%',
-            textAlign: 'center',
-            fontSize: '1rem',
-            borderRadius: '4px',
+            width: "100%",
+            textAlign: "center",
+            fontSize: "1rem",
+            borderRadius: "4px",
           }}
           renderInput={(props) => (
-            <input 
+            <input
               {...props}
-              className="w-12 h-10 text-center text-lg border border-gray-300 rounded-[4px] outline-none transition-all bg-[#eef0f4]"
+              className="w-12 h-12 text-center text-lg border border-gray-300 rounded-[4px] outline-none transition-all bg-[#eef0f4]"
             />
           )}
         />
 
         <div className="text-sm text-[#909090] text-center mt-4">
-          {timeLeft ? `Waktu tersisa: ${timeLeft}` : 'Menunggu OTP...'}
+          {timeLeft ? `Waktu tersisa: ${timeLeft}` : "Menunggu OTP..."}
         </div>
       </div>
-      <button type="submit" disabled={loading} className="mt-[10px] w-full p-3 rounded-[10px] 
-                  bg-gradient-to-[121deg] bg-[#475BE8] text-white
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-[10px] w-full p-3 rounded-[10px] 
+                  bg-gradient-to-[121deg] bg-[#74B11A] hover:bg-[#a1e043] text-white
                   transition-all duration-300 ease-in-out 
-                  font-medium text-sm cursor-pointer">
-        {loading ? 'Verifying...' : 'Verify OTP'}
+                  font-medium text-sm cursor-pointer"
+      >
+        {loading ? "Verifying..." : "Verify OTP"}
       </button>
     </form>
   );

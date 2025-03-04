@@ -43,16 +43,16 @@ const FormEditHargaPoinProduct = () => {
     return (
       <div className="bg-gray-100">
         <div className="w-full">
-          <h1 className="text-2xl font-semibold text-black-100">Edit Harga Product</h1>
+          <h1 className="text-2xl font-semibold text-black-100 dark:text-white">Edit Harga Product</h1>
           <div className="bg-white p-6 rounded-lg shadow-md mt-4">
             <form onSubmit={updateProduct}>
             <p className="text-red-500">{msg}</p>
               <div className="mb-4">
-                <label htmlFor="harga" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="harga" className="block text-sm font-medium text-gray-700 dark:text-white">
                   Harga
                 </label>
                 <input
-                  type="text"
+                  type="text" 
                   id="harga"
                   value={harga}
                   onChange={(e) => setHarga(e.target.value)}

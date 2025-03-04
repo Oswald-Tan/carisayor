@@ -40,23 +40,23 @@ const UserStats = () => {
   return (
     <>
       <div>
-        <h2 className="text-2xl font-semibold mb-4">User Detail</h2>
-        <div className="mt-5 overflow-x-auto bg-white rounded-xl p-4">
+        <h2 className="text-2xl font-semibold mb-4 dark:text-white">User Detail</h2>
+        <div className="mt-5 overflow-x-auto bg-white dark:bg-[#282828] rounded-xl p-4">
           <table className="table-auto w-full text-left text-black-100">
             <thead>
-              <tr className="text-sm">
-                <th className="px-4 py-2 border-b whitespace-nowrap">Username</th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">Email</th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">Last Login</th>
-                <th className="px-4 py-2 border-b whitespace-nowrap">Total Login</th>
+              <tr className="text-sm dark:text-white">
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Fullname</th>
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Email</th>
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Last Login</th>
+                <th className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">Total Login</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="text-sm">
-                <td className="px-4 py-2 border-b whitespace-nowrap">{userStats.username}</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">{userStats.email}</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">{formattedLastLogin}</td>
-                <td className="px-4 py-2 border-b whitespace-nowrap">
+              <tr className="text-sm dark:text-white">
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">{userStats.fullname}</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">{userStats.email}</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">{formattedLastLogin}</td>
+                <td className="px-4 py-2 border-b dark:border-[#3f3f3f] whitespace-nowrap">
                   {userStats.total_logins || "-"}
                 </td>
               </tr>
