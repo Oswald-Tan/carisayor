@@ -4,6 +4,7 @@ import Role from "../models/role.js";
 import { createOrUpdateUserStats } from "./userStatsController.js";
 import transporter from "../config/email.js";
 import crypto from "crypto";
+import DetailsUsers from "../models/details_users.js";
 
 //handle login
 export const handleLogin = async (req, res) => {
@@ -11,7 +12,10 @@ export const handleLogin = async (req, res) => {
     where: {
       email: req.body.email,
     },
-    include: "userRole",
+    include: [
+      { model: DetailsUsers, as: "userDetails", attributes: ["fullname"] },
+      { model: Role, as: "userRole", attributes: ["role_name"] },
+    ],
   });
 
   if (!user) return res.status(404).json({ message: "User not found" });
@@ -34,10 +38,10 @@ export const handleLogin = async (req, res) => {
 
   req.session.userId = user.id;
   const id = user.id;
-  const username = user.username;
+  const fullname = user.userDetails ? user.userDetails.fullname : null;
   const email = user.email;
   const role = user.userRole.role_name;
-  res.status(200).json({ id, username, email, role });
+  res.status(200).json({ id, fullname, email, role });
 };
 
 export const Me = async (req, res) => {
@@ -46,18 +50,25 @@ export const Me = async (req, res) => {
   }
 
   const user = await User.findOne({
-    attributes: ["id", "username", "email", "role_id"],
-    include: {
-      model: Role,
-      as: "userRole",
-      attributes: ["role_name"],
-    },
+    attributes: ["id", "email", "role_id"],
+    include: [
+      {
+        model: DetailsUsers,
+        as: "userDetails",
+        attributes: ["fullname"],
+      },
+      {
+        model: Role,
+        as: "userRole",
+        attributes: ["role_name"],
+      },
+    ],
     where: { id: req.session.userId },
   });
   if (!user) return res.status(404).json({ message: "User not found" });
   res.status(200).json({
     id: user.id,
-    username: user.username,
+    fullname: user.userDetails ? user.userDetails.fullname : null,
     email: user.email,
     role: user.userRole.role_name,
   });
@@ -73,8 +84,8 @@ export const updatePassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const username = user.username; // Ambil username dari user
-    const password = `${username}123`; // Buat password baru
+    const email = user.email; // Ambil email dari user
+    const password = `${email}123`; // Buat password baru
 
     // Hash password
     const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
@@ -105,7 +116,6 @@ export const handleLogout = async (req, res) => {
     res.status(200).json({ message: "Logout success" });
   });
 };
-
 
 export const requestResetOtp = async (req, res) => {
   const { email } = req.body;
@@ -304,4 +314,3 @@ export const getResetOtpExpiry = async (req, res) => {
       .json({ message: "Terjadi kesalahan", error: error.message });
   }
 };
-

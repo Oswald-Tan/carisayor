@@ -22,10 +22,6 @@ const TopUpPoin = db.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    date: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
     bankName: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -37,7 +33,9 @@ const TopUpPoin = db.define(
     },
   },
   {
-    timestamps: false,
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
     tableName: "topuppoin",
   }
 );

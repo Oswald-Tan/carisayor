@@ -1,5 +1,6 @@
 import TopUpPoin from "../models/topUpPoin.js";
 import User from "../models/user.js";
+import DetailsUsers from "../models/details_users.js";
 import UserPoints from "../models/userPoints.js";
 import { Op } from "sequelize";
 
@@ -7,37 +8,59 @@ export const getTopUp = async (req, res) => {
   const page = parseInt(req.query.page) || 0;
   const limit = parseInt(req.query.limit) || 10;
   const search = req.query.search || "";
+  const status = req.query.status || "all";
   const offset = limit * page;
 
   try {
+    // Buat kondisi where untuk status
+    const topUpWhere = {};
+    if (status !== "all") {
+      topUpWhere.status = status;
+    }
+
     const totalTopUp = await TopUpPoin.count({
+      where: topUpWhere,
       include: [
         {
           model: User,
-          required: true, // Hanya hitung jika ada User terkait
-          where: search ? { username: { [Op.substring]: search } } : {}, // Pencarian username
+          required: true,
+          include: [
+            {
+              model: DetailsUsers,
+              as: "userDetails",
+              required: true,
+              where: search ? { fullname: { [Op.substring]: search } } : {}, // Pencarian berdasarkan fullname
+            },
+          ],
         },
       ],
     });
-    
 
     const totalRows = totalTopUp;
     const totalPage = Math.ceil(totalRows / limit);
 
     const data = await TopUpPoin.findAll({
+      where: topUpWhere,
       include: [
         {
           model: User,
-          attributes: ["id", "username", "email"],
-          required: true, // Pastikan data hanya ditemukan jika ada relasi
-          where: search ? { username: { [Op.substring]: search } } : {}, // Pencarian username
+          attributes: ["id", "email"],
+          required: true,
+          include: [
+            {
+              model: DetailsUsers,
+              as: "userDetails",
+              attributes: ["fullname"],
+              required: true,
+              where: search ? { fullname: { [Op.substring]: search } } : {}, // Pencarian berdasarkan fullname
+            },
+          ],
         },
       ],
-      order: [[{ model: User }, "username", "ASC"]], // Urutkan berdasarkan username dari tabel User
+      order: [["created_at", "DESC"]],
       offset: offset,
       limit: limit,
     });
-    
 
     res.status(200).json({
       data,
@@ -56,37 +79,37 @@ export const getTotalPendingTopUp = async (req, res) => {
   try {
     const totalTopUp = await TopUpPoin.count({
       where: { status: "pending" },
-    }) 
+    });
 
     res.status(200).json({ totalTopUp });
   } catch (error) {
-    res.status(500).json({ message: error.message }); 
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const getTotalCancelledTopUp = async (req, res) => {
   try {
     const totalTopUp = await TopUpPoin.count({
       where: { status: "cancelled" },
-    }) 
+    });
 
     res.status(200).json({ totalTopUp });
   } catch (error) {
-    res.status(500).json({ message: error.message }); 
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const getTotalApprovedTopUp = async (req, res) => {
   try {
     const totalTopUp = await TopUpPoin.count({
       where: { status: "approved" },
-    }) 
+    });
 
     res.status(200).json({ totalTopUp });
   } catch (error) {
-    res.status(500).json({ message: error.message }); 
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const getTopUpById = async (req, res) => {
   const { id } = req.params; // Mendapatkan id dari parameter URL
@@ -114,7 +137,7 @@ export const getTopUpByUserId = async (req, res) => {
       where: { userId },
       include: {
         model: User,
-        attributes: ["id", "username", "email"],
+        attributes: ["id", "email"],
       },
     });
 
@@ -128,12 +151,73 @@ export const getTopUpByUserId = async (req, res) => {
   }
 };
 
+export const getTotalTopUp = async (req, res) => {
+  try {
+    const { period } = req.params;
+
+    let startDate;
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999); // Akhir hari
+
+    // Menentukan startDate berdasarkan period
+    switch (period) {
+      case "weekly":
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+        // startDate.setDate(startDate.getDate() - startDate.getDay()); // Set ke Senin minggu ini
+        // startDate.setHours(0, 0, 0, 0);
+        break;
+      case "monthly":
+        startDate = new Date();
+        startDate.setDate(1);
+        break;
+      case "yearly":
+        startDate = new Date(new Date().getFullYear(), 0, 1);
+        break;
+      default:
+        return res.status(400).json({ message: "Invalid period" });
+    }
+
+    startDate.setHours(0, 0, 0, 0); // Awal hari
+
+    console.log("Start Date (Local):", startDate.toLocaleString());
+    console.log("End Date (Local):", endDate.toLocaleString());
+
+    // Query total top-up dengan status 'approved'
+    const total = await TopUpPoin.sum("price", {
+      where: {
+        status: "approved",
+        created_at: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate,
+        },
+      },
+    });
+
+    console.log("Query Result:", total);
+
+    res.json({ total: total || 0 });
+  } catch (error) {
+    console.error("Error fetching total top-up:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 export const postTopUp = async (req, res) => {
   const { points, price, date, bankName, userId } = req.body;
 
   try {
     // Cek apakah user dengan id yang diberikan ada
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({
+      where: { id: userId },
+      include: {
+        model: DetailsUsers,
+        as: "userDetails",
+        attributes: ["fullname"],
+        required: true,
+      },
+    });
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -147,12 +231,12 @@ export const postTopUp = async (req, res) => {
       status: "pending",
     });
 
-    const username = user.username;
+    const fullname = user.userDetails.fullname;
 
     const io = req.app.get("socketio");
     io.emit("newTopUp", {
       userId,
-      username,
+      fullname,
       points,
       price,
       date,
@@ -236,11 +320,9 @@ export const updateTopUpStatus = async (req, res) => {
 
     // Periksa apakah status saat ini adalah "pending"
     if (topUp.status !== "pending") {
-      return res
-        .status(400)
-        .json({
-          message: 'Status can only be updated from "pending" to "cancelled"',
-        });
+      return res.status(400).json({
+        message: 'Status can only be updated from "pending" to "cancelled"',
+      });
     }
 
     // Ubah status transaksi menjadi "cancelled"

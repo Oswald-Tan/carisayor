@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import DetailsUsers from "../models/details_users.js";
 import UserStats from "../models/user_stats.js";
 
 export const createOrUpdateUserStats = async (userId) => {
@@ -37,27 +38,44 @@ export const createOrUpdateUserStats = async (userId) => {
         include: [
           {
             model: User,
-            attributes: ["username", "email"],
+            attributes: ["email"],
+            include: [
+              {
+                model: DetailsUsers,
+                as: "userDetails",
+                attributes: ["fullname"],
+              },
+            ],
           },
         ],
       });
-  
-      // Jika tidak ada user stats, hanya kirimkan username dan email
+
+      // Jika tidak ada user stats, hanya kirimkan fullname dan email
       if (!userStats) {
-        const user = await User.findOne({ where: { id } });
+        const user = await User.findOne({ 
+          where: { id },
+          include: [
+            {
+              model: DetailsUsers,
+              as: "userDetails",
+              attributes: ["fullname"],
+            },
+          ],
+        });
+
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
-  
+
         return res.status(200).json({
-          username: user.username,
+          fullname: user.userDetails ? user.userDetails.fullname : null,
           email: user.email,
         });
       }
-  
+
       // Kirim data user stats jika ditemukan
       res.status(200).json({
-        username: userStats.User.username,
+        fullname: userStats.User.userDetails ? userStats.User.userDetails.fullname : null,
         email: userStats.User.email,
         last_login: userStats.last_login,
         total_logins: userStats.total_logins,
@@ -65,6 +83,7 @@ export const createOrUpdateUserStats = async (userId) => {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  };
+};
+
   
   

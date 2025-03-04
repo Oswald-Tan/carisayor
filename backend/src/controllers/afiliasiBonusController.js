@@ -1,10 +1,12 @@
 import AfiliasiBonus from "../models/afiliasiBonus.js";
 import moment from "moment";
+import TotalBonus from "../models/totalBonus.js";
 
 export const claimBonus = async (req, res) => {
   const { bonusId } = req.body;
 
   try {
+    // Cari bonus dengan status 'pending'
     const bonus = await AfiliasiBonus.findOne({
       where: { id: bonusId, status: "pending" },
     });
@@ -15,6 +17,7 @@ export const claimBonus = async (req, res) => {
         .json({ message: "Bonus not found or already claimed." });
     }
 
+    // Periksa apakah bonus sudah kedaluwarsa
     const isExpired = moment().isAfter(moment(bonus.expiryDate));
     if (isExpired) {
       bonus.set({ status: "expired" });
@@ -24,15 +27,50 @@ export const claimBonus = async (req, res) => {
         .json({ message: "Bonus has expired and cannot be claimed." });
     }
 
+    // Ambil nilai bonusAmount yang diklaim
+    const bonusAmount = bonus.bonusAmount;
+
+    // Cari entri TotalBonus untuk user yang bersangkutan
+    let totalBonus = await TotalBonus.findOne({
+      where: { userId: bonus.userId },
+    });
+
+    if (!totalBonus) {
+      // Jika tidak ada, buat entri baru dengan bonusAmount pertama kali
+      totalBonus = await TotalBonus.create({
+        userId: bonus.userId,
+        totalBonus: bonusAmount,
+      });
+    } else {
+      // Cek apakah totalBonus sudah mencapai 500000
+      if (totalBonus.totalBonus + bonusAmount > 500000) {
+        return res
+          .status(400)
+          .json({ message: "Total bonus already reached 500,000." });
+      }
+
+      // Jika belum mencapai 500000, tambahkan bonusAmount ke totalBonus
+      totalBonus.totalBonus += bonusAmount;
+      await totalBonus.save();
+    }
+
+    // Update status bonus menjadi 'claimed'
     bonus.set({ status: "claimed", claimedAt: moment().toDate() });
     await bonus.save(); // Simpan perubahan ke database
 
-    res.status(200).json({ message: "Bonus claimed successfully.", bonus });
+    // Kirimkan respon
+    res.status(200).json({
+      message: "Bonus claimed and total bonus updated successfully.",
+      bonus,
+      totalBonus,
+    });
   } catch (error) {
     console.error("Error claiming bonus:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+
 
 // Get total bonus claimed
 export const getTotalBonus = async (req, res) => {

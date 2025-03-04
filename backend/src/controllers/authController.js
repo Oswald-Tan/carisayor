@@ -12,21 +12,38 @@ import transporter from "../config/email.js";
 import crypto from "crypto";
 
 //fungsi untuk mengasilkan kode referral unik
-const generateReferralCode = (minLength = 6, maxLength = 10) => {
-  const length =
-    Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
-  return Math.random()
-    .toString(36)
-    .substring(2, 2 + length)
-    .toUpperCase();
+const generateUniqueReferralCode = async () => {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+  while (true) {
+    // Set panjang referralCode menjadi 8 karakter
+    const length = 8;
+    let randomCode = "";
+
+    // Generate kode acak dengan panjang 12
+    for (let i = 0; i < length; i++) {
+      randomCode += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    const referralCode = `cas/${randomCode}`; // Panjang referralCode menjadi 12 karakter
+
+    // Cek apakah kode referral sudah ada di database
+    const existingCode = await User.findOne({ where: { referralCode } });
+
+    if (!existingCode) {
+      return referralCode; // Jika belum ada, gunakan kode ini
+    }
+  }
 };
 
 export const registerUser = async (req, res) => {
-  const { username, password, email, role_name, referralCode, phone_number } = req.body;
+  const { fullname, password, email, role_name, referralCode, phone_number } =
+    req.body;
 
-  if (!username || !password || !email || !phone_number || !role_name) {
+  if (!fullname || !password || !email || !phone_number || !role_name) {
     return res.status(400).json({
-      message: "Username, password, email, phone_number, and role are required.",
+      message:
+        "Fullname, password, email, phone_number, and role are required.",
     });
   }
 
@@ -36,9 +53,19 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Email already registered." });
     }
 
-    const existingUserByUsername = await User.findOne({ where: { username } });
-    if (existingUserByUsername) {
-      return res.status(400).json({ message: "Username already taken." });
+    //phone_number tidak boleh sama
+    const existingUserByPhoneNumber = await DetailsUsers.findOne({
+      where: { phone_number },
+    });
+    if (existingUserByPhoneNumber) {
+      return res
+        .status(400)
+        .json({ message: "Phone number already registered." });
+    }
+
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
     }
 
     let role = await Role.findOne({ where: { role_name } });
@@ -47,32 +74,37 @@ export const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newReferralCode = generateReferralCode();
-    
-    // Cari user yang memiliki referral code yang digunakan
+    const newReferralCode = await generateUniqueReferralCode();
+
+    // Cek apakah referralCode yang dimasukkan valid
     let referredByUser = null;
     let referralUsedAt = null;
+
     if (referralCode) {
       referredByUser = await User.findOne({ where: { referralCode } });
-      if (referredByUser) {
-        referralUsedAt = new Date(); 
+
+      if (!referredByUser) {
+        return res.status(400).json({ message: "Invalid referral code." });
       }
+
+      referralUsedAt = new Date();
     }
 
     const newUser = await User.create({
-      username,
       password: hashedPassword,
       email,
       role_id: role.id,
       referralCode: newReferralCode,
       referredBy: referredByUser ? referredByUser.id : null,
       referralUsedAt,
+      isApproved: false,
     });
 
     // Simpan data ke tabel DetailsUsers
     try {
       await DetailsUsers.create({
         user_id: newUser.id,
+        fullname,
         phone_number,
       });
       console.log("DetailsUsers created successfully.");
@@ -82,9 +114,9 @@ export const registerUser = async (req, res) => {
         message: "Failed to save user details.",
       });
     }
-    
+
     const token = jwt.sign(
-      { id: newUser.id, username: newUser.username, role: role_name },
+      { id: newUser.id, fullname: fullname, role: role_name },
       process.env.TOKEN_JWT,
       { expiresIn: "1h" }
     );
@@ -98,7 +130,6 @@ export const registerUser = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -119,6 +150,12 @@ export const loginUser = async (req, res) => {
       });
     }
 
+    if (!user.isApproved) {
+      return res
+        .status(403)
+        .json({ message: "Your account is not approved by admin yet." });
+    }
+
     // Cek apakah password yang dimasukan sesuai dengan yang ada di database
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -134,7 +171,7 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: role.role_name },
       process.env.TOKEN_JWT,
-      { expiresIn: "1d" }
+      { expiresIn: "7d" }
     );
 
     // Update atau buat UserStats setelah login berhasil
@@ -206,14 +243,13 @@ export const getUserData = async (req, res) => {
         {
           model: User,
           as: "Referrals",
-          attributes: ["id", "username", "referralUsedAt"],
+          attributes: ["id", "email", "referralUsedAt"],
         },
         {
           model: DetailsUsers,
           as: "userDetails",
           attributes: ["fullname", "phone_number", "photo_profile"],
         },
-       
       ],
     });
 
@@ -228,15 +264,14 @@ export const getUserData = async (req, res) => {
     // Kirimkan data user beserta role
     const responseData = {
       id: user.id,
-      username: user.username,
       phone_number: user.phone_number,
-      full_name: user.full_name,
+      fullname: user.fullname,
       email: user.email,
-      role: user.userRole?.role_name, // Gunakan optional chaining untuk menghindari error jika null
+      role: user.userRole?.role_name,
       points: points,
       referralCode: user.referralCode,
       referrals: user.Referrals,
-      userDetails: user.userDetails, // Perhatikan alias
+      userDetails: user.userDetails,
     };
 
     return res.status(200).json(responseData);
@@ -248,10 +283,9 @@ export const getUserData = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const { userId } = req.params;
-  const { username, phone_number } = req.body;
+  const { fullname, phone_number, email } = req.body;
 
   try {
-
     // Validasi apakah user ada
     const user = await User.findByPk(userId, {
       include: [{ model: DetailsUsers, as: "userDetails" }],
@@ -261,31 +295,25 @@ export const updateUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update data username
-    if (username) {
-      const existingUser = await User.findOne({
-        where: { username, id: { [Op.ne]: userId } },
-      });
-      if (existingUser) {
-        return res.status(400).json({ message: "Username already exists" });
-      }
-      user.username = username;
+    // Update email di model User
+    if (email) {
+      user.email = email;
     }
 
-    // Update data phone_number di DetailsUsers
-    if (phone_number) {
-      const userDetails = user.userDetails;
-      if (!userDetails) {
-        // Jika data detail user belum ada, buat baru
-        await DetailsUsers.create({
-          user_id: userId,
-          phone_number,
-        });
-      } else {
-        // Jika data detail user ada, update
-        userDetails.phone_number = phone_number;
-        await userDetails.save();
-      }
+    // Update data fullname dan phone_number di DetailsUsers
+    let userDetails = user.userDetails;
+    if (!userDetails) {
+      // Jika data detail user belum ada, buat baru
+      userDetails = await DetailsUsers.create({
+        user_id: userId,
+        fullname: fullname || "",
+        phone_number: phone_number || "",
+      });
+    } else {
+      // Jika data detail user ada, update
+      if (fullname) userDetails.fullname = fullname;
+      if (phone_number) userDetails.phone_number = phone_number;
+      await userDetails.save();
     }
 
     // Simpan perubahan pada User

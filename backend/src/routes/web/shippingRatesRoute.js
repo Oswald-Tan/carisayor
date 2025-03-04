@@ -7,15 +7,15 @@ import {
   deleteShippingRate,
   getShippingRateById,
 } from "../../controllers/shippingRateController.js";
-import { verifyUser } from "../../middleware/authUser.js";
+import { verifyUser, adminOnly } from "../../middleware/authUser.js";
 
 const router = express.Router();
 
-router.get("/", verifyUser, getAllShippingRates);
-router.get("/:cityId", verifyUser, getShippingRateByCity);
-router.get("/price/:id", verifyUser, getShippingRateById);
-router.post("/", verifyUser, createShippingRate);
-router.put("/:id", verifyUser, updateShippingRate);
-router.delete("/:id", verifyUser, deleteShippingRate);
+router.get("/", verifyUser, adminOnly, getAllShippingRates);
+router.get("/:cityId", verifyUser, adminOnly, getShippingRateByCity);
+router.get("/price/:id", verifyUser, adminOnly, getShippingRateById);
+router.post("/", verifyUser, adminOnly, createShippingRate);
+router.put("/:id", verifyUser, adminOnly, updateShippingRate);
+router.delete("/:id", verifyUser, adminOnly, deleteShippingRate);
 
 export default router;

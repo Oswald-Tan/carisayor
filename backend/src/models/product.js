@@ -21,6 +21,10 @@ const Products = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    kategori: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     hargaPoin: {
       type: DataTypes.INTEGER,
       allowNull: false,

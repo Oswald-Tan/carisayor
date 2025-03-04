@@ -23,10 +23,6 @@ const Pesanan = db.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    nama: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     metodePembayaran: {
       type: DataTypes.STRING,
       allowNull: false,

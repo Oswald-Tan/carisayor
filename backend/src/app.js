@@ -31,6 +31,7 @@ import CartApp from "./routes/app/cartRoute.js";
 import AfiliasiBonusApp from "./routes/app/afiliasiBonusRoute.js";
 import SettingApp from "./routes/app/settingRoute.js";
 import Address from "./routes/app/addressRoute.js";
+import BankAccount from "./routes/app/bankAccountRoute.js";
 
 //web
 import AuthWeb from "./routes/web/authWebRoute.js";
@@ -51,7 +52,7 @@ const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173", // URL frontend Anda
+    origin: "http://localhost:5173", // URL frontend
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -122,6 +123,7 @@ app.use("/api/v1/cart-app", CartApp);
 app.use("/api/v1/afiliasi-bonus-app", AfiliasiBonusApp);
 app.use("/api/v1/settings-app", SettingApp);
 app.use("/api/v1/addresses", Address);
+app.use("/api/v1/bank-account", BankAccount);
 
 //web
 // Terapkan session hanya untuk rute web

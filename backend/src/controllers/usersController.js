@@ -4,40 +4,57 @@ import bcrypt from "bcrypt";
 import { Op } from "sequelize";
 import DetailsUsers from "../models/details_users.js";
 
-
 export const getUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 0;
   const limit = parseInt(req.query.limit) || 10;
   const search = req.query.search || "";
   const offset = limit * page;
+
   try {
+    // Hitung total user berdasarkan pencarian fullname
     const totalUser = await User.count({
-      where: { username: { [Op.substring]: search } },
+      include: {
+        model: DetailsUsers,
+        as: "userDetails",
+        attributes: ["fullname"],
+        where: search ? { fullname: { [Op.substring]: search } } : {},
+        required: true,
+      },
     });
 
     const totalRows = totalUser;
     const totalPage = Math.ceil(totalRows / limit);
 
+    // Ambil data user dengan fullname dari DetailUsers
     const users = await User.findAll({
-      where: search ? { username: { [Op.substring]: search } } : {},
-      attributes: ["id", "username", "email", "role_id"],
-      include: {
-        model: Role,
-        as: "userRole",
-        attributes: ["role_name"],
-      },
-      order: [["username", "ASC"]],
+      include: [
+        {
+          model: DetailsUsers,
+          as: "userDetails",
+          attributes: ["fullname"], 
+          required: true,
+          where: search ? { fullname: { [Op.substring]: search } } : {},
+        },
+        {
+          model: Role,
+          as: "userRole",
+          attributes: ["role_name"],
+        },
+      ],
+      attributes: ["id", "email", "role_id"],
+      order: [["userDetails", "fullname", "ASC"]],
       offset: offset,
       limit: limit,
     });
-    
 
+    // Mapping data untuk response
     const data = users.map((user) => ({
       id: user.id,
-      username: user.username,
+      fullname: user.userDetails ? user.userDetails.fullname : null,
       email: user.email,
       role: user.userRole.role_name,
     }));
+
     res.status(200).json({
       data,
       page,
@@ -49,6 +66,126 @@ export const getUsers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+export const getUserApprove = async (req, res) => {
+  const page = parseInt(req.query.page) || 0;
+  const limit = parseInt(req.query.limit) || 10;
+  const search = req.query.search || "";
+  const offset = limit * page;
+
+  try {
+    // Hitung total user berdasarkan pencarian fullname
+    const totalUser = await User.count({
+      include: {
+        model: DetailsUsers,
+        as: "userDetails",
+        attributes: ["fullname"],
+        where: search ? { fullname: { [Op.substring]: search } } : {},
+        required: true,
+      },
+      where: {
+        isApproved: false,
+        role_id: 1,
+      },
+    });
+
+    const totalRows = totalUser;
+    const totalPage = Math.ceil(totalRows / limit);
+
+    // Ambil data user dengan fullname dari DetailUsers
+    const users = await User.findAll({
+      where: {
+        isApproved: false,
+        role_id: 1,
+      },
+      attributes: ["id", "email", "role_id", "isApproved"],
+      include: [
+        {
+          model: DetailsUsers,
+          as: "userDetails",
+          attributes: ["fullname"], 
+          required: true,
+          where: search ? { fullname: { [Op.substring]: search } } : {},
+        },
+        {
+          model: Role,
+          as: "userRole",
+          attributes: ["role_name"],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+      offset: offset,
+      limit: limit,
+    });
+
+    // Mapping data untuk response
+    const data = users.map((user) => ({
+      id: user.id,
+      fullname: user.userDetails ? user.userDetails.fullname : null,
+      email: user.email,
+      role: user.userRole.role_name,
+      isApproved: user.isApproved,
+    }));
+
+    res.status(200).json({
+      data,
+      page,
+      limit,
+      totalPage,
+      totalRows,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+export const approveUsers = async (req, res) => {
+  const { userIds } = req.body; // userIds dalam bentuk array
+
+  try {
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ message: "Invalid user IDs." });
+    }
+
+    // Update semua user yang ID-nya ada di dalam array userIds
+    const [updatedCount] = await User.update(
+      { isApproved: true },
+      { where: { id: userIds } }
+    );
+
+    if (updatedCount === 0) {
+      return res.status(404).json({ message: "No users found to approve." });
+    }
+
+    return res.status(200).json({ message: "Users approved successfully.", updatedCount });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+export const approveUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    user.isApproved = true;
+    await user.save();
+
+    return res.status(200).json({ message: "User approved successfully." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 //get total users
 export const getTotalUsers = async (req, res) => {
@@ -73,17 +210,16 @@ export const getUserDetails = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ["username", "email"], 
-          as: "userDetails",  // Pastikan alias sesuai dengan asosiasi
+          attributes: ["email"], 
+          as: "userDetails", 
         },
       ],
     });
 
-    // Jika tidak ada detail pengguna, kirimkan username dan email saja
+    // Jika tidak ada detail pengguna, kirimkan fullname dan email saja
     if (!userDetails) {
       const user = await User.findOne({ where: { id } });
       return res.status(200).json({
-        username: user.username,
         email: user.email,
         fullname: "-",
         phone_number: "-",
@@ -93,10 +229,9 @@ export const getUserDetails = async (req, res) => {
 
     // Kirim response dengan data detail pengguna jika ada
     res.status(200).json({
-      username: userDetails.userDetails.username,  // Akses dengan alias 'userDetails'
       email: userDetails.userDetails.email,
       id: userDetails.user_id,
-      fullname: userDetails.fullname,
+      fullname: userDetails ? userDetails.fullname : null,
       phone_number: userDetails.phone_number,
       photo_profile: userDetails.photo_profile,
     });
@@ -112,20 +247,29 @@ export const getUserById = async (req, res) => {
   try {
     const user = await User.findOne({
       where: { id: req.params.id },
-      attributes: ["id", "username", "email", "role_id"],
-      include: {
-        model: Role,
-        as: "userRole",
-        attributes: ["role_name"],
-      },
+      attributes: ["id", "email", "role_id"],
+      include: [
+        {
+          model: DetailsUsers,
+          as: "userDetails",
+          attributes: ["fullname"], 
+          required: true,
+        },
+        {
+          model: Role,
+          as: "userRole",
+          attributes: ["role_name"],
+        },
+      ],
     });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
     res.status(200).json({
       id: user.id,
-      username: user.username,
+      fullname: user.userDetails ? user.userDetails.fullname : null,
       email: user.email,
       role: user.userRole.role_name,
     });
@@ -134,14 +278,15 @@ export const getUserById = async (req, res) => {
   }
 };
 
+
 export const createUser = async (req, res) => {
-  const { username, email, password, confirmPassword, roleName } = req.body;
+  const { fullname, email, password, confirmPassword, roleName } = req.body;
   if (password !== confirmPassword) {
     return res.status(400).json({ message: "Passwords do not match" });
   }
 
   try {
-    //cari role berdasarkan roleName
+    // Cari role berdasarkan roleName
     const role = await Role.findOne({ where: { role_name: roleName } });
     if (!role) {
       return res.status(404).json({ message: "Role not found" });
@@ -149,18 +294,24 @@ export const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Buat user baru
     const newUser = await User.create({
-      username,
       email,
       password: hashedPassword,
       role_id: role.id,
+    });
+
+    // Simpan fullname ke dalam DetailUsers
+    await DetailsUsers.create({
+      user_id: newUser.id,
+      fullname, 
     });
 
     res.status(201).json({
       message: "User created successfully",
       data: {
         id: newUser.id,
-        username: newUser.username,
+        fullname, 
         email: newUser.email,
         role: role.role_name,
       },
@@ -170,6 +321,7 @@ export const createUser = async (req, res) => {
   }
 };
 
+
 export const updateUser = async (req, res) => {
   const user = await User.findOne({
     where: { id: req.params.id },
@@ -178,28 +330,28 @@ export const updateUser = async (req, res) => {
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
-  const { username, email, password, confirmPassword, roleName } = req.body;
+
+  const { fullname, email, password, confirmPassword, roleName } = req.body;
   let hashedPassword;
-  if (password === "" || password === null) {
+  if (!password) {
     hashedPassword = user.password;
   } else {
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
     hashedPassword = await bcrypt.hash(password, 10);
   }
 
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: "Passwords do not match" });
-  }
-
   try {
-    //cari role berdasarkan roleName
+    // Cari role berdasarkan roleName
     const role = await Role.findOne({ where: { role_name: roleName } });
     if (!role) {
       return res.status(404).json({ message: "Role not found" });
     }
 
-    const updateUser = await User.update(
+    // Update data User
+    await User.update(
       {
-        username,
         email,
         password: hashedPassword,
         role_id: role.id,
@@ -209,11 +361,18 @@ export const updateUser = async (req, res) => {
       }
     );
 
-    res.status(200).json({ message: "User updated", data: updateUser });
+    // Update fullname di DetailUsers
+    await DetailsUsers.update(
+      { fullname },
+      { where: { user_id: user.id } }
+    );
+
+    res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 export const deleteUser = async (req, res) => {

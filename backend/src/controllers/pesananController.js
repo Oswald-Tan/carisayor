@@ -9,25 +9,33 @@ import Address from "../models/address.js";
 import { v4 as uuidv4 } from "uuid";
 import { Op } from "sequelize";
 import Cart from "../models/cart.js";
+import OrderItem from "../models/orderItem.js";
+import db from "../config/database.js";
+import Products from "../models/product.js";
 
 export const getPesanan = async (req, res) => {
   const page = parseInt(req.query.page) || 0;
   const limit = parseInt(req.query.limit) || 10;
-  const search = req.query.search || "";
+  const search = req.query.search || '';
+  const status = req.query.status || 'all';
   const offset = limit * page;
+
   try {
+    // Buat kondisi where untuk status
+    const topUpWhere = {};
+    if (status !== 'all') {
+      topUpWhere.status = status;
+    }
+
+    // Hitung total pesanan dengan filter berdasarkan OrderItem.namaProduk
     const totalPesanan = await Pesanan.count({
-      where: {
-        [Op.or]: [
-          { nama: { [Op.substring]: search } },
-          { invoiceNumber: { [Op.substring]: search } },
-        ],
-      },
+      where: topUpWhere,
       include: [
         {
-          model: User,
-          as: "user",
-          where: { username: { [Op.substring]: search } },
+          model: OrderItem,
+          as: "orderItems",
+          where: search ? { namaProduk: { [Op.substring]: search } } : {},
+          required: search ? true : false, // Jika ada pencarian, maka harus memiliki order item yang cocok
         },
       ],
     });
@@ -35,20 +43,14 @@ export const getPesanan = async (req, res) => {
     const totalRows = totalPesanan;
     const totalPage = Math.ceil(totalRows / limit);
 
+    // Ambil daftar pesanan dengan OrderItem dan User
     const data = await Pesanan.findAll({
-      where: search
-        ? {
-            [Op.or]: [
-              { nama: { [Op.substring]: search } },
-              { invoiceNumber: { [Op.substring]: search } },
-            ],
-          }
-        : {},
+      where: topUpWhere,
       include: [
         {
           model: User,
-          as: 'user',
-          attributes: ["id", "username", "email"],
+          as: "user",
+          attributes: ["id", "email"],
           include: [
             {
               model: Address,
@@ -67,8 +69,22 @@ export const getPesanan = async (req, res) => {
             },
             {
               model: DetailsUsers,
-              as: "userDetails", 
-              attributes: ["fullname"], 
+              as: "userDetails",
+              attributes: ["fullname"],
+            },
+          ],
+        },
+        {
+          model: OrderItem,
+          as: "orderItems",
+          attributes: ["id", "namaProduk", "jumlah", "satuan", "totalHarga"], // Ambil data order item
+          where: search ? { namaProduk: { [Op.substring]: search } } : {}, // Filter berdasarkan nama produk
+          required: search ? true : false,
+          include: [
+            {
+              model: Products,
+              as: "produk",
+              attributes: ["image"],
             },
           ],
         },
@@ -108,7 +124,71 @@ export const getPesananUpById = async (req, res) => {
   }
 };
 
-//get total pesanan yang status pending
+export const getPesananByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const pesanan = await Pesanan.findAll({
+      where: { 
+        userId,
+        // status: { [Op.ne]: "Delivered" }
+      },
+      include: [
+        {
+          model: OrderItem,
+          as: "orderItems",
+          include: [
+            {
+              model: Products,
+              as: "produk",
+              attributes: ["id", "nameProduk", "image"],
+            },
+          ],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+
+    res.status(200).json({
+      message: "Data pesanan berhasil diambil",
+      data: pesanan,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getPesananByUserDelivered = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const pesanan = await Pesanan.findAll({
+      where: { userId, status: "delivered" }, // Filter hanya pesanan dengan status "delivered"
+      include: [
+        {
+          model: OrderItem,
+          as: "orderItems",
+          include: [
+            {
+              model: Products,
+              as: "produk",
+              attributes: ["id", "nameProduk", "image"], // Sesuaikan dengan field product
+            },
+          ],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+
+    res.status(200).json({
+      message: "Data pesanan (delivered) berhasil diambil",
+      data: pesanan,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 export const updatePesananStatus = async (req, res) => {
   const { id } = req.params;
@@ -137,146 +217,188 @@ export const updatePesananStatus = async (req, res) => {
   }
 };
 
-
 export const buatPesananCOD = async (req, res) => {
-  const {
-    userId,
-    nama,
-    metodePembayaran,
-    hargaRp,
-    ongkir,
-    totalBayar,
-    invoiceNumber,
-  } = req.body;
-
+  const transaction = await db.transaction(); // Mulai transaction
   try {
-    // Cek apakah user dengan id yang diberikan ada
-    const user = await User.findOne({ where: { id: userId } });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const datePart = moment().format("DDMMYYYY");
-    const uniqueId = uuidv4().split("-")[0]; // Ambil bagian pertama UUID untuk membuatnya lebih pendek
-    const orderId = `ORD_${datePart}_${uniqueId}`;
-
-    // membuat pesanan
-    const pesanan = await Pesanan.create({
+    const {
       userId,
-      orderId,
-      nama,
       metodePembayaran,
       hargaRp,
       ongkir,
       totalBayar,
-      paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
-      status: "pending",
       invoiceNumber,
-    });
+      items,
+    } = req.body;
 
-    //cek apakah totalBayar lebih besar atau sama dengan 200.000
+    // Validasi items
+    if (!items || items.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ message: "Items are required" });
+    }
+
+    // Cek user
+    const user = await User.findOne({ where: { id: userId }, transaction });
+    if (!user) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate orderId
+    const uniqueId = uuidv4().replace(/-/g, "").substring(0, 8).toUpperCase();
+    const orderId = `CS${uniqueId}`;
+
+    // Buat pesanan dengan transaction
+    const pesanan = await Pesanan.create(
+      {
+        userId,
+        orderId,
+        metodePembayaran,
+        hargaRp,
+        ongkir,
+        totalBayar,
+        paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
+        status: "pending",
+        invoiceNumber,
+      },
+      { transaction }
+    );
+
+    // Buat order items
+    const orderItemsData = items.map((item) => ({
+      pesananId: pesanan.id,
+      productId: item.productId, // Pastikan ini ada di request body
+      namaProduk: item.namaProduk,
+      harga: item.harga,
+      jumlah: item.jumlah,
+      satuan: item.satuan, // Tambahkan ini
+      totalHarga: item.totalHarga,
+    }));
+
+    await OrderItem.bulkCreate(orderItemsData, { transaction });
+
+    // Proses bonus afiliasi jika totalBayar >= 200.000
     if (totalBayar >= 200000) {
-      //hitung bonus untuk user B, user C, dan seterus nya
       let currentUser = user;
-      let bonusLevel = 1; //level dimulau dari 1 (user yang baru daftar)
-      let bonusPercentage = 0; //persentase bonus awal
+      let bonusLevel = 1;
+      const maxBonusBase = 200000;
 
-      //loop untuk menghitung bonus berdasarkan level afiliasi
       while (currentUser && bonusLevel <= 2) {
         const referredId = currentUser.referredBy;
 
         if (referredId) {
-          if (bonusLevel === 1) {
-            bonusPercentage = 0.1; //10% untuk user yang mengundang langsung
-          } else if (bonusLevel === 2) {
-            bonusPercentage = 0.05; //5% untuk user yang mengundang level sebelumnya
-          }
+          const bonusPercentage = bonusLevel === 1 ? 0.1 : 0.05;
+          const bonusAmount = Math.floor(maxBonusBase * bonusPercentage);
 
-          //hitunng bonus
-          const bonusAmount = Math.floor(
-            (totalBayar - ongkir) * bonusPercentage
+          await AfiliasiBonus.create(
+            {
+              userId: referredId,
+              referralUserId: userId,
+              pesananId: pesanan.id,
+              bonusAmount,
+              bonusLevel,
+              expiryDate: moment().add(1, "month").toDate(),
+              bonusReceivedAt: moment().toDate(),
+            },
+            { transaction }
           );
 
-          //catat bonus ke dalam table afiliasi bonus
-          await AfiliasiBonus.create({
-            userId: referredId, // Pengguna yang menerima bonus
-            referralUserId: userId, // Pengguna yang memberikan referral
-            pesananId: pesanan.id,
-            bonusAmount: bonusAmount,
-            bonusLevel: bonusLevel,
-            expiryDate: moment().add(1, "month").toDate(),
-            bonusReceivedAt: moment().toDate(),
-          });
-
-          //melanjutkan ke pengguna yang mengundang pada level berikutnya
           currentUser = await User.findOne({
             where: { id: referredId },
+            transaction,
           });
         } else {
           break;
         }
 
-        bonusLevel++; //menaikan level afiliasi
+        bonusLevel++;
       }
     }
 
+    // Commit transaction jika semua sukses
+    await transaction.commit();
+
     res.status(201).json({
       message: "Pesanan created successfully",
-      data: pesanan,
+      data: {
+        ...pesanan.toJSON(),
+        items: orderItemsData,
+      },
     });
   } catch (error) {
+    // Rollback transaction jika ada error
+    await transaction.rollback();
     res.status(500).json({ message: error.message });
   }
 };
 
 export const buatPesananCODCart = async (req, res) => {
-  const {
-    id,
-    userId,
-    nama,
-    metodePembayaran,
-    hargaRp,
-    ongkir,
-    totalBayar,
-    invoiceNumber,
-  } = req.body;
-
+  const transaction = await db.transaction();
   try {
-    // Cek apakah user dengan id yang diberikan ada
-    const user = await User.findOne({ where: { id: userId } });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const datePart = moment().format("DDMMYYYY");
-    const uniqueId = uuidv4().split("-")[0]; // Ambil bagian pertama UUID untuk membuatnya lebih pendek
-    const orderId = `ORD_${datePart}_${uniqueId}`;
-
-    //pisahkan nama produk
-    const namaProdukArray = nama.split(", ");
-
-    const pesanan = await Pesanan.create({
+    const {
       userId,
-      orderId,
-      nama,
       metodePembayaran,
       hargaRp,
       ongkir,
       totalBayar,
-      paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
-      status: "pending",
       invoiceNumber,
-    });
+      items,
+    } = req.body;
+
+    // Validasi items
+    if (!items || items.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ message: "Items are required" });
+    }
+
+    // Cek apakah user dengan id yang diberikan ada
+    const user = await User.findOne({ where: { id: userId }, transaction });
+    if (!user) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate orderId
+    const uniqueId = uuidv4().replace(/-/g, "").substring(0, 8).toUpperCase();
+    const orderId = `CS${uniqueId}`;
+
+    //pisahkan nama produk
+    // const namaProdukArray = nama.split(", ");
+
+    const pesanan = await Pesanan.create(
+      {
+        userId,
+        orderId,
+        metodePembayaran,
+        hargaRp,
+        ongkir,
+        totalBayar,
+        paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
+        status: "pending",
+        invoiceNumber,
+      },
+      { transaction }
+    );
 
     await Cart.destroy({
       where: {
         userId,
-        productId: id,
+        productId: items.map((item) => item.productId),
         status: "active",
       },
     });
 
-    console.log("Produk id", id);
+    // Buat order items
+    const orderItemsData = items.map((item) => ({
+      pesananId: pesanan.id,
+      productId: item.productId, // Pastikan ini ada di request body
+      namaProduk: item.namaProduk,
+      harga: item.harga,
+      jumlah: item.jumlah,
+      satuan: item.satuan, // Tambahkan ini
+      totalHarga: item.totalHarga,
+    }));
+
+    await OrderItem.bulkCreate(orderItemsData, { transaction });
 
     //cek apakah totalBayar lebih besar atau sama dengan 200.000
     if (totalBayar >= 200000) {
@@ -284,6 +406,7 @@ export const buatPesananCODCart = async (req, res) => {
       let currentUser = user;
       let bonusLevel = 1; //level dimulau dari 1 (user yang baru daftar)
       let bonusPercentage = 0; //persentase bonus awal
+      const maxBonusBase = 200000;
 
       //loop untuk menghitung bonus berdasarkan level afiliasi
       while (currentUser && bonusLevel <= 2) {
@@ -297,24 +420,31 @@ export const buatPesananCODCart = async (req, res) => {
           }
 
           //hitunng bonus
-          const bonusAmount = Math.floor(
-            (totalBayar - ongkir) * bonusPercentage
-          );
+          // const bonusAmount = Math.floor(
+          //   (totalBayar - ongkir) * bonusPercentage
+          // );
+
+          // Hitung bonus dengan batas maksimal 200.000 tanpa mengurangi ongkir
+          const bonusAmount = Math.floor(maxBonusBase * bonusPercentage);
 
           //catat bonus ke dalam table afiliasi bonus
-          await AfiliasiBonus.create({
-            userId: referredId, // Pengguna yang menerima bonus
-            referralUserId: userId, // Pengguna yang memberikan referral
-            pesananId: pesanan.id,
-            bonusAmount: bonusAmount,
-            bonusLevel: bonusLevel,
-            expiryDate: moment().add(1, "month").toDate(),
-            bonusReceivedAt: moment().toDate(),
-          });
+          await AfiliasiBonus.create(
+            {
+              userId: referredId, // Pengguna yang menerima bonus
+              referralUserId: userId, // Pengguna yang memberikan referral
+              pesananId: pesanan.id,
+              bonusAmount: bonusAmount,
+              bonusLevel: bonusLevel,
+              expiryDate: moment().add(1, "month").toDate(),
+              bonusReceivedAt: moment().toDate(),
+            },
+            { transaction }
+          );
 
           //melanjutkan ke pengguna yang mengundang pada level berikutnya
           currentUser = await User.findOne({
             where: { id: referredId },
+            transaction,
           });
         } else {
           break;
@@ -324,36 +454,52 @@ export const buatPesananCODCart = async (req, res) => {
       }
     }
 
+    // Commit transaction jika semua sukses
+    await transaction.commit();
+
     res.status(201).json({
       message: "Pesanan created successfully",
-      data: pesanan,
+      data: {
+        ...pesanan.toJSON(),
+        items: orderItemsData,
+      },
     });
   } catch (error) {
+    await transaction.rollback();
     res.status(500).json({ message: error.message });
   }
 };
 
 export const buatPesananPoin = async (req, res) => {
-  const {
-    userId,
-    nama,
-    metodePembayaran,
-    hargaPoin,
-    ongkir,
-    totalBayar,
-    invoiceNumber,
-  } = req.body;
-
+  const transaction = await db.transaction();
   try {
+    const {
+      userId,
+      metodePembayaran,
+      hargaPoin,
+      ongkir,
+      totalBayar,
+      invoiceNumber,
+      items,
+    } = req.body;
+
+    // Validasi items
+    if (!items || items.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ message: "Items are required" });
+    }
+
     if (totalBayar <= 0) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message: "Total bayar harus lebih dari 0",
       });
     }
 
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({ where: { id: userId }, transaction });
     if (!user) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
         message: "User tidak ditemukan",
@@ -362,6 +508,7 @@ export const buatPesananPoin = async (req, res) => {
 
     const userPoints = await UserPoints.findOne({ where: { userId } });
     if (!userPoints) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
         message: "Data poin pengguna tidak ditemukan",
@@ -369,6 +516,7 @@ export const buatPesananPoin = async (req, res) => {
     }
 
     if (userPoints.points === 0) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message: "Anda tidak memiliki poin untuk melakukan pembayaran ini",
@@ -376,31 +524,47 @@ export const buatPesananPoin = async (req, res) => {
     }
 
     if (userPoints.points < totalBayar) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message: `Poin Anda hanya ${userPoints.points}, tidak cukup untuk membayar ${totalBayar}`,
       });
     }
 
-    const datePart = moment().format("DDMMYYYY");
-    const uniqueId = uuidv4().split("-")[0]; // Ambil bagian pertama UUID untuk membuatnya lebih pendek
-    const orderId = `ORD_${datePart}_${uniqueId}`;
+    // Generate orderId
+    const uniqueId = uuidv4().replace(/-/g, "").substring(0, 8).toUpperCase();
+    const orderId = `CS${uniqueId}`;
 
     userPoints.points -= totalBayar;
     await userPoints.save();
 
-    const pesanan = await Pesanan.create({
-      userId,
-      orderId,
-      nama,
-      metodePembayaran,
-      hargaPoin,
-      ongkir,
-      totalBayar,
-      paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
-      status: "pending",
-      invoiceNumber,
-    });
+    const pesanan = await Pesanan.create(
+      {
+        userId,
+        orderId,
+        metodePembayaran,
+        hargaPoin,
+        ongkir,
+        totalBayar,
+        paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
+        status: "pending",
+        invoiceNumber,
+      },
+      { transaction }
+    );
+
+    // Buat order items
+    const orderItemsData = items.map((item) => ({
+      pesananId: pesanan.id,
+      productId: item.productId, // Pastikan ini ada di request body
+      namaProduk: item.namaProduk,
+      harga: item.harga,
+      jumlah: item.jumlah,
+      satuan: item.satuan, // Tambahkan ini
+      totalHarga: item.totalHarga,
+    }));
+
+    await OrderItem.bulkCreate(orderItemsData, { transaction });
 
     //ambil nilai poin dari table settings
     const setting = await Setting.findOne({ where: { key: "hargaPoin" } });
@@ -416,6 +580,7 @@ export const buatPesananPoin = async (req, res) => {
       let currentUser = user;
       let bonusLevel = 1; //level dimulau dari 1 (user yang baru daftar)
       let bonusPercentage = 0; //persentase bonus awal
+      const maxBonusBase = 200;
 
       //loop untuk menghitung bonus berdasarkan level afiliasi
       while (currentUser && bonusLevel <= 2) {
@@ -429,24 +594,33 @@ export const buatPesananPoin = async (req, res) => {
           }
 
           //hitunng bonus
+          // const bonusAmount = Math.floor(
+          //   (totalBayar - ongkir) * nilaiPoin * bonusPercentage
+          // );
+
+          // Hitung bonus dengan dasar maksimal 200 tanpa mengurangi ongkir
           const bonusAmount = Math.floor(
-            (totalBayar - ongkir) * nilaiPoin * bonusPercentage
+            maxBonusBase * nilaiPoin * bonusPercentage
           );
 
           //catat bonus ke dalam table afiliasi bonus
-          await AfiliasiBonus.create({
-            userId: referredId, // Pengguna yang menerima bonus
-            referralUserId: userId, // Pengguna yang memberikan referral
-            pesananId: pesanan.id,
-            bonusAmount: bonusAmount,
-            bonusLevel: bonusLevel,
-            expiryDate: moment().add(1, "month").toDate(),
-            bonusReceivedAt: moment().toDate(),
-          });
+          await AfiliasiBonus.create(
+            {
+              userId: referredId, // Pengguna yang menerima bonus
+              referralUserId: userId, // Pengguna yang memberikan referral
+              pesananId: pesanan.id,
+              bonusAmount: bonusAmount,
+              bonusLevel: bonusLevel,
+              expiryDate: moment().add(1, "month").toDate(),
+              bonusReceivedAt: moment().toDate(),
+            },
+            { transaction }
+          );
 
           //melanjutkan ke pengguna yang mengundang pada level berikutnya
           currentUser = await User.findOne({
             where: { id: referredId },
+            transaction,
           });
         } else {
           break;
@@ -456,12 +630,19 @@ export const buatPesananPoin = async (req, res) => {
       }
     }
 
+    // Commit transaction jika semua sukses
+    await transaction.commit();
+
     res.status(201).json({
       success: true,
       message: "Pesanan berhasil dibuat",
-      data: pesanan,
+      data: {
+        ...pesanan.toJSON(),
+        items: orderItemsData,
+      },
     });
   } catch (error) {
+    await transaction.rollback();
     res.status(500).json({
       success: false,
       message: `Terjadi kesalahan: ${error.message}`,
@@ -470,20 +651,26 @@ export const buatPesananPoin = async (req, res) => {
 };
 
 export const buatPesananPoinCart = async (req, res) => {
-  const {
-    id,
-    userId,
-    nama,
-    metodePembayaran,
-    hargaPoin,
-    ongkir,
-    totalBayar,
-    invoiceNumber,
-  } = req.body;
-  console.log(req.body);
-
+  const transaction = await db.transaction();
   try {
+    const {
+      userId,
+      metodePembayaran,
+      hargaPoin,
+      ongkir,
+      totalBayar,
+      invoiceNumber,
+      items,
+    } = req.body;
+
+    // Validasi items
+    if (!items || items.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ message: "Items are required" });
+    }
+
     if (totalBayar <= 0) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message: "Total bayar harus lebih dari 0",
@@ -491,13 +678,15 @@ export const buatPesananPoinCart = async (req, res) => {
     }
 
     // Cek apakah user dengan id yang diberikan ada
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({ where: { id: userId }, transaction });
     if (!user) {
+      await transaction.rollback();
       return res.status(404).json({ message: "User not found" });
     }
 
     const userPoints = await UserPoints.findOne({ where: { userId } });
     if (!userPoints) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
         message: "Data poin pengguna tidak ditemukan",
@@ -505,6 +694,7 @@ export const buatPesananPoinCart = async (req, res) => {
     }
 
     if (userPoints.points === 0) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message: "Anda tidak memiliki poin untuk melakukan pembayaran ini",
@@ -512,15 +702,16 @@ export const buatPesananPoinCart = async (req, res) => {
     }
 
     if (userPoints.points < totalBayar) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
-        message: `Poin Anda hanyaaaaaa ${userPoints.points}, tidak cukup untuk membayar ${totalBayar}`,
+        message: `Poin Anda hanya ${userPoints.points}, tidak cukup untuk membayar ${totalBayar}`,
       });
     }
 
-    const datePart = moment().format("DDMMYYYY");
-    const uniqueId = uuidv4().split("-")[0]; // Ambil bagian pertama UUID untuk membuatnya lebih pendek
-    const orderId = `ORD_${datePart}_${uniqueId}`;
+    // Generate orderId
+    const uniqueId = uuidv4().replace(/-/g, "").substring(0, 8).toUpperCase();
+    const orderId = `CS${uniqueId}`;
 
     userPoints.points -= totalBayar;
     await userPoints.save();
@@ -528,28 +719,38 @@ export const buatPesananPoinCart = async (req, res) => {
     await Cart.destroy({
       where: {
         userId,
-        productId: id,
+        productId: items.map((item) => item.productId),
         status: "active",
       },
     });
 
-    console.log("Produk id", id);
+    const pesanan = await Pesanan.create(
+      {
+        userId,
+        orderId,
+        metodePembayaran,
+        hargaPoin,
+        ongkir,
+        totalBayar,
+        paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
+        status: "pending",
+        invoiceNumber,
+      },
+      { transaction }
+    );
 
-    //pisahkan nama produk
-    const namaProdukArray = nama.split(", ");
+    // Buat order items
+    const orderItemsData = items.map((item) => ({
+      pesananId: pesanan.id,
+      productId: item.productId, // Pastikan ini ada di request body
+      namaProduk: item.namaProduk,
+      harga: item.harga,
+      jumlah: item.jumlah,
+      satuan: item.satuan, // Tambahkan ini
+      totalHarga: item.totalHarga,
+    }));
 
-    const pesanan = await Pesanan.create({
-      userId,
-      orderId,
-      nama,
-      metodePembayaran,
-      hargaPoin,
-      ongkir,
-      totalBayar,
-      paymentStatus: metodePembayaran === "COD" ? "unpaid" : "paid",
-      status: "pending",
-      invoiceNumber,
-    });
+    await OrderItem.bulkCreate(orderItemsData, { transaction });
 
     //ambil nilai poin dari table settings
     const setting = await Setting.findOne({ where: { key: "hargaPoin" } });
@@ -565,6 +766,7 @@ export const buatPesananPoinCart = async (req, res) => {
       let currentUser = user;
       let bonusLevel = 1; //level dimulau dari 1 (user yang baru daftar)
       let bonusPercentage = 0; //persentase bonus awal
+      const maxBonusBase = 200;
 
       //loop untuk menghitung bonus berdasarkan level afiliasi
       while (currentUser && bonusLevel <= 2) {
@@ -578,25 +780,33 @@ export const buatPesananPoinCart = async (req, res) => {
           }
 
           //hitunng bonus
+          // const bonusAmount = Math.floor(
+          //   (totalBayar - ongkir) * nilaiPoin * bonusPercentage
+          // );
+
+          // Hitung bonus dengan dasar maksimal 200 tanpa mengurangi ongkir
           const bonusAmount = Math.floor(
-            (totalBayar - ongkir) * nilaiPoin * bonusPercentage
+            maxBonusBase * nilaiPoin * bonusPercentage
           );
-          console.log(bonusAmount);
 
           //catat bonus ke dalam table afiliasi bonus
-          await AfiliasiBonus.create({
-            userId: referredId, // Pengguna yang menerima bonus
-            referralUserId: userId, // Pengguna yang memberikan referral
-            pesananId: pesanan.id,
-            bonusAmount: bonusAmount,
-            bonusLevel: bonusLevel,
-            expiryDate: moment().add(1, "month").toDate(),
-            bonusReceivedAt: moment().toDate(),
-          });
+          await AfiliasiBonus.create(
+            {
+              userId: referredId, // Pengguna yang menerima bonus
+              referralUserId: userId, // Pengguna yang memberikan referral
+              pesananId: pesanan.id,
+              bonusAmount: bonusAmount,
+              bonusLevel: bonusLevel,
+              expiryDate: moment().add(1, "month").toDate(),
+              bonusReceivedAt: moment().toDate(),
+            },
+            { transaction }
+          );
 
           //melanjutkan ke pengguna yang mengundang pada level berikutnya
           currentUser = await User.findOne({
             where: { id: referredId },
+            transaction,
           });
         } else {
           break;
@@ -606,11 +816,18 @@ export const buatPesananPoinCart = async (req, res) => {
       }
     }
 
+    // Commit transaction jika semua sukses
+    await transaction.commit();
+
     res.status(201).json({
       message: "Pesanan created successfully",
-      data: pesanan,
+      data: {
+        ...pesanan.toJSON(),
+        items: orderItemsData,
+      },
     });
   } catch (error) {
+    await transaction.rollback();
     res.status(500).json({ message: error.message });
   }
 };

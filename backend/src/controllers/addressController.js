@@ -1,9 +1,12 @@
 import Address from "../models/address.js";
 import City from "../models/city.js";
 import ShippingRate from "../models/shipping_rates.js";
+import db from "../config/database.js";
 
 //tambah alamat baru
+
 export const createAddress = async (req, res) => {
+  const transaction = await db.transaction();
   try {
     const {
       user_id,
@@ -16,41 +19,67 @@ export const createAddress = async (req, res) => {
       isDefault,
     } = req.body;
 
-    // Jika isDefault true, periksa apakah sudah ada alamat dengan is_default: true
-    if (isDefault) {
-      // Update alamat lama menjadi is_default: false
+    // Cek apakah user sudah memiliki alamat default
+    const existingDefaultAddress = await Address.findOne({
+      where: {
+        user_id,
+        is_default: true,
+      },
+      transaction,
+    });
+
+    let finalIsDefault = isDefault; // Nilai default dari request
+
+    // Jika tidak ada alamat default yang sudah ada, atur alamat pertama sebagai default
+    if (!existingDefaultAddress) {
+      finalIsDefault = true;
+    }
+
+    // Jika isDefault true, update alamat lama menjadi is_default: false
+    if (finalIsDefault) {
       await Address.update(
         { is_default: false },
         {
           where: {
             user_id,
-            is_default: true, // Pastikan yang diupdate adalah yang sebelumnya default
+            is_default: true,
           },
+          transaction,
         }
       );
     }
 
-    // Buat alamat baru dengan is_default sesuai pilihan
-    const newAddress = await Address.create({
-      user_id,
-      recipient_name,
-      phone_number,
-      address_line_1,
-      city,
-      state,
-      postal_code,
-      is_default: isDefault,
-    });
+    // Buat alamat baru dengan is_default sesuai aturan yang telah ditentukan
+    const newAddress = await Address.create(
+      {
+        user_id,
+        recipient_name,
+        phone_number,
+        address_line_1,
+        city,
+        state,
+        postal_code,
+        is_default: finalIsDefault,
+      },
+      { transaction }
+    );
 
-    res
-      .status(201)
-      .json({ message: "Address created successfully", data: newAddress });
+    await transaction.commit(); // Simpan perubahan
+
+    res.status(201).json({
+      message: "Address created successfully",
+      data: newAddress,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating address", error: error.message });
+    await transaction.rollback(); // Batalkan perubahan jika ada error
+    res.status(500).json({
+      message: "Error creating address",
+      error: error.message,
+    });
   }
 };
+
+
 
 // Edit alamat berdasarkan ID
 export const updateAddress = async (req, res) => {

@@ -1,7 +1,8 @@
 import Products from "../models/product.js";
 import Setting from "../models/setting.js";
-import { Op } from "sequelize";
-
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs';
 
 export const getProducts = async (req, res) => {
   try {
@@ -31,10 +32,10 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { nameProduk, deskripsi, hargaPoin, jumlah, satuan } = req.body;
+    const { nameProduk, deskripsi, kategori, hargaPoin, jumlah, satuan } = req.body;
 
     //validasi input
-    if (!nameProduk || !deskripsi || !hargaPoin || !jumlah || !satuan || isNaN(hargaPoin)) {
+    if (!nameProduk || !deskripsi || !kategori || !hargaPoin || !jumlah || !satuan || isNaN(hargaPoin)) {
       return res.status(400).json({ message: "Invalid input" });
     }
 
@@ -56,6 +57,7 @@ export const createProduct = async (req, res) => {
     const product = await Products.create({
       nameProduk,
       deskripsi,
+      kategori,
       hargaPoin,
       hargaRp,
       jumlah,
@@ -72,7 +74,7 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nameProduk, deskripsi, hargaPoin, jumlah, satuan } = req.body;
+    const { nameProduk, deskripsi, kategori, hargaPoin, jumlah, satuan } = req.body;
 
     // Ambil produk berdasarkan ID
     const product = await Products.findByPk(id);
@@ -81,7 +83,7 @@ export const updateProduct = async (req, res) => {
     }
 
     // Validasi hanya field yang ada di request body
-    if (nameProduk || deskripsi || hargaPoin || jumlah || satuan) {
+    if (nameProduk || deskripsi || kategori || hargaPoin || jumlah || satuan) {
       // Jika ada nama produk
       if (nameProduk && (!nameProduk || nameProduk.length < 3 || nameProduk.length > 100)) {
         return res.status(400).json({ message: "nameProduk must be between 3 and 100 characters" });
@@ -90,6 +92,11 @@ export const updateProduct = async (req, res) => {
       // Jika ada deskripsi
       if (deskripsi && !deskripsi.trim()) {
         return res.status(400).json({ message: "Deskripsi is required" });
+      }
+
+      // Jika ada kategori
+      if (kategori && !kategori.trim()) {
+        return res.status(400).json({ message: "Kategori is required" });
       }
 
       // Jika ada hargaPoin dan harus valid angka
@@ -125,6 +132,7 @@ export const updateProduct = async (req, res) => {
     // Update hanya properti yang disertakan dalam request
     product.nameProduk = nameProduk || product.nameProduk;
     product.deskripsi = deskripsi || product.deskripsi;
+    product.kategori = kategori || product.kategori;
     product.hargaPoin = hargaPoin || product.hargaPoin;
     product.hargaRp = hargaRp;
     product.jumlah = jumlah || product.jumlah;
@@ -140,6 +148,8 @@ export const updateProduct = async (req, res) => {
   }
 };
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const deleteProduct = async (req, res) => {
   try {
@@ -151,10 +161,29 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Hapus file gambar jika ada
+    if (product.image) {
+      const imagePath = path.join(__dirname, '../../uploads', product.image);
+      
+      // Cek apakah file ada sebelum menghapusnya
+      fs.access(imagePath, fs.constants.F_OK, (err) => {
+        if (!err) {
+          fs.unlink(imagePath, (unlinkErr) => {
+            if (unlinkErr) {
+              console.error("Error deleting image:", unlinkErr);
+            }
+          });
+        }
+      });
+    }
+
+    // Hapus produk dari database
     await product.destroy();
 
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error in deleteProduct:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+

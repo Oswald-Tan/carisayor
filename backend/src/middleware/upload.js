@@ -23,13 +23,13 @@ const storage = multer.diskStorage({
   },
 });
 
-// Validasi file hanya untuk gambar dengan ekstensi png, jpg, atau jpeg
+// Validasi file hanya untuk gambar dengan ekstensi png, jpg, jpeg, atau webp
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+  const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Only .png, .jpg, and .jpeg formats are allowed!'), false);
+    cb(new Error('Only .png, .jpg, .jpeg, and .webp formats are allowed!'), false);
   }
 };
 
